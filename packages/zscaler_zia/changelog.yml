@@ -1,4 +1,12 @@
 # newer versions go on top
+- version: "2.1.1"
+  changes:
+    - description: Fix issue related URL parsing.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1
+    - description: Added support for configuring secret header and secret value in Cloud NSS input.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/2
 - version: "2.1.0"
   changes:
     - description: Make GA
