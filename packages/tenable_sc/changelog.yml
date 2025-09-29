@@ -1,6 +1,9 @@
 # newer versions go on top
 - version: "1.31.0"
   changes:
+    - description: Automated integration improvements and fixes
+      type: enhancement
+      link: https://github.com/vinit-chauhan/buildkite-test/issues/5
     - description: Enable Agentless deployment.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/15364
