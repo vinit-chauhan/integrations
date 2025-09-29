@@ -1,6 +1,9 @@
 # newer versions go on top
 - version: "1.23.0"
   changes:
+    - description: Automated integration improvements and fixes
+      type: enhancement
+      link: https://github.com/vinit-chauhan/buildkite-test/issues/6
     - description: Improve webhook setup instructions.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/14434
