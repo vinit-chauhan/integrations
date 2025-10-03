@@ -2302,4 +2302,5 @@ An example event for `transaction` looks as following:
         "email": "john.doe@gmail.com"
     }
 }
-```
+```## Dummy Section
+This is a dummy section added for testing purposes.
