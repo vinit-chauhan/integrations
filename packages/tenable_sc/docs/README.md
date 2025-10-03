@@ -719,3 +719,5 @@ An example event for `vulnerability` looks as following:
 | tenable_sc.vulnerability.vpr.score | The Vulnerability Priority Rating (VPR) score for the vulnerability. | double |
 | tenable_sc.vulnerability.vuln_pub_date | The date on which the vulnerability was published. | date |
 | tenable_sc.vulnerability.xref | References to third-party information about the vulnerability, exploit, or update associated with the plugin. | keyword |
+## Dummy Section
+This is a dummy section added for testing purposes.
