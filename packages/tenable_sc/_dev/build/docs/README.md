@@ -48,4 +48,5 @@ This is the `vulnerability` dataset.
 
 {{event "vulnerability"}}
 
-{{fields "vulnerability"}}
+{{fields "vulnerability"}}## Dummy Section
+This is a dummy section added for testing purposes.
