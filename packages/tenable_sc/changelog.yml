@@ -3,7 +3,7 @@
   changes:
     - description: Automated update via elastic-package tools
       type: enhancement
-      link: https://github.com/elastic/integrations/pull/1
+      link: https://github.com/vinit-chauhan/integrations/pull/59
     - description: Enable Agentless deployment.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/15364
