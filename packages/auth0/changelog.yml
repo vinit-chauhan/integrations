@@ -1,6 +1,9 @@
 # newer versions go on top
 - version: "1.23.0"
   changes:
+    - description: Automated update via elastic-package tools
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1
     - description: Improve webhook setup instructions.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/14434
