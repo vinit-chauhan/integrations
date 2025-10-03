@@ -1,6 +1,11 @@
 # newer versions go on top
+- version: "2.8.0"
+  changes:
 - version: "2.7.0"
   changes:
+    - description: '[bulk][dummy_task] Update cisco_duo integration'
+      type: enhancement
+      link: https://github.com/vinit-chauhan/integrations/pull/64
     - description: Enable Agentless deployment.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/15140
