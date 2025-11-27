@@ -71,3 +71,6 @@ The Auth0 logs dataset provides events from Auth0 log stream. All Auth0 log even
 {{fields "logs"}}
 
 {{event "logs"}}
+
+## Dummy Section
+This is a dummy section added for testing purposes.

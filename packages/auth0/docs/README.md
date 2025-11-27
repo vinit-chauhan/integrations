@@ -235,3 +235,6 @@ An example event for `logs` looks as following:
     }
 }
 ```
+
+## Dummy Section
+This is a dummy section added for testing purposes.
