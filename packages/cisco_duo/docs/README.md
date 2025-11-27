@@ -1067,3 +1067,6 @@ An example event for `trust_monitor` looks as following:
 | input.type | Input type | keyword |
 | log.offset | Log offset | long |
 
+
+## Dummy Section
+This is a dummy section added for testing purposes.

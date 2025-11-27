@@ -116,3 +116,6 @@ This is the `trust_monitor` dataset.
 {{event "trust_monitor"}}
 
 {{fields "trust_monitor"}}
+
+## Dummy Section
+This is a dummy section added for testing purposes.
