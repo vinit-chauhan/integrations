@@ -1537,3 +1537,5 @@ An example event for `transaction` looks as following:
     }
 }
 ```
+## Dummy Section
+This is a dummy section added for testing purposes.

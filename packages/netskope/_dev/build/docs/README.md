@@ -189,3 +189,5 @@ Default port: _9021_
 {{fields "transaction"}}
 
 {{event "transaction"}}
+## Dummy Section
+This is a dummy section added for testing purposes.
