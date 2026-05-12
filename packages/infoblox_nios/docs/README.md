@@ -295,6 +295,7 @@ An example event for `log` looks as following:
 | infoblox_nios.log.dns.rpz.query_class_rewrite |  | keyword |
 | infoblox_nios.log.dns.rpz.rule_type |  | keyword |
 | infoblox_nios.log.dns.rpz.type |  | keyword |
+| infoblox_nios.log.dns.source.prefix | EDNS Client Subnet option value as logged by NIOS (e.g. 85.2.163.0/24/0). Contains the client subnet address with source-prefix-length and scope-prefix-length. | keyword |
 | infoblox_nios.log.dns.version |  | text |
 | infoblox_nios.log.dns.view_name |  | text |
 | infoblox_nios.log.service_name |  | keyword |

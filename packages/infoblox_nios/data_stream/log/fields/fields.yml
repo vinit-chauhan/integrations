@@ -139,6 +139,13 @@
           type: text
         - name: header_flags
           type: keyword
+        - name: source
+          type: group
+          fields:
+            - name: prefix
+              type: keyword
+              description: >-
+                EDNS Client Subnet option value as logged by NIOS (e.g. 85.2.163.0/24/0). Contains the client subnet address with source-prefix-length and scope-prefix-length.
         - name: rpz
           type: group
           fields:
