@@ -1,0 +1,47 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2023-10-28T20:50:15.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issues.new",
+                "category": [
+                    "configuration"
+                ],
+                "id": "01HDW0TFR12Q0DJFVY7Y0DBQ0N",
+                "kind": "event",
+                "type": [
+                    "creation"
+                ]
+            },
+            "host": {
+                "hostname": "host-alpha",
+                "id": "1",
+                "name": "host-alpha"
+            },
+            "kolide": {
+                "issues": {
+                    "check": {
+                        "id": "71",
+                        "tags": []
+                    },
+                    "id": "2"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "host-alpha"
+                ]
+            },
+            "rule": {
+                "id": "71",
+                "name": "macOS Firewall - Require macOS Firewall is Enabled"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

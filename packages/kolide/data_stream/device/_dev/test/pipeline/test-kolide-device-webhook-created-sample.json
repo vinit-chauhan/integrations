@@ -1,0 +1,13 @@
+{
+    "events": [
+        {
+            "event": "devices.created",
+            "id": "01HDVY8MA3CQ48HJ356FP8M2P6",
+            "timestamp": "2023-10-28T20:05:33Z",
+            "data": {
+                "device_id": 1,
+                "device_name": "host-alpha"
+            }
+        }
+    ]
+}

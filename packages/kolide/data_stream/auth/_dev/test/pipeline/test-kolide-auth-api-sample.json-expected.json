@@ -1,0 +1,104 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2024-03-11T21:28:17.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "auth_log",
+                "category": [
+                    "authentication",
+                    "session"
+                ],
+                "id": "3374648",
+                "kind": "event",
+                "original": "{\"id\":\"3374648\",\"timestamp\":\"2024-03-11T21:28:17Z\",\"person_name\":\"Alice Johnson\",\"person_email\":\"user@example.com\",\"person_info\":{\"identifier\":\"3\",\"location\":\"https://api.kolide.com/people/3\"},\"device_info\":{\"identifier\":\"1\",\"location\":\"https://api.kolide.com/devices/1\"},\"result\":\"Success\",\"initial_status\":\"all_good\",\"ip_address\":\"81.2.69.142\",\"agent_version\":\"1.4.0\",\"country\":\"United States\",\"city\":\"New York\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"okta_app_instance_id\":\"0oa1example2instance3\",\"okta_app_name\":\"Example Corp SSO\",\"issues_displayed\":[{\"title\":\"macOS Firewall is Disabled\",\"blocking_status\":\"will_block\",\"id\":\"9999\",\"link\":\"https://api.kolide.com/issues/9999\"}],\"events\":[{\"timestamp\":\"2024-03-11T21:28:17Z\",\"event_type\":\"sign_in_attempt\",\"event_description\":\"The end-user was redirected to Kolide via a valid SAML request\"},{\"timestamp\":\"2024-03-11T21:28:19Z\",\"event_type\":\"sign_in_success\",\"event_description\":\"The end-user clicked Continue to Sign In\"}]}",
+                "outcome": "success",
+                "type": [
+                    "start",
+                    "info"
+                ]
+            },
+            "host": {
+                "id": "1"
+            },
+            "kolide": {
+                "auth": {
+                    "agent_version": "1.4.0",
+                    "events": [
+                        {
+                            "event_description": "The end-user was redirected to Kolide via a valid SAML request",
+                            "event_type": "sign_in_attempt",
+                            "timestamp": "2024-03-11T21:28:17Z"
+                        },
+                        {
+                            "event_description": "The end-user clicked Continue to Sign In",
+                            "event_type": "sign_in_success",
+                            "timestamp": "2024-03-11T21:28:19Z"
+                        }
+                    ],
+                    "initial_status": "all_good",
+                    "issues_displayed": [
+                        {
+                            "blocking_status": "will_block",
+                            "id": "9999",
+                            "link": "https://api.kolide.com/issues/9999",
+                            "title": "macOS Firewall is Disabled"
+                        }
+                    ],
+                    "okta": {
+                        "app_instance_id": "0oa1example2instance3",
+                        "app_name": "Example Corp SSO"
+                    },
+                    "result": "Success"
+                }
+            },
+            "related": {
+                "ip": [
+                    "81.2.69.142"
+                ],
+                "user": [
+                    "Alice Johnson",
+                    "user@example.com"
+                ]
+            },
+            "source": {
+                "geo": {
+                    "city_name": "London",
+                    "continent_name": "Europe",
+                    "country_iso_code": "GB",
+                    "country_name": "United Kingdom",
+                    "location": {
+                        "lat": 51.5142,
+                        "lon": -0.0931
+                    },
+                    "region_iso_code": "GB-ENG",
+                    "region_name": "England"
+                },
+                "ip": "81.2.69.142"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "email": "user@example.com",
+                "id": "3",
+                "name": "Alice Johnson"
+            },
+            "user_agent": {
+                "device": {
+                    "name": "Mac"
+                },
+                "name": "Chrome",
+                "original": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36",
+                "os": {
+                    "full": "Mac OS X 10.15.7",
+                    "name": "Mac OS X",
+                    "version": "10.15.7"
+                },
+                "version": "122.0.0.0"
+            }
+        }
+    ]
+}

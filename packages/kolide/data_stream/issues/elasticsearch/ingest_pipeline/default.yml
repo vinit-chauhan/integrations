@@ -1,0 +1,337 @@
+---
+description: Pipeline for processing Kolide issue events from the REST API (CEL) and webhooks.
+processors:
+  - set:
+      field: ecs.version
+      tag: set_ecs_version
+      value: '9.3.0'
+
+  # --- CEL input only ---
+  - remove:
+      field:
+        - organization
+        - division
+        - team
+      ignore_missing: true
+      if: ctx.organization instanceof String && ctx.division instanceof String && ctx.team instanceof String
+      tag: remove_agentless_tags
+      description: >-
+        Removes the fields added by Agentless as metadata,
+        as they can collide with ECS fields.
+  - terminate:
+      tag: data_collection_error
+      if: ctx.error?.message != null && ctx.message == null && ctx.event?.original == null
+      description: error message set and no data to process.
+  # --- end CEL-only ---
+
+  # Webhook path: the body is delivered at the document root, where the `event`
+  # key is a string that would collide with the ECS `event` object. Capture the
+  # raw body into event.original and move the envelope into the working `json`
+  # object so both inputs converge on the same shape.
+  - rename:
+      field: event
+      tag: rename_webhook_event_envelope
+      target_field: json.event
+      ignore_missing: true
+      if: ctx.event instanceof String
+      description: Move the webhook envelope `event` (a string) out of the way of the ECS `event` object.
+  - script:
+      lang: painless
+      tag: move_webhook_envelope_to_json
+      if: ctx.json?.event != null && ctx.data != null
+      description: Move the remaining webhook envelope fields into the working json object. event.original is set by the input when preserve_original_event is enabled.
+      source: |-
+        if (ctx.containsKey('id')) { ctx.json.id = ctx.remove('id'); }
+        if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
+        if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
+
+  # --- CEL / JSE00001 path: message holds the raw JSON of one issue object ---
+  - rename:
+      field: message
+      tag: rename_message_to_event_original
+      target_field: event.original
+      ignore_missing: true
+      description: Renames the original `message` field to `event.original` to store a copy of the original message. The `event.original` field is not touched if the document already has one; it may happen when Logstash sends the document.
+      if: ctx.event?.original == null
+  - remove:
+      field: message
+      tag: remove_message
+      ignore_missing: true
+      description: The `message` field is no longer required if the document has an `event.original` field.
+      if: ctx.event?.original != null
+  - json:
+      field: event.original
+      target_field: json
+      tag: parse_json_cel
+      if: ctx.json == null && ctx.event?.original != null
+      description: Decode the CEL message (a JSON string of one issue object) into the working json object.
+
+  # --- Common normalization (json now holds either the API object or the webhook envelope) ---
+  # @timestamp: webhook envelope timestamp, or API detected_at.
+  - date:
+      field: json.timestamp
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_webhook
+      if: ctx.json?.timestamp != null
+  - date:
+      field: json.detected_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_api
+      if: ctx.json?.timestamp == null && ctx.json?.detected_at != null
+
+  - set:
+      field: event.kind
+      tag: set_event_kind
+      value: event
+  - append:
+      field: event.category
+      tag: append_event_category
+      value:
+        - configuration
+
+  # event.type: issues.new -> [creation]; issues.resolved -> [change, end];
+  # API derives from resolved_at (null -> [creation]; set -> [change, end]).
+  - append:
+      field: event.type
+      tag: append_event_type_creation_webhook
+      value:
+        - creation
+      if: ctx.json?.event == 'issues.new'
+  - append:
+      field: event.type
+      tag: append_event_type_resolved_webhook
+      value:
+        - change
+      if: ctx.json?.event == 'issues.resolved'
+  - append:
+      field: event.type
+      tag: append_event_type_open_api
+      value:
+        - creation
+      if: ctx.json?.event == null && ctx.json?.resolved_at == null
+  - append:
+      field: event.type
+      tag: append_event_type_resolved_api
+      value:
+        - change
+      if: ctx.json?.event == null && ctx.json?.resolved_at != null
+
+  # event.action: webhook event value, or `issue` for the API path.
+  - rename:
+      field: json.event
+      target_field: event.action
+      tag: rename_event_action_webhook
+      ignore_missing: true
+  - set:
+      field: event.action
+      tag: set_event_action_api
+      value: issue
+      if: ctx.event?.action == null
+
+  # event.id: webhook envelope ULID (json.id) / API issue id (json.id).
+  - rename:
+      field: json.id
+      target_field: event.id
+      tag: rename_event_id
+      ignore_missing: true
+
+  # event.start / event.end from API timestamps.
+  - date:
+      field: json.detected_at
+      target_field: event.start
+      formats:
+        - ISO8601
+      tag: date_event_start
+      if: ctx.json?.detected_at != null
+  - date:
+      field: json.resolved_at
+      target_field: event.end
+      formats:
+        - ISO8601
+      tag: date_event_end
+      if: ctx.json?.resolved_at != null
+
+  # --- Host (device) ---
+  - rename:
+      field: json.data.device.name
+      target_field: host.name
+      tag: rename_host_name_webhook
+      ignore_missing: true
+  - rename:
+      field: json.device_information.identifier
+      target_field: host.name
+      tag: rename_host_name_api
+      ignore_missing: true
+      if: ctx.host?.name == null
+  - convert:
+      field: json.data.device.id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_webhook
+      ignore_missing: true
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
+
+  # --- Rule (check) ---
+  - rename:
+      field: json.data.check.name
+      target_field: rule.name
+      tag: rename_rule_name_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.check.id
+      target_field: rule.id
+      type: string
+      tag: convert_rule_id_webhook
+      ignore_missing: true
+  - rename:
+      field: json.check_information.identifier
+      target_field: rule.id
+      tag: rename_rule_id_api
+      ignore_missing: true
+      if: ctx.rule?.id == null
+
+  # --- message / title ---
+  - rename:
+      field: json.data.title
+      target_field: kolide.issues.title
+      tag: rename_title_webhook
+      ignore_missing: true
+      if: ctx.json?.data?.title instanceof String
+  - rename:
+      field: json.title
+      target_field: kolide.issues.title
+      tag: rename_title_api
+      ignore_missing: true
+      if: ctx.kolide?.issues?.title == null && ctx.json?.title instanceof String
+  - set:
+      field: message
+      tag: set_message_from_title
+      copy_from: kolide.issues.title
+      if: ctx.kolide?.issues?.title != null
+
+  # --- Kolide custom fields ---
+  - convert:
+      field: json.data.issue_id
+      target_field: kolide.issues.id
+      type: string
+      tag: convert_issue_id_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.check_id
+      target_field: kolide.issues.check.id
+      type: string
+      tag: convert_check_id_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.check.tags
+      target_field: kolide.issues.check.tags
+      tag: rename_check_tags_webhook
+      ignore_missing: true
+  - rename:
+      field: json.issue_key
+      target_field: kolide.issues.issue_key
+      tag: rename_issue_key
+      ignore_missing: true
+  - rename:
+      field: json.issue_value
+      target_field: kolide.issues.issue_value
+      tag: rename_issue_value
+      ignore_missing: true
+  - rename:
+      field: json.value
+      target_field: kolide.issues.value
+      tag: rename_value
+      ignore_missing: true
+  - set:
+      field: kolide.issues.exempted
+      copy_from: json.exempted
+      tag: set_exempted
+      if: ctx.json?.exempted != null
+  - remove:
+      field: json.exempted
+      tag: remove_exempted
+      ignore_missing: true
+  - rename:
+      field: json.device_information.location
+      target_field: kolide.issues.device_information.location
+      tag: rename_device_location_api
+      ignore_missing: true
+  - rename:
+      field: json.check_information.location
+      target_field: kolide.issues.check_information.location
+      tag: rename_check_location_api
+      ignore_missing: true
+  - date:
+      field: json.detected_at
+      target_field: kolide.issues.detected_at
+      formats:
+        - ISO8601
+      tag: date_detected_at
+      if: ctx.json?.detected_at != null
+  - date:
+      field: json.resolved_at
+      target_field: kolide.issues.resolved_at
+      formats:
+        - ISO8601
+      tag: date_resolved_at
+      if: ctx.json?.resolved_at != null
+  - date:
+      field: json.blocks_device_at
+      target_field: kolide.issues.blocks_device_at
+      formats:
+        - ISO8601
+      tag: date_blocks_device_at
+      if: ctx.json?.blocks_device_at != null
+  - date:
+      field: json.last_rechecked_at
+      target_field: kolide.issues.last_rechecked_at
+      formats:
+        - ISO8601
+      tag: date_last_rechecked_at
+      if: ctx.json?.last_rechecked_at != null
+
+  # --- related.* enrichment ---
+  - append:
+      field: related.hosts
+      tag: append_related_hosts
+      value: '{{{host.name}}}'
+      allow_duplicates: false
+      if: ctx.host?.name != null
+
+  # --- Cleanup ---
+  - remove:
+      field:
+        - json
+        - data
+      tag: remove_temp_fields
+      ignore_missing: true
+  - append:
+      field: tags
+      tag: append_preserve_original_event
+      value: preserve_original_event
+      allow_duplicates: false
+      if: ctx.error?.message != null
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

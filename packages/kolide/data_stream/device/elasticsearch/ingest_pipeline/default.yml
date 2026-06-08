@@ -1,0 +1,420 @@
+---
+description: Pipeline for processing Kolide device records from the REST API (CEL) and device webhooks.
+processors:
+  - set:
+      field: ecs.version
+      tag: set_ecs_version
+      value: '9.3.0'
+
+  # --- CEL input only ---
+  - remove:
+      field:
+        - organization
+        - division
+        - team
+      ignore_missing: true
+      if: ctx.organization instanceof String && ctx.division instanceof String && ctx.team instanceof String
+      tag: remove_agentless_tags
+      description: >-
+        Removes the fields added by Agentless as metadata,
+        as they can collide with ECS fields.
+  - terminate:
+      tag: data_collection_error
+      if: ctx.error?.message != null && ctx.message == null && ctx.event?.original == null
+      description: error message set and no data to process.
+  # --- end CEL-only ---
+
+  # Webhook path: the body is delivered at the document root, where the `event`
+  # key is a string that would collide with the ECS `event` object. Capture the
+  # raw envelope into the working `json` object so both inputs converge on the
+  # same shape.
+  - rename:
+      field: event
+      tag: rename_webhook_event_envelope
+      target_field: json.event
+      ignore_missing: true
+      if: ctx.event instanceof String
+      description: Move the webhook envelope `event` (a string) out of the way of the ECS `event` object.
+  - script:
+      lang: painless
+      tag: move_webhook_envelope_to_json
+      if: ctx.json?.event != null && ctx.data != null
+      description: Move the remaining webhook envelope fields into the working json object. event.original is set by the input when preserve_original_event is enabled.
+      source: |-
+        if (ctx.containsKey('id')) { ctx.json.id = ctx.remove('id'); }
+        if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
+        if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
+
+  # --- CEL / JSE00001 path: message holds the raw JSON of one device object ---
+  - rename:
+      field: message
+      tag: rename_message_to_event_original
+      target_field: event.original
+      ignore_missing: true
+      description: Renames the original `message` field to `event.original` to store a copy of the original message. The `event.original` field is not touched if the document already has one; it may happen when Logstash sends the document.
+      if: ctx.event?.original == null
+  - remove:
+      field: message
+      tag: remove_message
+      ignore_missing: true
+      description: The `message` field is no longer required if the document has an `event.original` field.
+      if: ctx.event?.original != null
+  - json:
+      field: event.original
+      target_field: json
+      tag: parse_json_cel
+      if: ctx.json == null && ctx.event?.original != null
+      description: Decode the CEL message (a JSON string of one device object) into the working json object.
+
+  # --- @timestamp: webhook envelope timestamp, or API last_authenticated_at
+  #     (fallback last_seen_at, then registered_at). ---
+  - date:
+      field: json.timestamp
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_webhook
+      if: ctx.json?.timestamp != null
+  - date:
+      field: json.last_authenticated_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_api_last_authenticated
+      if: ctx.json?.timestamp == null && ctx.json?.last_authenticated_at != null
+  - date:
+      field: json.last_seen_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_api_last_seen
+      if: ctx.json?.timestamp == null && ctx.json?.last_authenticated_at == null && ctx.json?.last_seen_at != null
+  - date:
+      field: json.registered_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_api_registered
+      if: >-
+        ctx.json?.timestamp == null && ctx.json?.last_authenticated_at == null
+        && ctx.json?.last_seen_at == null && ctx.json?.registered_at != null
+
+  # --- event.kind: event for webhook events, state for API inventory records. ---
+  - set:
+      field: event.kind
+      tag: set_event_kind_webhook
+      value: event
+      if: ctx.json?.event != null
+  - set:
+      field: event.kind
+      tag: set_event_kind_api
+      value: state
+      if: ctx.json?.event == null
+  - append:
+      field: event.category
+      tag: append_event_category
+      value:
+        - host
+
+  # --- event.type. Category `host` only permits access/change/end/info/start,
+  #     so created/destroyed/registered/status_changed all normalize to change,
+  #     and the API inventory snapshot is info. ---
+  - append:
+      field: event.type
+      tag: append_event_type_change_webhook
+      value:
+        - change
+      if: ctx.json?.event != null
+  - append:
+      field: event.type
+      tag: append_event_type_info_api
+      value:
+        - info
+      if: ctx.json?.event == null
+
+  # --- event.action: webhook event value, or `device` for the API path. ---
+  - set:
+      field: event.action
+      tag: set_event_action_webhook
+      copy_from: json.event
+      if: ctx.json?.event != null
+  - set:
+      field: event.action
+      tag: set_event_action_api
+      value: device
+      if: ctx.json?.event == null
+
+  # --- event.id: webhook envelope ULID (json.id) / API device id (json.id). ---
+  - convert:
+      field: json.id
+      target_field: event.id
+      type: string
+      tag: convert_event_id
+      ignore_missing: true
+
+  # --- event.start from registered_at when present. ---
+  - date:
+      field: json.registered_at
+      target_field: event.start
+      formats:
+        - ISO8601
+      tag: date_event_start
+      if: ctx.json?.registered_at != null
+
+  # --- Host (device) ---
+  - rename:
+      field: json.data.device_name
+      target_field: host.name
+      tag: rename_host_name_webhook
+      ignore_missing: true
+  - rename:
+      field: json.name
+      target_field: host.name
+      tag: rename_host_name_api
+      ignore_missing: true
+      if: ctx.host?.name == null
+  - convert:
+      field: json.data.device_id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_webhook
+      ignore_missing: true
+  - convert:
+      field: json.id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_api
+      ignore_missing: true
+      if: ctx.host?.id == null
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
+
+  # --- Host OS (API only). operating_system -> host.os.full, with a best-effort
+  #     split into host.os.name / host.os.version. device_type -> host.os.platform. ---
+  - rename:
+      field: json.operating_system
+      target_field: host.os.full
+      tag: rename_host_os_full
+      ignore_missing: true
+  - grok:
+      field: host.os.full
+      patterns:
+        - '^%{DATA:host.os.name} %{NOTSPACE:host.os.version}$'
+      tag: grok_host_os_split
+      ignore_missing: true
+      ignore_failure: true
+      if: ctx.host?.os?.full != null
+  - set:
+      field: host.os.platform
+      tag: set_host_os_platform
+      copy_from: json.device_type
+      if: ctx.json?.device_type != null
+
+  # --- Owner (registered_owner / registered_owner_info) ---
+  - rename:
+      field: json.data.registered_owner.email
+      target_field: user.email
+      tag: rename_user_email_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.registered_owner.name
+      target_field: user.name
+      tag: rename_user_name_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.registered_owner.id
+      target_field: user.id
+      type: string
+      tag: convert_user_id_webhook
+      ignore_missing: true
+  - convert:
+      field: json.registered_owner_info.identifier
+      target_field: user.id
+      type: string
+      tag: convert_user_id_api
+      ignore_missing: true
+      if: ctx.user?.id == null
+
+  # --- Kolide custom device fields (API + webhook) ---
+  - set:
+      field: kolide.device.type
+      tag: set_kolide_device_type
+      copy_from: json.device_type
+      if: ctx.json?.device_type != null
+  - remove:
+      field: json.device_type
+      tag: remove_json_device_type
+      ignore_missing: true
+  - rename:
+      field: json.serial
+      target_field: kolide.device.serial
+      tag: rename_kolide_serial
+      ignore_missing: true
+  - rename:
+      field: json.hardware_uuid
+      target_field: kolide.device.hardware_uuid
+      tag: rename_kolide_hardware_uuid
+      ignore_missing: true
+  - rename:
+      field: json.hardware_model
+      target_field: kolide.device.hardware_model
+      tag: rename_kolide_hardware_model
+      ignore_missing: true
+  - rename:
+      field: json.note
+      target_field: kolide.device.note
+      tag: rename_kolide_note
+      ignore_missing: true
+  - rename:
+      field: json.form_factor
+      target_field: kolide.device.form_factor
+      tag: rename_kolide_form_factor
+      ignore_missing: true
+  - rename:
+      field: json.product_image_url
+      target_field: kolide.device.product_image_url
+      tag: rename_kolide_product_image_url
+      ignore_missing: true
+  - rename:
+      field: json.auth_state
+      target_field: kolide.device.auth_state
+      tag: rename_kolide_auth_state
+      ignore_missing: true
+  - rename:
+      field: json.data.device_status
+      target_field: kolide.device.device_status
+      tag: rename_kolide_device_status
+      ignore_missing: true
+  - rename:
+      field: json.data.device_url
+      target_field: kolide.device.device_url
+      tag: rename_kolide_device_url_webhook
+      ignore_missing: true
+
+  # Normalized status: lowercase both the webhook device_status and the API
+  # auth_state so a single field can be queried regardless of source.
+  - set:
+      field: kolide.device.status
+      tag: set_status_from_device_status
+      copy_from: kolide.device.device_status
+      if: ctx.kolide?.device?.device_status != null
+  - set:
+      field: kolide.device.status
+      tag: set_status_from_auth_state
+      copy_from: kolide.device.auth_state
+      if: ctx.kolide?.device?.status == null && ctx.kolide?.device?.auth_state != null
+  - lowercase:
+      field: kolide.device.status
+      tag: lowercase_status
+      ignore_missing: true
+
+  - date:
+      field: json.registered_at
+      target_field: kolide.device.registered_at
+      formats:
+        - ISO8601
+      tag: date_kolide_registered_at
+      if: ctx.json?.registered_at != null
+  - date:
+      field: json.last_authenticated_at
+      target_field: kolide.device.last_authenticated_at
+      formats:
+        - ISO8601
+      tag: date_kolide_last_authenticated_at
+      if: ctx.json?.last_authenticated_at != null
+  - date:
+      field: json.last_seen_at
+      target_field: kolide.device.last_seen_at
+      formats:
+        - ISO8601
+      tag: date_kolide_last_seen_at
+      if: ctx.json?.last_seen_at != null
+  - date:
+      field: json.will_block_at
+      target_field: kolide.device.will_block_at
+      formats:
+        - ISO8601
+      tag: date_kolide_will_block_at
+      if: ctx.json?.will_block_at != null
+
+  # registered_owner_info (API) -> kolide.device group.
+  - rename:
+      field: json.registered_owner_info.identifier
+      target_field: kolide.device.registered_owner_info.identifier
+      tag: rename_kolide_owner_identifier
+      ignore_missing: true
+  - rename:
+      field: json.registered_owner_info.location
+      target_field: kolide.device.registered_owner_info.location
+      tag: rename_kolide_owner_location
+      ignore_missing: true
+
+  # auth_configuration (API) -> kolide.device group; person_groups flattened.
+  - rename:
+      field: json.auth_configuration.device_id
+      target_field: kolide.device.auth_configuration.device_id
+      tag: rename_kolide_auth_config_device_id
+      ignore_missing: true
+  - rename:
+      field: json.auth_configuration.authentication_mode
+      target_field: kolide.device.auth_configuration.authentication_mode
+      tag: rename_kolide_auth_config_mode
+      ignore_missing: true
+  - rename:
+      field: json.auth_configuration.person_groups
+      target_field: kolide.device.auth_configuration.person_groups
+      tag: rename_kolide_auth_config_person_groups
+      ignore_missing: true
+
+  # --- related.* enrichment ---
+  - append:
+      field: related.hosts
+      tag: append_related_hosts
+      value: '{{{host.name}}}'
+      allow_duplicates: false
+      if: ctx.host?.name != null
+  - append:
+      field: related.user
+      tag: append_related_user_email
+      value: '{{{user.email}}}'
+      allow_duplicates: false
+      if: ctx.user?.email != null
+  - append:
+      field: related.user
+      tag: append_related_user_name
+      value: '{{{user.name}}}'
+      allow_duplicates: false
+      if: ctx.user?.name != null
+
+  # --- Cleanup ---
+  - remove:
+      field:
+        - json
+        - data
+      tag: remove_temp_fields
+      ignore_missing: true
+  - append:
+      field: tags
+      tag: append_preserve_original_event
+      value: preserve_original_event
+      allow_duplicates: false
+      if: ctx.error?.message != null
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

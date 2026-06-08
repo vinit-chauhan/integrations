@@ -1,0 +1,41 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2024-09-10T21:30:59.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "device_trust.status_changed",
+                "category": [
+                    "host"
+                ],
+                "id": "01J7EXHMF0FCA14EW04JASYCRP",
+                "kind": "event",
+                "type": [
+                    "change"
+                ]
+            },
+            "host": {
+                "hostname": "host-bravo",
+                "id": "9",
+                "name": "host-bravo"
+            },
+            "kolide": {
+                "device": {
+                    "device_status": "blocked",
+                    "device_url": "https://api.kolide.example.com/devices/9",
+                    "status": "blocked"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "host-bravo"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

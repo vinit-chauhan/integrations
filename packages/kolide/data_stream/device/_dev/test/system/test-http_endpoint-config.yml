@@ -1,0 +1,14 @@
+wait_for_data_timeout: 1m
+service: kolide-device-webhook
+service_notify_signal: SIGHUP
+input: http_endpoint
+data_stream:
+  vars:
+    listen_address: 0.0.0.0
+    listen_port: 9553
+    url: /kolide/device
+    secret_header: X-Kolide-Webhook-Identifier
+    secret_value: kolide-device-test-identifier
+    preserve_original_event: true
+assert:
+  hit_count: 4

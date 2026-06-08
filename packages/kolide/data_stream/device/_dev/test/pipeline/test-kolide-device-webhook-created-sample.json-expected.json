@@ -1,0 +1,34 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2023-10-28T20:05:33.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "devices.created",
+                "category": [
+                    "host"
+                ],
+                "id": "01HDVY8MA3CQ48HJ356FP8M2P6",
+                "kind": "event",
+                "type": [
+                    "change"
+                ]
+            },
+            "host": {
+                "hostname": "host-alpha",
+                "id": "1",
+                "name": "host-alpha"
+            },
+            "related": {
+                "hosts": [
+                    "host-alpha"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

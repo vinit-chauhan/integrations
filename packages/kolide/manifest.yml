@@ -1,0 +1,57 @@
+format_version: "3.4.2"
+name: kolide
+title: "Kolide"
+version: "0.1.0"
+source:
+  license: "Elastic-2.0"
+description: "Collect logs from Kolide (by 1Password) Device Trust with Elastic Agent."
+type: integration
+categories:
+  - security
+  - iam
+conditions:
+  kibana:
+    version: "^8.19.0 || ^9.1.0"
+icons:
+  - src: /img/sample-logo.svg
+    title: Kolide logo
+    size: 32x32
+    type: image/svg+xml
+policy_templates:
+  - name: kolide
+    title: Kolide logs
+    description: Collect logs from Kolide via webhooks (HTTP endpoint) and the REST API.
+    inputs:
+      - type: http_endpoint
+        title: Collect Kolide logs via webhooks
+        description: Collect Kolide events pushed to an HTTP endpoint (webhooks).
+      - type: cel
+        title: Collect Kolide logs via the REST API
+        description: Collect Kolide events by polling the Kolide REST API.
+        vars:
+          - name: url
+            type: text
+            title: URL
+            description: The base URL of the Kolide REST API.
+            required: true
+            show_user: true
+            default: https://api.kolide.com
+          - name: api_key
+            type: password
+            title: API Key
+            description: >-
+              Kolide API key used as a Bearer token. Create one in the Kolide console under Settings > Developers > API Keys. The value has the form `k2sk_v1_...`.
+            required: true
+            secret: true
+            show_user: true
+          - name: api_version
+            type: text
+            title: API Version
+            description: >-
+              Value sent in the `X-Kolide-Api-Version` request header to pin the API schema version.
+            required: true
+            show_user: false
+            default: "2026-04-07"
+owner:
+  github: elastic/security-service-integrations
+  type: elastic

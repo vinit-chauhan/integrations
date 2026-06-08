@@ -1,0 +1,64 @@
+{
+    "@timestamp": "2024-03-11T21:28:17.000Z",
+    "agent": {
+        "ephemeral_id": "f5fc03f8-dc60-4a75-9037-c2789842b268",
+        "id": "700f9451-faf0-45e9-a68c-34e4bf3b0ebd",
+        "name": "elastic-agent-91082",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.audit",
+        "namespace": "68458",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.3.0"
+    },
+    "elastic_agent": {
+        "id": "700f9451-faf0-45e9-a68c-34e4bf3b0ebd",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
+    "event": {
+        "action": "audit_log",
+        "agent_id_status": "verified",
+        "category": [
+            "iam",
+            "configuration"
+        ],
+        "dataset": "kolide.audit",
+        "id": "01JA67B1DYJCKJ1J73T0F5EWGR",
+        "ingested": "2026-06-04T22:24:56Z",
+        "kind": "event",
+        "module": "kolide",
+        "original": "{\"actor_info\":{\"actor_email\":\"alice@example.com\",\"actor_name\":\"Alice Johnson\",\"actor_type\":\"User\"},\"actor_name\":\"Alice Johnson\",\"description\":\"Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'\",\"id\":\"01JA67B1DYJCKJ1J73T0F5EWGR\",\"timestamp\":\"2024-03-11T21:28:17Z\"}",
+        "type": [
+            "change"
+        ]
+    },
+    "input": {
+        "type": "cel"
+    },
+    "kolide": {
+        "audit": {
+            "actor_type": "User"
+        }
+    },
+    "message": "Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'",
+    "related": {
+        "user": [
+            "Alice Johnson",
+            "alice@example.com"
+        ]
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-audit"
+    ],
+    "user": {
+        "email": "alice@example.com",
+        "name": "Alice Johnson"
+    }
+}

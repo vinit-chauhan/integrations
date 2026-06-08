@@ -1,0 +1,50 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2024-05-14T21:28:17.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "auth_logs.failure",
+                "category": [
+                    "authentication",
+                    "session"
+                ],
+                "id": "01HDW1V4TDE1B3KCAMR8V7Z4S6",
+                "kind": "event",
+                "outcome": "failure",
+                "type": [
+                    "start",
+                    "info"
+                ]
+            },
+            "host": {
+                "hostname": "Alices-M1",
+                "id": "1",
+                "name": "Alices-M1"
+            },
+            "kolide": {
+                "auth": {
+                    "agent_version": "1.4.0",
+                    "url": "https://api.kolide.com/auth_logs/id3374648"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "Alices-M1"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "id": "3"
+            },
+            "user_agent": {
+                "name": "Chrome",
+                "version": "122.0.0.0"
+            }
+        }
+    ]
+}

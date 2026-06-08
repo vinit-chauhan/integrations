@@ -1,0 +1,34 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2023-10-28T21:07:58.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "devices.destroyed",
+                "category": [
+                    "host"
+                ],
+                "id": "01HDW1TX10N3BS6WJYFP2D421D",
+                "kind": "event",
+                "type": [
+                    "change"
+                ]
+            },
+            "host": {
+                "hostname": "host-alpha-2",
+                "id": "1",
+                "name": "host-alpha-2"
+            },
+            "related": {
+                "hosts": [
+                    "host-alpha-2"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        }
+    ]
+}

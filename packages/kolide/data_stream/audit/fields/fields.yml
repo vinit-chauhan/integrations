@@ -1,0 +1,7 @@
+- name: kolide.audit
+  type: group
+  description: Custom fields for Kolide audit logs, collected from the REST API (GET /audit_logs) and the `audit_log.recorded` webhook.
+  fields:
+    - name: actor_type
+      type: keyword
+      description: Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`.
