@@ -52,43 +52,13 @@ services:
       - http-server
       - --addr=:8090
       - --config=/files/config-audit.yml
-  kolide-auth-webhook:
+  kolide-webhook:
     image: docker.elastic.co/observability/stream:v0.20.0
     volumes:
       - ./sample_logs:/sample_logs:ro
     environment:
       - STREAM_PROTOCOL=webhook
       - STREAM_WEBHOOK_PROBE=false
-      - STREAM_ADDR=http://elastic-agent:9551/kolide/auth
-      - STREAM_WEBHOOK_HEADER=X-Kolide-Webhook-Identifier=kolide-auth-test-identifier
-    command: log --start-signal=SIGHUP --delay=5s /sample_logs/kolide-auth.log
-  kolide-issues-webhook:
-    image: docker.elastic.co/observability/stream:v0.20.0
-    volumes:
-      - ./sample_logs:/sample_logs:ro
-    environment:
-      - STREAM_PROTOCOL=webhook
-      - STREAM_WEBHOOK_PROBE=false
-      - STREAM_ADDR=http://elastic-agent:9552/kolide/issues
-      - STREAM_WEBHOOK_HEADER=X-Kolide-Webhook-Identifier=kolide-issues-test-identifier
-    command: log --start-signal=SIGHUP --delay=5s /sample_logs/kolide-issues.log
-  kolide-device-webhook:
-    image: docker.elastic.co/observability/stream:v0.20.0
-    volumes:
-      - ./sample_logs:/sample_logs:ro
-    environment:
-      - STREAM_PROTOCOL=webhook
-      - STREAM_WEBHOOK_PROBE=false
-      - STREAM_ADDR=http://elastic-agent:9553/kolide/device
-      - STREAM_WEBHOOK_HEADER=X-Kolide-Webhook-Identifier=kolide-device-test-identifier
-    command: log --start-signal=SIGHUP --delay=5s /sample_logs/kolide-device.log
-  kolide-audit-webhook:
-    image: docker.elastic.co/observability/stream:v0.20.0
-    volumes:
-      - ./sample_logs:/sample_logs:ro
-    environment:
-      - STREAM_PROTOCOL=webhook
-      - STREAM_WEBHOOK_PROBE=false
-      - STREAM_ADDR=http://elastic-agent:9554/kolide/audit
-      - STREAM_WEBHOOK_HEADER=X-Kolide-Webhook-Identifier=kolide-audit-test-identifier
-    command: log --start-signal=SIGHUP --delay=5s /sample_logs/kolide-audit.log
+      - STREAM_ADDR=http://elastic-agent:9550/kolide/webhook
+      - STREAM_WEBHOOK_HEADER=X-Kolide-Webhook-Identifier=kolide-webhook-test-identifier
+    command: log --start-signal=SIGHUP --delay=5s /sample_logs/kolide-webhook.log

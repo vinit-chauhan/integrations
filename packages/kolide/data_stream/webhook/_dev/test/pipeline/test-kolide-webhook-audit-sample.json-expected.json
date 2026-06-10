@@ -1,0 +1,11 @@
+{
+    "expected": [
+        {
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": "audit_log.recorded",
+            "id": "01JA67B1DYJCKJ1J73T0F5EWGR"
+        }
+    ]
+}

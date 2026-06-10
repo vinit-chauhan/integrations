@@ -1,4 +1,16 @@
 # newer versions go on top
+- version: "0.2.1"
+  changes:
+    - description: >-
+        Fixed the path to the sample log file in the `send_kolide_webhooks.py` script.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+- version: "0.2.0"
+  changes:
+    - description: >-
+        Replaced per-stream webhook inputs with a single centralized `webhook` data stream that receives all Kolide webhook events on one endpoint and routes them to the appropriate data stream (auth, issues, device, audit) via the reroute processor. Users now configure one webhook endpoint in Kolide instead of four.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.1.0"
   changes:
     - description: Initial release of the Kolide integration.

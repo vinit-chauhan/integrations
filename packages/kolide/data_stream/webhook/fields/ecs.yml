@@ -1,0 +1,4 @@
+- name: ecs.version
+  external: ecs
+- name: event.kind
+  external: ecs

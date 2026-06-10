@@ -21,6 +21,7 @@ Each data stream supports two collection methods that you can choose between whe
 
 The Kolide integration collects the following data streams:
 
+* `webhook`: single webhook ingress that receives all Kolide webhook event types on one endpoint and routes each event to the correct data stream automatically.
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
@@ -46,9 +47,9 @@ Elastic Agent must be installed. For more details, check the Elastic Agent [inst
 As a Full Access administrator, sign in to Kolide and choose one or both collection methods:
 
 For webhooks:
-1. Go to Settings > Developers > Webhooks and add a new endpoint.
-2. Provide a publicly reachable HTTPS URL pointing at the Elastic Agent's listening address, port, and path for the data stream (for example, `https://<agent-host>:9551/kolide/auth` for the `auth` stream).
-3. Subscribe the endpoint to the events for that data stream.
+1. Go to Settings > Developers > Webhooks and add **one** new endpoint.
+2. Provide a publicly reachable HTTPS URL pointing at the Elastic Agent's listening address, port, and path (for example, `https://<agent-host>:9550/kolide/webhook`).
+3. Subscribe the endpoint to **all** event types — the integration routes each event to the correct data stream automatically.
 4. Copy the endpoint signing secret (shown once) — you will provide it to the integration as the HMAC key.
 
 For the REST API:
@@ -64,9 +65,9 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 ### Set up steps in Kibana
 
 1. In Kibana, go to Management > Integrations and search for Kolide.
-2. Add the integration and choose, per data stream, whether to collect via webhooks (HTTP endpoint) or the REST API.
-3. For webhooks: set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value).
-4. For the REST API: provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+2. Add the integration.
+3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
+4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
 
 ### Validation
 
@@ -140,6 +141,28 @@ These Kolide REST API endpoints are used by this integration:
 - [Kolide REST API reference](https://kolideapi.readme.io/reference)
 
 ### Data streams
+
+#### webhook
+
+The `webhook` data stream is the single ingress point for all Kolide webhook events. It listens on one HTTP endpoint and uses the ingest `reroute` processor to redirect each event to the appropriate target data stream (`auth`, `issues`, `device`, or `audit`) based on the Kolide event type. No documents are stored in the `webhook` data stream itself.
+
+##### webhook fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| input.type | Type of filebeat input. | keyword |
+| log.offset | Log offset. | long |
+
 
 #### auth
 

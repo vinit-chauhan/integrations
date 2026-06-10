@@ -20,6 +20,7 @@ Each data stream supports two collection methods that you can choose between whe
 
 The Kolide integration collects the following data streams:
 
+* `webhook`: single webhook ingress that receives all Kolide webhook event types on one endpoint and routes each event to the correct data stream automatically.
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
@@ -45,9 +46,9 @@ Elastic Agent must be installed. For more details, check the Elastic Agent [inst
 As a Full Access administrator, sign in to Kolide and choose one or both collection methods:
 
 For webhooks:
-1. Go to Settings > Developers > Webhooks and add a new endpoint.
-2. Provide a publicly reachable HTTPS URL pointing at the Elastic Agent's listening address, port, and path for the data stream (for example, `https://<agent-host>:9551/kolide/auth` for the `auth` stream).
-3. Subscribe the endpoint to the events for that data stream.
+1. Go to Settings > Developers > Webhooks and add **one** new endpoint.
+2. Provide a publicly reachable HTTPS URL pointing at the Elastic Agent's listening address, port, and path (for example, `https://<agent-host>:9550/kolide/webhook`).
+3. Subscribe the endpoint to **all** event types — the integration routes each event to the correct data stream automatically.
 4. Copy the endpoint signing secret (shown once) — you will provide it to the integration as the HMAC key.
 
 For the REST API:
@@ -63,9 +64,9 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 ### Set up steps in Kibana
 
 1. In Kibana, go to Management > Integrations and search for Kolide.
-2. Add the integration and choose, per data stream, whether to collect via webhooks (HTTP endpoint) or the REST API.
-3. For webhooks: set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value).
-4. For the REST API: provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+2. Add the integration.
+3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
+4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
 
 ### Validation
 
@@ -100,6 +101,14 @@ These Kolide REST API endpoints are used by this integration:
 - [Kolide REST API reference](https://kolideapi.readme.io/reference)
 
 ### Data streams
+
+#### webhook
+
+The `webhook` data stream is the single ingress point for all Kolide webhook events. It listens on one HTTP endpoint and uses the ingest `reroute` processor to redirect each event to the appropriate target data stream (`auth`, `issues`, `device`, or `audit`) based on the Kolide event type. No documents are stored in the `webhook` data stream itself.
+
+##### webhook fields
+
+{{ fields "webhook" }}
 
 #### auth
 
