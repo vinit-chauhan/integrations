@@ -126,6 +126,8 @@ streams:
         required: false
         show_user: false
 elasticsearch:
+  dynamic_dataset: true
+  dynamic_namespace: true
   index_template:
     mappings:
       subobjects: false

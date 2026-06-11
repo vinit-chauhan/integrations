@@ -1,7 +1,7 @@
 format_version: "3.4.2"
 name: kolide
 title: "Kolide"
-version: "0.2.1"
+version: "0.2.2"
 source:
   license: "Elastic-2.0"
 description: "Collect logs from Kolide (by 1Password) Device Trust with Elastic Agent."
@@ -13,7 +13,7 @@ conditions:
   kibana:
     version: "^8.19.0 || ^9.1.0"
 icons:
-  - src: /img/sample-logo.svg
+  - src: /img/kolide-logo.svg
     title: Kolide logo
     size: 32x32
     type: image/svg+xml
