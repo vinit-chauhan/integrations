@@ -7,20 +7,11 @@
       description: Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`.
     - name: target
       type: group
-      description: Subject of the audited action, distinct from the actor who performed it.
+      description: Subject of the audited action where no ECS field covers the semantic.
       fields:
-        - name: user_email
-          type: keyword
-          description: Email address of the user affected by the action.
-        - name: device_name
-          type: keyword
-          description: Name of the device affected by the action.
         - name: device_serial
           type: keyword
           description: Serial number of the device affected by the action.
-        - name: check_name
-          type: keyword
-          description: Name of the Kolide check affected by the action.
         - name: issue_id
           type: keyword
           description: Numeric identifier of the issue affected by the action.

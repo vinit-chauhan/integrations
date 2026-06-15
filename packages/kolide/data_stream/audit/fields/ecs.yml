@@ -18,6 +18,16 @@
   external: ecs
 - name: user.email
   external: ecs
+- name: user.target.email
+  external: ecs
+- name: user.target.name
+  external: ecs
+- name: host.name
+  external: ecs
+- name: host.hostname
+  external: ecs
+- name: rule.name
+  external: ecs
 - name: source.ip
   external: ecs
 - name: source.geo.city_name
@@ -41,10 +51,6 @@
 - name: related.user
   external: ecs
 - name: related.ip
-  external: ecs
-- name: user.target.email
-  external: ecs
-- name: user.target.name
   external: ecs
 - name: related.hosts
   external: ecs

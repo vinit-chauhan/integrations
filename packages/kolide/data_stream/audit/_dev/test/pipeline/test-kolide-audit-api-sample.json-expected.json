@@ -20,10 +20,7 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User",
-                    "target": {
-                        "check_name": "iTerm2 - Require Secure Keyboard Entry to Be Enabled"
-                    }
+                    "actor_type": "User"
                 }
             },
             "message": "Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'",
@@ -32,6 +29,9 @@
                     "Alice Johnson",
                     "alice.johnson@example.com"
                 ]
+            },
+            "rule": {
+                "name": "iTerm2 - Require Secure Keyboard Entry to Be Enabled"
             },
             "tags": [
                 "preserve_original_event"

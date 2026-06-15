@@ -1,13 +1,14 @@
 ---
 description: >-
   Extended field extraction for Kolide audit_log events. Parses the human-readable
-  description (message) with dissect patterns to populate structured target,
-  change, and reason fields.
+  description (message) with dissect patterns to populate ECS and structured
+  custom fields. Prefer ECS fields (host.name, rule.name, user.target.email)
+  over vendor namespace where a semantic match exists.
 processors:
   # ── Device registration: approval ────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Approved pending device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}". Reason: "%{kolide.audit.reason}"'
+      pattern: 'Approved pending device registration for "%{user.target.email}" and device "%{host.name}". Reason: "%{kolide.audit.reason}"'
       tag: dissect_device_reg_approved
       ignore_failure: true
       ignore_missing: true
@@ -15,7 +16,7 @@ processors:
   # ── Device registration: denial ──────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Denied pending device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}". Reason: "%{kolide.audit.reason}"'
+      pattern: 'Denied pending device registration for "%{user.target.email}" and device "%{host.name}". Reason: "%{kolide.audit.reason}"'
       tag: dissect_device_reg_denied
       ignore_failure: true
       ignore_missing: true
@@ -23,7 +24,7 @@ processors:
   # ── Device registration: reopened after denial ───────────────────────────────
   - dissect:
       field: message
-      pattern: 'Reopened previously denied device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}".'
+      pattern: 'Reopened previously denied device registration for "%{user.target.email}" and device "%{host.name}".'
       tag: dissect_device_reg_reopened
       ignore_failure: true
       ignore_missing: true
@@ -31,7 +32,7 @@ processors:
   # ── Device registration: self-approved ───────────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Device "%{kolide.audit.target.device_name}" (%{kolide.audit.target.device_serial}) registration self-approved by %{kolide.audit.target.user_email} from another trusted device'
+      pattern: 'Device "%{host.name}" (%{kolide.audit.target.device_serial}) registration self-approved by %{user.target.email} from another trusted device'
       tag: dissect_device_reg_self_approved
       ignore_failure: true
       ignore_missing: true
@@ -39,7 +40,7 @@ processors:
   # ── Device registration: removed ─────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Removed device registration for "%{kolide.audit.target.device_name}" that was registered to "%{kolide.audit.target.user_email}"'
+      pattern: 'Removed device registration for "%{host.name}" that was registered to "%{user.target.email}"'
       tag: dissect_device_reg_removed
       ignore_failure: true
       ignore_missing: true
@@ -47,7 +48,7 @@ processors:
   # ── Device registration: auth mode changed ───────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Updated device registration for "%{kolide.audit.target.device_name}" changed auth mode from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
+      pattern: 'Updated device registration for "%{host.name}" changed auth mode from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
       tag: dissect_device_reg_auth_mode
       ignore_failure: true
       ignore_missing: true
@@ -55,7 +56,7 @@ processors:
   # ── Device: removed (single-quote format) ────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Device '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial}) removed"
+      pattern: "Device '%{host.name}' (%{kolide.audit.target.device_serial}) removed"
       tag: dissect_device_removed
       ignore_failure: true
       ignore_missing: true
@@ -63,7 +64,7 @@ processors:
   # ── Device: deletion requested ───────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Requested device deletion for '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial}) ()"
+      pattern: "Requested device deletion for '%{host.name}' (%{kolide.audit.target.device_serial}) ()"
       tag: dissect_device_deletion_requested
       ignore_failure: true
       ignore_missing: true
@@ -71,7 +72,7 @@ processors:
   # ── Device: deletion cancelled ───────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Cancelled pending deletion for '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial})"
+      pattern: "Cancelled pending deletion for '%{host.name}' (%{kolide.audit.target.device_serial})"
       tag: dissect_device_deletion_cancelled
       ignore_failure: true
       ignore_missing: true
@@ -87,7 +88,7 @@ processors:
   # ── Check: paused ────────────────────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Paused check '%{kolide.audit.target.check_name}'"
+      pattern: "Paused check '%{rule.name}'"
       tag: dissect_check_paused
       ignore_failure: true
       ignore_missing: true
@@ -95,7 +96,7 @@ processors:
   # ── Check: enabled ───────────────────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Enabled check '%{kolide.audit.target.check_name}'"
+      pattern: "Enabled check '%{rule.name}'"
       tag: dissect_check_enabled
       ignore_failure: true
       ignore_missing: true
@@ -103,7 +104,7 @@ processors:
   # ── Issue: all-future exemption ──────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: 'Exempted all future issues for "%{kolide.audit.target.check_name}" for device: "%{kolide.audit.target.device_name}". Reason: %{kolide.audit.reason}. (Expires %{kolide.audit.expires_at})'
+      pattern: 'Exempted all future issues for "%{rule.name}" for device: "%{host.name}". Reason: %{kolide.audit.reason}. (Expires %{kolide.audit.expires_at})'
       tag: dissect_issue_exempted_all_future
       ignore_failure: true
       ignore_missing: true
@@ -111,7 +112,7 @@ processors:
   # ── Issue: specific exemption ────────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Exempted issue %{kolide.audit.target.issue_id}: '%{kolide.audit.target.check_name}', reason: '%{kolide.audit.reason}'"
+      pattern: "Exempted issue %{kolide.audit.target.issue_id}: '%{rule.name}', reason: '%{kolide.audit.reason}'"
       tag: dissect_issue_exempted_specific
       ignore_failure: true
       ignore_missing: true
@@ -211,40 +212,32 @@ processors:
   # ── User invitation ───────────────────────────────────────────────────────────
   - dissect:
       field: message
-      pattern: "Invited '%{kolide.audit.target.user_email}' to access kolide"
+      pattern: "Invited '%{user.target.email}' to access kolide"
       tag: dissect_user_invited
       ignore_failure: true
       ignore_missing: true
-  - dissect:
-      field: message
-      pattern: "user '%{kolide.audit.target.user_email}' accepted invitation to Kolide"
-      tag: dissect_user_invitation_accepted
-      ignore_failure: true
-      ignore_missing: true
 
-  # ── ECS user.target promotion ────────────────────────────────────────────────
-  # Promote the extracted target user email to ECS user.target.email so events
-  # with two distinct users (actor vs. affected user) are queryable via ECS.
+  # ── host.hostname mirrors host.name ──────────────────────────────────────────
   - set:
-      field: user.target.email
-      tag: set_user_target_email
-      copy_from: kolide.audit.target.user_email
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
       ignore_empty_value: true
-      if: ctx.kolide?.audit?.target?.user_email != null
+      if: ctx.host?.name != null
 
   # ── related.* enrichment ─────────────────────────────────────────────────────
   - append:
       field: related.hosts
       tag: append_related_hosts_target_device
-      value: '{{{kolide.audit.target.device_name}}}'
+      value: '{{{host.name}}}'
       allow_duplicates: false
-      if: ctx.kolide?.audit?.target?.device_name != null
+      if: ctx.host?.name != null
   - append:
       field: related.user
       tag: append_related_user_target_email
-      value: '{{{kolide.audit.target.user_email}}}'
+      value: '{{{user.target.email}}}'
       allow_duplicates: false
-      if: ctx.kolide?.audit?.target?.user_email != null
+      if: ctx.user?.target?.email != null
 
 on_failure:
   - append:
