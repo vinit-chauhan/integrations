@@ -213,6 +213,23 @@ processors:
       copy_from: json.device_type
       if: ctx.json?.device_type != null
 
+  # --- host.type from form_factor (API only). ---
+  - set:
+      field: host.type
+      tag: set_host_type_mobile
+      value: mobile
+      if: ctx.json?.form_factor == 'phone'
+  - set:
+      field: host.type
+      tag: set_host_type_tablet
+      value: tablet
+      if: ctx.json?.form_factor == 'tablet'
+  - set:
+      field: host.type
+      tag: set_host_type_desktop
+      value: desktop
+      if: ctx.json?.form_factor == 'Computer'
+
   # --- Owner (registered_owner / registered_owner_info) ---
   - rename:
       field: json.data.registered_owner.email

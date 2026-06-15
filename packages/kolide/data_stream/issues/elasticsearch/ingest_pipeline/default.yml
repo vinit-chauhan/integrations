@@ -298,6 +298,33 @@ processors:
       tag: date_last_rechecked_at
       if: ctx.json?.last_rechecked_at != null
 
+  # --- ECS promotion from check value (when present) ---
+  # The value object contains check-specific fields; promote well-known ones to ECS.
+  - set:
+      field: user.name
+      tag: set_user_name_from_value
+      copy_from: kolide.issues.value.username
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.username instanceof String
+  - set:
+      field: file.path
+      tag: set_file_path_from_value
+      copy_from: kolide.issues.value.path
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.path instanceof String
+  - set:
+      field: file.hash.md5
+      tag: set_file_hash_md5_from_value
+      copy_from: kolide.issues.value.md5
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.md5 instanceof String
+  - set:
+      field: file.hash.sha256
+      tag: set_file_hash_sha256_from_value
+      copy_from: kolide.issues.value.fingerprint_sha256
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.fingerprint_sha256 instanceof String
+
   # --- related.* enrichment ---
   - append:
       field: related.hosts
@@ -305,6 +332,12 @@ processors:
       value: '{{{host.name}}}'
       allow_duplicates: false
       if: ctx.host?.name != null
+  - append:
+      field: related.user
+      tag: append_related_user_from_value
+      value: '{{{user.name}}}'
+      allow_duplicates: false
+      if: ctx.user?.name != null
 
   # --- Cleanup ---
   - remove:

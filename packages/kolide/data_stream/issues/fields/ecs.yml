@@ -28,5 +28,15 @@
   external: ecs
 - name: rule.id
   external: ecs
+- name: user.name
+  external: ecs
+- name: file.path
+  external: ecs
+- name: file.hash.md5
+  external: ecs
+- name: file.hash.sha256
+  external: ecs
 - name: related.hosts
+  external: ecs
+- name: related.user
   external: ecs
