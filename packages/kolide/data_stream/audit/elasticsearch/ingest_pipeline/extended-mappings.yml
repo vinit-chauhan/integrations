@@ -222,6 +222,16 @@ processors:
       ignore_failure: true
       ignore_missing: true
 
+  # ── ECS user.target promotion ────────────────────────────────────────────────
+  # Promote the extracted target user email to ECS user.target.email so events
+  # with two distinct users (actor vs. affected user) are queryable via ECS.
+  - set:
+      field: user.target.email
+      tag: set_user_target_email
+      copy_from: kolide.audit.target.user_email
+      ignore_empty_value: true
+      if: ctx.kolide?.audit?.target?.user_email != null
+
   # ── related.* enrichment ─────────────────────────────────────────────────────
   - append:
       field: related.hosts

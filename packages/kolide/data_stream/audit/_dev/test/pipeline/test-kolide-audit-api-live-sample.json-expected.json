@@ -87,7 +87,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice Johnson"
+                "name": "Alice Johnson",
+                "target": {
+                    "email": "bob.smith@example.com"
+                }
             }
         },
         {
@@ -133,7 +136,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice Johnson"
+                "name": "Alice Johnson",
+                "target": {
+                    "email": "bob.smith@example.com"
+                }
             }
         },
         {
@@ -180,7 +186,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice Johnson"
+                "name": "Alice Johnson",
+                "target": {
+                    "email": "bob.smith@example.com"
+                }
             }
         },
         {
@@ -316,7 +325,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice Johnson"
+                "name": "Alice Johnson",
+                "target": {
+                    "email": "bob.smith@example.com"
+                }
             }
         },
         {
@@ -536,7 +548,10 @@
             ],
             "user": {
                 "email": "bob.smith@example.com",
-                "name": "B S"
+                "name": "B S",
+                "target": {
+                    "email": "bob.smith@example.com"
+                }
             }
         },
         {
@@ -1672,7 +1687,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice"
+                "name": "Alice",
+                "target": {
+                    "email": "alice.johnson@example.com"
+                }
             }
         },
         {
@@ -1714,7 +1732,10 @@
             ],
             "user": {
                 "email": "charlie.davis@example.com",
-                "name": "Charlie Davis"
+                "name": "Charlie Davis",
+                "target": {
+                    "email": "alice.johnson@example.com"
+                }
             }
         }
     ]

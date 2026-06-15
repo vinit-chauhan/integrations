@@ -42,3 +42,9 @@
   external: ecs
 - name: related.ip
   external: ecs
+- name: user.target.email
+  external: ecs
+- name: user.target.name
+  external: ecs
+- name: related.hosts
+  external: ecs
