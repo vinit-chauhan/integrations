@@ -37,6 +37,7 @@
                 ]
             },
             "rule": {
+                "category": [],
                 "id": "71",
                 "name": "macOS Firewall - Require macOS Firewall is Enabled"
             },

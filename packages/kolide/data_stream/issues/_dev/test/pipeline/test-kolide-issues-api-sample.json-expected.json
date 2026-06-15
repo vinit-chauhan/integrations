@@ -19,8 +19,7 @@
                 ]
             },
             "host": {
-                "hostname": "host-alpha",
-                "name": "host-alpha"
+                "id": "host-alpha"
             },
             "kolide": {
                 "issues": {
@@ -43,11 +42,6 @@
                 }
             },
             "message": "macOS Firewall is Disabled",
-            "related": {
-                "hosts": [
-                    "host-alpha"
-                ]
-            },
             "rule": {
                 "id": "71"
             },

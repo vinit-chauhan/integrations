@@ -1,20 +1,8 @@
 ---
 description: >-
-  Extended field extraction for Kolide auth_log events. Sets event.outcome from
-  the session result and extracts structured data from sub-event descriptions.
+  Extended field extraction for Kolide auth_log events. Extracts structured
+  data from sub-event descriptions.
 processors:
-  # ── event.outcome from session result ────────────────────────────────────────
-  - set:
-      field: event.outcome
-      tag: set_event_outcome_success
-      value: success
-      if: ctx.kolide?.auth?.result == 'Success'
-  - set:
-      field: event.outcome
-      tag: set_event_outcome_failure
-      value: failure
-      if: ctx.kolide?.auth?.result == 'Fail'
-
   # ── Extract downloaded package names from sub-event descriptions ─────────────
   - script:
       lang: painless

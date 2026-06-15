@@ -26,8 +26,7 @@
                 "path": "/home/example-user/.ssh/id_ed25519"
             },
             "host": {
-                "hostname": "1000002",
-                "name": "1000002"
+                "id": "1000002"
             },
             "kolide": {
                 "issues": {
@@ -62,9 +61,6 @@
             },
             "message": "Unencrypted SSH Key Detected",
             "related": {
-                "hosts": [
-                    "1000002"
-                ],
                 "user": [
                     "example-user"
                 ]
@@ -98,8 +94,7 @@
                 ]
             },
             "host": {
-                "hostname": "1000005",
-                "name": "1000005"
+                "id": "1000005"
             },
             "kolide": {
                 "issues": {
@@ -118,11 +113,6 @@
                 }
             },
             "message": "Android Device OS Is Not Up to Date",
-            "related": {
-                "hosts": [
-                    "1000005"
-                ]
-            },
             "rule": {
                 "id": "77350"
             },
@@ -153,8 +143,7 @@
                 "path": "/"
             },
             "host": {
-                "hostname": "1000003",
-                "name": "1000003"
+                "id": "1000003"
             },
             "kolide": {
                 "issues": {
@@ -184,11 +173,6 @@
                 }
             },
             "message": "Disk Is Not Encrypted",
-            "related": {
-                "hosts": [
-                    "1000003"
-                ]
-            },
             "rule": {
                 "id": "32"
             },
@@ -215,8 +199,7 @@
                 ]
             },
             "host": {
-                "hostname": "1000004",
-                "name": "1000004"
+                "id": "1000004"
             },
             "kolide": {
                 "issues": {
@@ -243,10 +226,10 @@
                 }
             },
             "message": "Chrome Browser Is Not Up to Date",
+            "package": {
+                "version": "148.0.7778.167-64"
+            },
             "related": {
-                "hosts": [
-                    "1000004"
-                ],
                 "user": [
                     "example-user"
                 ]

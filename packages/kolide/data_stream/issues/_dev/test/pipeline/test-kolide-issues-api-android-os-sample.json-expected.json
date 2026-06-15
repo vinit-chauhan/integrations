@@ -19,8 +19,7 @@
                 ]
             },
             "host": {
-                "hostname": "device-android-01",
-                "name": "device-android-01"
+                "id": "device-android-01"
             },
             "kolide": {
                 "issues": {
@@ -39,11 +38,6 @@
                 }
             },
             "message": "Android Device OS Is Not Up to Date",
-            "related": {
-                "hosts": [
-                    "device-android-01"
-                ]
-            },
             "rule": {
                 "id": "20"
             },

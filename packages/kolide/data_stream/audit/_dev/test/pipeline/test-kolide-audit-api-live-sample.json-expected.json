@@ -733,6 +733,9 @@
             "tags": [
                 "preserve_original_event"
             ],
+            "url": {
+                "domain": "idp-example.okta.com"
+            },
             "user": {
                 "email": "alice.johnson@example.com",
                 "name": "Alice Johnson"
@@ -815,6 +818,9 @@
             "tags": [
                 "preserve_original_event"
             ],
+            "url": {
+                "domain": "idp-example.okta.com"
+            },
             "user": {
                 "email": "alice.johnson@example.com",
                 "name": "Alice Johnson"

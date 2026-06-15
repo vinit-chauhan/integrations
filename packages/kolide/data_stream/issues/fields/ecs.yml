@@ -42,3 +42,7 @@
   external: ecs
 - name: file.device
   external: ecs
+- name: rule.category
+  external: ecs
+- name: package.version
+  external: ecs

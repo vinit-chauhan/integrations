@@ -54,3 +54,5 @@
   external: ecs
 - name: related.hosts
   external: ecs
+- name: url.domain
+  external: ecs

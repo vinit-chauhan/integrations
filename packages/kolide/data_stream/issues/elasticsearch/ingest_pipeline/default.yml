@@ -163,10 +163,10 @@ processors:
       ignore_missing: true
   - rename:
       field: json.device_information.identifier
-      target_field: host.name
-      tag: rename_host_name_api
+      target_field: host.id
+      tag: rename_host_id_api
       ignore_missing: true
-      if: ctx.host?.name == null
+      if: ctx.host?.id == null
   - convert:
       field: json.data.device.id
       target_field: host.id
@@ -235,6 +235,12 @@ processors:
       target_field: kolide.issues.check.tags
       tag: rename_check_tags_webhook
       ignore_missing: true
+  - set:
+      field: rule.category
+      tag: set_rule_category
+      copy_from: kolide.issues.check.tags
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.check?.tags instanceof List
   - rename:
       field: json.issue_key
       target_field: kolide.issues.issue_key

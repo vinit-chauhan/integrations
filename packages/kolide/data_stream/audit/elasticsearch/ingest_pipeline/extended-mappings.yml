@@ -217,6 +217,16 @@ processors:
       ignore_failure: true
       ignore_missing: true
 
+  # ── url.domain from IdP URL ───────────────────────────────────────────────────
+  # Values observed in audit logs are hostnames (e.g. "idp-example.okta.com").
+  # Full URL values would require url.full instead; audit logs show hostname-only.
+  - set:
+      field: url.domain
+      tag: set_url_domain_from_idp
+      copy_from: kolide.audit.target.idp_url
+      ignore_empty_value: true
+      if: ctx.kolide?.audit?.target?.idp_url != null
+
   # ── host.hostname mirrors host.name ──────────────────────────────────────────
   - set:
       field: host.hostname

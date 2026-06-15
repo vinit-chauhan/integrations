@@ -26,8 +26,7 @@
                 "path": "/home/jsmith/.ssh/id_ed25519"
             },
             "host": {
-                "hostname": "device-linux-01",
-                "name": "device-linux-01"
+                "id": "device-linux-01"
             },
             "kolide": {
                 "issues": {
@@ -58,9 +57,6 @@
             },
             "message": "Unencrypted SSH Key Detected",
             "related": {
-                "hosts": [
-                    "device-linux-01"
-                ],
                 "user": [
                     "jsmith"
                 ]
