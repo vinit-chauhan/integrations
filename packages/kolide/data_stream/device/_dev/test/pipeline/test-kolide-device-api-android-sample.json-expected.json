@@ -1,68 +1,68 @@
 {
-  "expected": [
-    {
-      "@timestamp": "2024-03-11T21:28:17.000Z",
-      "ecs": {
-        "version": "9.3.0"
-      },
-      "event": {
-        "action": "device",
-        "category": [
-          "host"
-        ],
-        "id": "2000001",
-        "kind": "state",
-        "original": "{\"id\": \"2000001\", \"name\": \"Pixel 7 Pro\", \"registered_at\": \"2024-01-15T08:00:00Z\", \"last_authenticated_at\": \"2024-03-11T21:28:17Z\", \"last_seen_at\": \"2024-03-11T21:30:00Z\", \"registered_owner_info\": {\"identifier\": \"42\", \"location\": \"https://api.example.com/people/42\"}, \"operating_system\": \"Android 14\", \"hardware_model\": \"Pixel 7 Pro\", \"auth_state\": \"Good\", \"product_image_url\": \"https://assets.example.com/pixel7pro.png\", \"device_type\": \"Android\", \"form_factor\": \"phone\", \"auth_configuration\": {\"device_id\": \"2000001\", \"authentication_mode\": \"anyone\", \"person_groups\": []}}",
-        "start": "2024-01-15T08:00:00.000Z",
-        "type": [
-          "info"
-        ]
-      },
-      "host": {
-        "hostname": "Pixel 7 Pro",
-        "id": "2000001",
-        "name": "Pixel 7 Pro",
-        "os": {
-          "full": "Android 14",
-          "name": "Android",
-          "platform": "Android",
-          "version": "14"
-        },
-        "type": "mobile"
-      },
-      "kolide": {
-        "device": {
-          "auth_configuration": {
-            "authentication_mode": "anyone",
-            "device_id": "2000001",
-            "person_groups": []
-          },
-          "auth_state": "Good",
-          "form_factor": "phone",
-          "hardware_model": "Pixel 7 Pro",
-          "last_authenticated_at": "2024-03-11T21:28:17.000Z",
-          "last_seen_at": "2024-03-11T21:30:00.000Z",
-          "product_image_url": "https://assets.example.com/pixel7pro.png",
-          "registered_at": "2024-01-15T08:00:00.000Z",
-          "registered_owner_info": {
-            "identifier": "42",
-            "location": "https://api.example.com/people/42"
-          },
-          "status": "good",
-          "type": "Android"
+    "expected": [
+        {
+            "@timestamp": "2024-03-11T21:28:17.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "device",
+                "category": [
+                    "host"
+                ],
+                "id": "2000001",
+                "kind": "state",
+                "original": "{\"id\": \"2000001\", \"name\": \"Pixel 7 Pro\", \"registered_at\": \"2024-01-15T08:00:00Z\", \"last_authenticated_at\": \"2024-03-11T21:28:17Z\", \"last_seen_at\": \"2024-03-11T21:30:00Z\", \"registered_owner_info\": {\"identifier\": \"42\", \"location\": \"https://api.example.com/people/42\"}, \"operating_system\": \"Android 14\", \"hardware_model\": \"Pixel 7 Pro\", \"auth_state\": \"Good\", \"product_image_url\": \"https://assets.example.com/pixel7pro.png\", \"device_type\": \"Android\", \"form_factor\": \"phone\", \"auth_configuration\": {\"device_id\": \"2000001\", \"authentication_mode\": \"anyone\", \"person_groups\": []}}",
+                "start": "2024-01-15T08:00:00.000Z",
+                "type": [
+                    "info"
+                ]
+            },
+            "host": {
+                "hostname": "Pixel 7 Pro",
+                "id": "2000001",
+                "name": "Pixel 7 Pro",
+                "os": {
+                    "full": "Android 14",
+                    "name": "Android",
+                    "platform": "Android",
+                    "version": "14"
+                },
+                "type": "mobile"
+            },
+            "kolide": {
+                "device": {
+                    "auth_configuration": {
+                        "authentication_mode": "anyone",
+                        "device_id": "2000001",
+                        "person_groups": []
+                    },
+                    "auth_state": "Good",
+                    "form_factor": "phone",
+                    "hardware_model": "Pixel 7 Pro",
+                    "last_authenticated_at": "2024-03-11T21:28:17.000Z",
+                    "last_seen_at": "2024-03-11T21:30:00.000Z",
+                    "product_image_url": "https://assets.example.com/pixel7pro.png",
+                    "registered_at": "2024-01-15T08:00:00.000Z",
+                    "registered_owner_info": {
+                        "identifier": "42",
+                        "location": "https://api.example.com/people/42"
+                    },
+                    "status": "good",
+                    "type": "Android"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "Pixel 7 Pro"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "id": "42"
+            }
         }
-      },
-      "related": {
-        "hosts": [
-          "Pixel 7 Pro"
-        ]
-      },
-      "tags": [
-        "preserve_original_event"
-      ],
-      "user": {
-        "id": "42"
-      }
-    }
-  ]
+    ]
 }

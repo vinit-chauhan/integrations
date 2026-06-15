@@ -1,0 +1,261 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2026-06-15T00:13:43.909Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration"
+                ],
+                "id": "455173998",
+                "kind": "event",
+                "original": "{\"blocks_device_at\": null, \"check_information\": {\"identifier\": \"3\", \"link\": \"https://api.kolide.com/checks/3\"}, \"detected_at\": \"2026-06-15T00:13:43.909Z\", \"device_information\": {\"identifier\": \"1000002\", \"link\": \"https://api.kolide.com/devices/1000002\"}, \"exempted\": false, \"id\": \"455173998\", \"issue_key\": \"path\", \"issue_value\": \"/home/example-user/.ssh/id_ed25519\", \"last_rechecked_at\": \"2026-06-15T00:13:43.000Z\", \"resolved_at\": null, \"title\": \"Unencrypted SSH Key Detected\", \"value\": {\"KOLIDE_CHECK_STATUS\": \"FAIL\", \"bits\": \"\", \"encrypted\": \"0\", \"file_created_at\": \"1970-01-01 00:00:00\", \"fingerprint_md5\": \"aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99\", \"fingerprint_sha256\": \"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs\", \"gid\": \"1000\", \"group_name\": \"example-user\", \"installed_onepw_version\": \"\", \"key_type\": \"ssh-ed25519\", \"md5\": \"aabbccddeeff00112233445566778899\", \"opw_ssh_agent_enabled\": \"0\", \"opw_supports_deep_linking\": \"\", \"opw_watchtower_ssh_key_detection_enabled\": \"0\", \"os_platform\": \"ubuntu\", \"path\": \"/home/example-user/.ssh/id_ed25519\", \"uid\": \"1000\", \"username\": \"example-user\"}}",
+                "start": "2026-06-15T00:13:43.909Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "file": {
+                "hash": {
+                    "md5": "aabbccddeeff00112233445566778899",
+                    "sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs"
+                },
+                "path": "/home/example-user/.ssh/id_ed25519"
+            },
+            "host": {
+                "hostname": "1000002",
+                "name": "1000002"
+            },
+            "kolide": {
+                "issues": {
+                    "detected_at": "2026-06-15T00:13:43.909Z",
+                    "exempted": false,
+                    "issue_key": "path",
+                    "issue_value": "/home/example-user/.ssh/id_ed25519",
+                    "last_rechecked_at": "2026-06-15T00:13:43.000Z",
+                    "title": "Unencrypted SSH Key Detected",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL",
+                        "bits": "",
+                        "encrypted": "0",
+                        "file_created_at": "1970-01-01 00:00:00",
+                        "fingerprint_md5": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+                        "fingerprint_sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrs",
+                        "gid": "1000",
+                        "group_name": "example-user",
+                        "installed_onepw_version": "",
+                        "key_type": "ssh-ed25519",
+                        "md5": "aabbccddeeff00112233445566778899",
+                        "opw_ssh_agent_enabled": "0",
+                        "opw_supports_deep_linking": "",
+                        "opw_watchtower_ssh_key_detection_enabled": "0",
+                        "os_platform": "ubuntu",
+                        "path": "/home/example-user/.ssh/id_ed25519",
+                        "uid": "1000",
+                        "username": "example-user"
+                    }
+                }
+            },
+            "message": "Unencrypted SSH Key Detected",
+            "related": {
+                "hosts": [
+                    "1000002"
+                ],
+                "user": [
+                    "example-user"
+                ]
+            },
+            "rule": {
+                "id": "3"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "name": "example-user"
+            }
+        },
+        {
+            "@timestamp": "2026-06-15T13:57:33.781Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration"
+                ],
+                "id": "455300920",
+                "kind": "event",
+                "original": "{\"blocks_device_at\": null, \"check_information\": {\"identifier\": \"77350\", \"link\": \"https://api.kolide.com/checks/77350\"}, \"detected_at\": \"2026-06-15T13:57:33.781Z\", \"device_information\": {\"identifier\": \"1000005\", \"link\": \"https://api.kolide.com/devices/1000005\"}, \"exempted\": false, \"id\": \"455300920\", \"last_rechecked_at\": \"2026-06-15T13:57:33.729Z\", \"resolved_at\": null, \"title\": \"Android Device OS Is Not Up to Date\", \"value\": {\"KOLIDE_CHECK_STATUS\": \"FAIL\", \"androidOsSecurityPatchLevel\": \"2026-05-05\", \"androidSdkVersion\": \"36\", \"brand\": \"google\", \"modelName\": \"Example Phone\", \"samsungCSC\": null}}",
+                "start": "2026-06-15T13:57:33.781Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "host": {
+                "hostname": "1000005",
+                "name": "1000005"
+            },
+            "kolide": {
+                "issues": {
+                    "detected_at": "2026-06-15T13:57:33.781Z",
+                    "exempted": false,
+                    "last_rechecked_at": "2026-06-15T13:57:33.729Z",
+                    "title": "Android Device OS Is Not Up to Date",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL",
+                        "androidOsSecurityPatchLevel": "2026-05-05",
+                        "androidSdkVersion": "36",
+                        "brand": "google",
+                        "modelName": "Example Phone",
+                        "samsungCSC": null
+                    }
+                }
+            },
+            "message": "Android Device OS Is Not Up to Date",
+            "related": {
+                "hosts": [
+                    "1000005"
+                ]
+            },
+            "rule": {
+                "id": "77350"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-06-14T20:31:58.869Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration"
+                ],
+                "id": "455148606",
+                "kind": "event",
+                "original": "{\"blocks_device_at\": null, \"check_information\": {\"identifier\": \"32\", \"link\": \"https://api.kolide.com/checks/32\"}, \"detected_at\": \"2026-06-14T20:31:58.869Z\", \"device_information\": {\"identifier\": \"1000003\", \"link\": \"https://api.kolide.com/devices/1000003\"}, \"exempted\": false, \"id\": \"455148606\", \"issue_key\": \"check_target\", \"issue_value\": \"/\", \"last_rechecked_at\": \"2026-06-14T20:31:58.000Z\", \"resolved_at\": null, \"title\": \"Disk Is Not Encrypted\", \"value\": {\"KOLIDE_CHECK_STATUS\": \"FAIL\", \"check_target\": \"/\", \"check_target_type\": \"Mountpoint\", \"cryptluks_encryption\": \"\", \"de_encrypted\": \"No\", \"de_encryption\": \"\", \"de_type\": \"\", \"device\": \"/dev/nvme0n1p2\", \"device_alias\": \"/dev/nvme0n1p2\", \"fs_type_encryption\": \"\", \"fscrypt_encrypted\": \"No\", \"fscrypt_encryption\": \"\", \"path\": \"/\", \"type\": \"ext4\", \"zfs_encryption\": \"\"}}",
+                "start": "2026-06-14T20:31:58.869Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "file": {
+                "path": "/"
+            },
+            "host": {
+                "hostname": "1000003",
+                "name": "1000003"
+            },
+            "kolide": {
+                "issues": {
+                    "detected_at": "2026-06-14T20:31:58.869Z",
+                    "exempted": false,
+                    "issue_key": "check_target",
+                    "issue_value": "/",
+                    "last_rechecked_at": "2026-06-14T20:31:58.000Z",
+                    "title": "Disk Is Not Encrypted",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL",
+                        "check_target": "/",
+                        "check_target_type": "Mountpoint",
+                        "cryptluks_encryption": "",
+                        "de_encrypted": "No",
+                        "de_encryption": "",
+                        "de_type": "",
+                        "device": "/dev/nvme0n1p2",
+                        "device_alias": "/dev/nvme0n1p2",
+                        "fs_type_encryption": "",
+                        "fscrypt_encrypted": "No",
+                        "fscrypt_encryption": "",
+                        "path": "/",
+                        "type": "ext4",
+                        "zfs_encryption": ""
+                    }
+                }
+            },
+            "message": "Disk Is Not Encrypted",
+            "related": {
+                "hosts": [
+                    "1000003"
+                ]
+            },
+            "rule": {
+                "id": "32"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2026-06-14T22:26:02.562Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration"
+                ],
+                "id": "455162538",
+                "kind": "event",
+                "original": "{\"blocks_device_at\": null, \"check_information\": {\"identifier\": \"75659\", \"link\": \"https://api.kolide.com/checks/75659\"}, \"detected_at\": \"2026-06-14T22:26:02.562Z\", \"device_information\": {\"identifier\": \"1000004\", \"link\": \"https://api.kolide.com/devices/1000004\"}, \"exempted\": false, \"id\": \"455162538\", \"issue_key\": \"pk\", \"issue_value\": \"example-user/opt/google/chrome/chrome\", \"last_rechecked_at\": \"2026-06-14T22:26:02.000Z\", \"resolved_at\": null, \"title\": \"Chrome Browser Is Not Up to Date\", \"value\": {\"KOLIDE_CHECK_STATUS\": \"FAIL\", \"channel\": \"stable\", \"google_chrome_path\": \"/opt/google/chrome/chrome\", \"minimum_version\": \"\", \"newest_version\": \"149.0.7827.114\", \"pk\": \"example-user/opt/google/chrome/chrome\", \"release_date\": \"2026-06-11T18:50:40Z\", \"user_is_running\": \"1\", \"username\": \"example-user\", \"version\": \"148.0.7778.167-64\"}}",
+                "start": "2026-06-14T22:26:02.562Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "host": {
+                "hostname": "1000004",
+                "name": "1000004"
+            },
+            "kolide": {
+                "issues": {
+                    "detected_at": "2026-06-14T22:26:02.562Z",
+                    "exempted": false,
+                    "issue_key": "pk",
+                    "issue_value": "example-user/opt/google/chrome/chrome",
+                    "last_rechecked_at": "2026-06-14T22:26:02.000Z",
+                    "title": "Chrome Browser Is Not Up to Date",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL",
+                        "channel": "stable",
+                        "google_chrome_path": "/opt/google/chrome/chrome",
+                        "minimum_version": "",
+                        "newest_version": "149.0.7827.114",
+                        "pk": "example-user/opt/google/chrome/chrome",
+                        "release_date": "2026-06-11T18:50:40Z",
+                        "user_is_running": "1",
+                        "username": "example-user",
+                        "version": "148.0.7778.167-64"
+                    }
+                }
+            },
+            "message": "Chrome Browser Is Not Up to Date",
+            "related": {
+                "hosts": [
+                    "1000004"
+                ],
+                "user": [
+                    "example-user"
+                ]
+            },
+            "rule": {
+                "id": "75659"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "name": "example-user"
+            }
+        }
+    ]
+}

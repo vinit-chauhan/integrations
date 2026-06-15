@@ -1,71 +1,71 @@
 {
-  "expected": [
-    {
-      "@timestamp": "2024-03-11T21:28:17.000Z",
-      "ecs": {
-        "version": "9.3.0"
-      },
-      "event": {
-        "action": "device",
-        "category": [
-          "host"
-        ],
-        "id": "1",
-        "kind": "state",
-        "original": "{\"id\":\"1\",\"name\":\"host-alpha\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"location\":\"https://api.kolide.example.com/people/1\"},\"operating_system\":\"macOS 14.4.1\",\"hardware_model\":\"MacBookPro18,1\",\"serial\":\"C02EXAMPLE123\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"note\":\"Loaner device\",\"auth_state\":\"Good\",\"will_block_at\":null,\"product_image_url\":\"https://kolide.example.com/images/macbookpro.png\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"auth_configuration\":{\"device_id\":\"1\",\"authentication_mode\":\"only_registered_owner\",\"person_groups\":[]}}",
-        "start": "2023-10-28T20:12:14.000Z",
-        "type": [
-          "info"
-        ]
-      },
-      "host": {
-        "hostname": "host-alpha",
-        "id": "1",
-        "name": "host-alpha",
-        "os": {
-          "full": "macOS 14.4.1",
-          "name": "macOS",
-          "platform": "Mac",
-          "version": "14.4.1"
-        },
-        "type": "desktop"
-      },
-      "kolide": {
-        "device": {
-          "auth_configuration": {
-            "authentication_mode": "only_registered_owner",
-            "device_id": "1",
-            "person_groups": []
-          },
-          "auth_state": "Good",
-          "form_factor": "Computer",
-          "hardware_model": "MacBookPro18,1",
-          "hardware_uuid": "00000000-0000-0000-0000-000000000000",
-          "last_authenticated_at": "2024-03-11T21:28:17.000Z",
-          "last_seen_at": "2024-03-11T21:30:00.000Z",
-          "note": "Loaner device",
-          "product_image_url": "https://kolide.example.com/images/macbookpro.png",
-          "registered_at": "2023-10-28T20:12:14.000Z",
-          "registered_owner_info": {
-            "identifier": "1",
-            "location": "https://api.kolide.example.com/people/1"
-          },
-          "serial": "C02EXAMPLE123",
-          "status": "good",
-          "type": "Mac"
+    "expected": [
+        {
+            "@timestamp": "2024-03-11T21:28:17.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "device",
+                "category": [
+                    "host"
+                ],
+                "id": "1",
+                "kind": "state",
+                "original": "{\"id\":\"1\",\"name\":\"host-alpha\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"location\":\"https://api.kolide.example.com/people/1\"},\"operating_system\":\"macOS 14.4.1\",\"hardware_model\":\"MacBookPro18,1\",\"serial\":\"C02EXAMPLE123\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"note\":\"Loaner device\",\"auth_state\":\"Good\",\"will_block_at\":null,\"product_image_url\":\"https://kolide.example.com/images/macbookpro.png\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"auth_configuration\":{\"device_id\":\"1\",\"authentication_mode\":\"only_registered_owner\",\"person_groups\":[]}}",
+                "start": "2023-10-28T20:12:14.000Z",
+                "type": [
+                    "info"
+                ]
+            },
+            "host": {
+                "hostname": "host-alpha",
+                "id": "1",
+                "name": "host-alpha",
+                "os": {
+                    "full": "macOS 14.4.1",
+                    "name": "macOS",
+                    "platform": "Mac",
+                    "version": "14.4.1"
+                },
+                "type": "desktop"
+            },
+            "kolide": {
+                "device": {
+                    "auth_configuration": {
+                        "authentication_mode": "only_registered_owner",
+                        "device_id": "1",
+                        "person_groups": []
+                    },
+                    "auth_state": "Good",
+                    "form_factor": "Computer",
+                    "hardware_model": "MacBookPro18,1",
+                    "hardware_uuid": "00000000-0000-0000-0000-000000000000",
+                    "last_authenticated_at": "2024-03-11T21:28:17.000Z",
+                    "last_seen_at": "2024-03-11T21:30:00.000Z",
+                    "note": "Loaner device",
+                    "product_image_url": "https://kolide.example.com/images/macbookpro.png",
+                    "registered_at": "2023-10-28T20:12:14.000Z",
+                    "registered_owner_info": {
+                        "identifier": "1",
+                        "location": "https://api.kolide.example.com/people/1"
+                    },
+                    "serial": "C02EXAMPLE123",
+                    "status": "good",
+                    "type": "Mac"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "host-alpha"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "id": "1"
+            }
         }
-      },
-      "related": {
-        "hosts": [
-          "host-alpha"
-        ]
-      },
-      "tags": [
-        "preserve_original_event"
-      ],
-      "user": {
-        "id": "1"
-      }
-    }
-  ]
+    ]
 }

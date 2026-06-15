@@ -1,78 +1,78 @@
 {
-  "expected": [
-    {
-      "@timestamp": "2024-03-11T10:00:00.000Z",
-      "ecs": {
-        "version": "9.3.0"
-      },
-      "event": {
-        "action": "issue",
-        "category": [
-          "configuration"
-        ],
-        "id": "500000001",
-        "kind": "event",
-        "original": "{\"id\":\"500000001\",\"issue_key\":\"path\",\"issue_value\":\"/home/jsmith/.ssh/id_ed25519\",\"title\":\"Unencrypted SSH Key Detected\",\"value\":{\"KOLIDE_CHECK_STATUS\":\"FAIL\",\"bits\":\"\",\"encrypted\":\"0\",\"file_created_at\":\"1970-01-01 00:00:00\",\"fingerprint_md5\":\"aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99\",\"fingerprint_sha256\":\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB\",\"gid\":\"1001\",\"group_name\":\"jsmith\",\"key_type\":\"ssh-ed25519\",\"md5\":\"aabbccddeeff00112233445566778899\",\"os_platform\":\"ubuntu\",\"path\":\"/home/jsmith/.ssh/id_ed25519\",\"uid\":\"1001\",\"username\":\"jsmith\"},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2024-03-11T10:00:00Z\",\"blocks_device_at\":null,\"last_rechecked_at\":\"2024-03-11T10:05:00Z\",\"device_information\":{\"identifier\":\"device-linux-01\",\"link\":\"https://api.example.com/devices/1\"},\"check_information\":{\"identifier\":\"10\",\"link\":\"https://api.example.com/checks/10\"}}",
-        "start": "2024-03-11T10:00:00.000Z",
-        "type": [
-          "creation"
-        ]
-      },
-      "file": {
-        "hash": {
-          "md5": "aabbccddeeff00112233445566778899",
-          "sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB"
-        },
-        "path": "/home/jsmith/.ssh/id_ed25519"
-      },
-      "host": {
-        "hostname": "device-linux-01",
-        "name": "device-linux-01"
-      },
-      "kolide": {
-        "issues": {
-          "detected_at": "2024-03-11T10:00:00.000Z",
-          "exempted": false,
-          "issue_key": "path",
-          "issue_value": "/home/jsmith/.ssh/id_ed25519",
-          "last_rechecked_at": "2024-03-11T10:05:00.000Z",
-          "title": "Unencrypted SSH Key Detected",
-          "value": {
-            "KOLIDE_CHECK_STATUS": "FAIL",
-            "bits": "",
-            "encrypted": "0",
-            "file_created_at": "1970-01-01 00:00:00",
-            "fingerprint_md5": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
-            "fingerprint_sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB",
-            "gid": "1001",
-            "group_name": "jsmith",
-            "key_type": "ssh-ed25519",
-            "md5": "aabbccddeeff00112233445566778899",
-            "os_platform": "ubuntu",
-            "path": "/home/jsmith/.ssh/id_ed25519",
-            "uid": "1001",
-            "username": "jsmith"
-          }
+    "expected": [
+        {
+            "@timestamp": "2024-03-11T10:00:00.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration"
+                ],
+                "id": "500000001",
+                "kind": "event",
+                "original": "{\"id\":\"500000001\",\"issue_key\":\"path\",\"issue_value\":\"/home/jsmith/.ssh/id_ed25519\",\"title\":\"Unencrypted SSH Key Detected\",\"value\":{\"KOLIDE_CHECK_STATUS\":\"FAIL\",\"bits\":\"\",\"encrypted\":\"0\",\"file_created_at\":\"1970-01-01 00:00:00\",\"fingerprint_md5\":\"aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99\",\"fingerprint_sha256\":\"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB\",\"gid\":\"1001\",\"group_name\":\"jsmith\",\"key_type\":\"ssh-ed25519\",\"md5\":\"aabbccddeeff00112233445566778899\",\"os_platform\":\"ubuntu\",\"path\":\"/home/jsmith/.ssh/id_ed25519\",\"uid\":\"1001\",\"username\":\"jsmith\"},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2024-03-11T10:00:00Z\",\"blocks_device_at\":null,\"last_rechecked_at\":\"2024-03-11T10:05:00Z\",\"device_information\":{\"identifier\":\"device-linux-01\",\"link\":\"https://api.example.com/devices/1\"},\"check_information\":{\"identifier\":\"10\",\"link\":\"https://api.example.com/checks/10\"}}",
+                "start": "2024-03-11T10:00:00.000Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "file": {
+                "hash": {
+                    "md5": "aabbccddeeff00112233445566778899",
+                    "sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB"
+                },
+                "path": "/home/jsmith/.ssh/id_ed25519"
+            },
+            "host": {
+                "hostname": "device-linux-01",
+                "name": "device-linux-01"
+            },
+            "kolide": {
+                "issues": {
+                    "detected_at": "2024-03-11T10:00:00.000Z",
+                    "exempted": false,
+                    "issue_key": "path",
+                    "issue_value": "/home/jsmith/.ssh/id_ed25519",
+                    "last_rechecked_at": "2024-03-11T10:05:00.000Z",
+                    "title": "Unencrypted SSH Key Detected",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL",
+                        "bits": "",
+                        "encrypted": "0",
+                        "file_created_at": "1970-01-01 00:00:00",
+                        "fingerprint_md5": "aa:bb:cc:dd:ee:ff:00:11:22:33:44:55:66:77:88:99",
+                        "fingerprint_sha256": "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789AB",
+                        "gid": "1001",
+                        "group_name": "jsmith",
+                        "key_type": "ssh-ed25519",
+                        "md5": "aabbccddeeff00112233445566778899",
+                        "os_platform": "ubuntu",
+                        "path": "/home/jsmith/.ssh/id_ed25519",
+                        "uid": "1001",
+                        "username": "jsmith"
+                    }
+                }
+            },
+            "message": "Unencrypted SSH Key Detected",
+            "related": {
+                "hosts": [
+                    "device-linux-01"
+                ],
+                "user": [
+                    "jsmith"
+                ]
+            },
+            "rule": {
+                "id": "10"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "name": "jsmith"
+            }
         }
-      },
-      "message": "Unencrypted SSH Key Detected",
-      "related": {
-        "hosts": [
-          "device-linux-01"
-        ],
-        "user": [
-          "jsmith"
-        ]
-      },
-      "rule": {
-        "id": "10"
-      },
-      "tags": [
-        "preserve_original_event"
-      ],
-      "user": {
-        "name": "jsmith"
-      }
-    }
-  ]
+    ]
 }

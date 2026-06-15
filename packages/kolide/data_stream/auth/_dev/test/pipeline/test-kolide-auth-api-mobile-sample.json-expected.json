@@ -1,108 +1,108 @@
 {
-  "expected": [
-    {
-      "@timestamp": "2024-03-11T21:28:03.000Z",
-      "ecs": {
-        "version": "9.3.0"
-      },
-      "event": {
-        "action": "auth_log",
-        "category": [
-          "authentication",
-          "session"
-        ],
-        "id": "id99988877766655544433322211100",
-        "kind": "event",
-        "original": "{\"id\": \"id99988877766655544433322211100\", \"timestamp\": \"2024-03-11T21:28:03Z\", \"person_name\": \"Jane Smith\", \"person_email\": \"jsmith@example.com\", \"person_info\": {\"identifier\": \"99\", \"location\": \"https://api.example.com/people/99\"}, \"device_info\": {\"identifier\": \"2000001\", \"location\": \"https://api.example.com/devices/2000001\"}, \"result\": \"Success\", \"initial_status\": \"all_good\", \"ip_address\": \"203.0.113.42\", \"country\": \"United States\", \"city\": \"Seattle\", \"browser_name\": \"Chrome\", \"browser_user_agent\": \"Mozilla/5.0 (Linux; Android 14; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36\", \"issues_displayed\": [], \"events\": [{\"timestamp\": \"2024-03-11T21:27:55Z\", \"event_type\": \"sign_in_attempt\", \"event_description\": \"SAML session started by jsmith@example.com\"}, {\"timestamp\": \"2024-03-11T21:27:56Z\", \"event_type\": \"push_notification_sent\", \"event_description\": \"Push notification sent to Kolide Mobile\"}, {\"timestamp\": \"2024-03-11T21:28:02Z\", \"event_type\": \"mobile_agent_detection_success\", \"event_description\": \"Kolide mobile app was detected\"}, {\"timestamp\": \"2024-03-11T21:28:03Z\", \"event_type\": \"sign_in_success\", \"event_description\": \"SAML session completed successfully\"}]}",
-        "outcome": "success",
-        "type": [
-          "start",
-          "info"
-        ]
-      },
-      "host": {
-        "id": "2000001"
-      },
-      "kolide": {
-        "auth": {
-          "events": [
-            {
-              "event_description": "SAML session started by jsmith@example.com",
-              "event_type": "sign_in_attempt",
-              "timestamp": "2024-03-11T21:27:55Z"
+    "expected": [
+        {
+            "@timestamp": "2024-03-11T21:28:03.000Z",
+            "ecs": {
+                "version": "9.3.0"
             },
-            {
-              "event_description": "Push notification sent to Kolide Mobile",
-              "event_type": "push_notification_sent",
-              "timestamp": "2024-03-11T21:27:56Z"
+            "event": {
+                "action": "auth_log",
+                "category": [
+                    "authentication",
+                    "session"
+                ],
+                "id": "id99988877766655544433322211100",
+                "kind": "event",
+                "original": "{\"id\": \"id99988877766655544433322211100\", \"timestamp\": \"2024-03-11T21:28:03Z\", \"person_name\": \"Jane Smith\", \"person_email\": \"jsmith@example.com\", \"person_info\": {\"identifier\": \"99\", \"location\": \"https://api.example.com/people/99\"}, \"device_info\": {\"identifier\": \"2000001\", \"location\": \"https://api.example.com/devices/2000001\"}, \"result\": \"Success\", \"initial_status\": \"all_good\", \"ip_address\": \"203.0.113.42\", \"country\": \"United States\", \"city\": \"Seattle\", \"browser_name\": \"Chrome\", \"browser_user_agent\": \"Mozilla/5.0 (Linux; Android 14; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36\", \"issues_displayed\": [], \"events\": [{\"timestamp\": \"2024-03-11T21:27:55Z\", \"event_type\": \"sign_in_attempt\", \"event_description\": \"SAML session started by jsmith@example.com\"}, {\"timestamp\": \"2024-03-11T21:27:56Z\", \"event_type\": \"push_notification_sent\", \"event_description\": \"Push notification sent to Kolide Mobile\"}, {\"timestamp\": \"2024-03-11T21:28:02Z\", \"event_type\": \"mobile_agent_detection_success\", \"event_description\": \"Kolide mobile app was detected\"}, {\"timestamp\": \"2024-03-11T21:28:03Z\", \"event_type\": \"sign_in_success\", \"event_description\": \"SAML session completed successfully\"}]}",
+                "outcome": "success",
+                "type": [
+                    "start",
+                    "info"
+                ]
             },
-            {
-              "event_description": "Kolide mobile app was detected",
-              "event_type": "mobile_agent_detection_success",
-              "timestamp": "2024-03-11T21:28:02Z"
+            "host": {
+                "id": "2000001"
             },
-            {
-              "event_description": "SAML session completed successfully",
-              "event_type": "sign_in_success",
-              "timestamp": "2024-03-11T21:28:03Z"
+            "kolide": {
+                "auth": {
+                    "events": [
+                        {
+                            "event_description": "SAML session started by jsmith@example.com",
+                            "event_type": "sign_in_attempt",
+                            "timestamp": "2024-03-11T21:27:55Z"
+                        },
+                        {
+                            "event_description": "Push notification sent to Kolide Mobile",
+                            "event_type": "push_notification_sent",
+                            "timestamp": "2024-03-11T21:27:56Z"
+                        },
+                        {
+                            "event_description": "Kolide mobile app was detected",
+                            "event_type": "mobile_agent_detection_success",
+                            "timestamp": "2024-03-11T21:28:02Z"
+                        },
+                        {
+                            "event_description": "SAML session completed successfully",
+                            "event_type": "sign_in_success",
+                            "timestamp": "2024-03-11T21:28:03Z"
+                        }
+                    ],
+                    "initial_status": "all_good",
+                    "issues_displayed": [],
+                    "result": "Success"
+                }
+            },
+            "related": {
+                "ip": [
+                    "203.0.113.42"
+                ],
+                "user": [
+                    "Jane Smith",
+                    "jsmith@example.com"
+                ]
+            },
+            "source": {
+                "as": {
+                    "number": 64502,
+                    "organization": {
+                        "name": "Documentation ASN"
+                    }
+                },
+                "geo": {
+                    "city_name": "Madrid",
+                    "continent_name": "Europe",
+                    "country_iso_code": "ES",
+                    "country_name": "Spain",
+                    "location": {
+                        "lat": 40.41639,
+                        "lon": -3.7025
+                    },
+                    "region_iso_code": "ES-M",
+                    "region_name": "Madrid"
+                },
+                "ip": "203.0.113.42"
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "email": "jsmith@example.com",
+                "id": "99",
+                "name": "Jane Smith"
+            },
+            "user_agent": {
+                "device": {
+                    "name": "Pixel 7 Pro"
+                },
+                "name": "Chrome Mobile",
+                "original": "Mozilla/5.0 (Linux; Android 14; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
+                "os": {
+                    "full": "Android 14",
+                    "name": "Android",
+                    "version": "14"
+                },
+                "version": "122.0.0.0"
             }
-          ],
-          "initial_status": "all_good",
-          "issues_displayed": [],
-          "result": "Success"
         }
-      },
-      "related": {
-        "ip": [
-          "203.0.113.42"
-        ],
-        "user": [
-          "Jane Smith",
-          "jsmith@example.com"
-        ]
-      },
-      "source": {
-        "as": {
-          "number": 64502,
-          "organization": {
-            "name": "Documentation ASN"
-          }
-        },
-        "geo": {
-          "city_name": "Madrid",
-          "continent_name": "Europe",
-          "country_iso_code": "ES",
-          "country_name": "Spain",
-          "location": {
-            "lat": 40.41639,
-            "lon": -3.7025
-          },
-          "region_iso_code": "ES-M",
-          "region_name": "Madrid"
-        },
-        "ip": "203.0.113.42"
-      },
-      "tags": [
-        "preserve_original_event"
-      ],
-      "user": {
-        "email": "jsmith@example.com",
-        "id": "99",
-        "name": "Jane Smith"
-      },
-      "user_agent": {
-        "device": {
-          "name": "Pixel 7 Pro"
-        },
-        "name": "Chrome Mobile",
-        "original": "Mozilla/5.0 (Linux; Android 14; Pixel 7 Pro) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Mobile Safari/537.36",
-        "os": {
-          "full": "Android 14",
-          "name": "Android",
-          "version": "14"
-        },
-        "version": "122.0.0.0"
-      }
-    }
-  ]
+    ]
 }
