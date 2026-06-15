@@ -56,3 +56,12 @@
         - name: location
           type: keyword
           description: API URL of the check record.
+    - name: detected_version
+      type: keyword
+      description: Version of the software detected on the device (e.g. Chrome, OS).
+    - name: expected_version
+      type: keyword
+      description: Minimum or newest version required for compliance.
+    - name: ssh_key_type
+      type: keyword
+      description: SSH key algorithm type (e.g. ssh-ed25519, ssh-rsa).

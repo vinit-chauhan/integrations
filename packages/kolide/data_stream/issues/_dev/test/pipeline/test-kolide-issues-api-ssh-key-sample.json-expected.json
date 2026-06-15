@@ -36,6 +36,7 @@
                     "issue_key": "path",
                     "issue_value": "/home/jsmith/.ssh/id_ed25519",
                     "last_rechecked_at": "2024-03-11T10:05:00.000Z",
+                    "ssh_key_type": "ssh-ed25519",
                     "title": "Unencrypted SSH Key Detected",
                     "value": {
                         "KOLIDE_CHECK_STATUS": "FAIL",

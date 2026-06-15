@@ -20,7 +20,12 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "field": "Hide Names of Admins in Privacy Center",
+                        "from": "false",
+                        "to": "true"
+                    }
                 }
             },
             "message": "Changed 'Hide Names of Admins in Privacy Center' from 'false' to 'true'",
@@ -58,14 +63,23 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "reason": "Example Reason",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "user_email": "bob.smith@example.com"
+                    }
                 }
             },
             "message": "Approved pending device registration for \"bob.smith@example.com\" and device \"Example Phone\". Reason: \"Example Reason\"",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
-                    "alice.johnson@example.com"
+                    "alice.johnson@example.com",
+                    "bob.smith@example.com"
                 ]
             },
             "tags": [
@@ -96,14 +110,22 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "user_email": "bob.smith@example.com"
+                    }
                 }
             },
             "message": "Reopened previously denied device registration for \"bob.smith@example.com\" and device \"Example Phone\".",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
-                    "alice.johnson@example.com"
+                    "alice.johnson@example.com",
+                    "bob.smith@example.com"
                 ]
             },
             "tags": [
@@ -134,14 +156,23 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "reason": "Example Reason",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "user_email": "bob.smith@example.com"
+                    }
                 }
             },
             "message": "Denied pending device registration for \"bob.smith@example.com\" and device \"Example Phone\". Reason: \"Example Reason\"",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
-                    "alice.johnson@example.com"
+                    "alice.johnson@example.com",
+                    "bob.smith@example.com"
                 ]
             },
             "tags": [
@@ -172,11 +203,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "device_serial": "invalid serial"
+                    }
                 }
             },
             "message": "Device 'Example Phone' (invalid serial) removed",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -210,11 +248,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "device_serial": "invalid serial"
+                    }
                 }
             },
             "message": "Requested device deletion for 'Example Phone' (invalid serial) ()",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -248,14 +293,22 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "user_email": "bob.smith@example.com"
+                    }
                 }
             },
             "message": "Removed device registration for \"Example Phone\" that was registered to \"bob.smith@example.com\"",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "Alice Johnson",
-                    "alice.johnson@example.com"
+                    "alice.johnson@example.com",
+                    "bob.smith@example.com"
                 ]
             },
             "tags": [
@@ -286,11 +339,20 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "expires_at": "2026-06-22",
+                    "reason": "It's already up-to-date",
+                    "target": {
+                        "check_name": "Android Software Updates - Ensure Android OS Is Up to Date",
+                        "device_name": "Example Phone (invalid serial)"
+                    }
                 }
             },
             "message": "Exempted all future issues for \"Android Software Updates - Ensure Android OS Is Up to Date\" for device: \"Example Phone (invalid serial)\". Reason: It's already up-to-date. (Expires 2026-06-22)",
             "related": {
+                "hosts": [
+                    "Example Phone (invalid serial)"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -324,7 +386,12 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "reason": "TEST EXPLANATION",
+                    "target": {
+                        "check_name": "Disk Is Not Encrypted",
+                        "issue_id": "455148606"
+                    }
                 }
             },
             "message": "Exempted issue 455148606: 'Disk Is Not Encrypted', reason: 'TEST EXPLANATION'",
@@ -362,7 +429,12 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "reason": "TEST EXPLANATION ",
+                    "target": {
+                        "check_name": "Chrome Browser Is Not Up to Date",
+                        "issue_id": "455173972"
+                    }
                 }
             },
             "message": "Exempted issue 455173972: 'Chrome Browser Is Not Up to Date', reason: 'TEST EXPLANATION '",
@@ -400,7 +472,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "check_name": "Android Software Updates - Ensure Android OS Is Up to Date"
+                    }
                 }
             },
             "message": "Paused check 'Android Software Updates - Ensure Android OS Is Up to Date'",
@@ -438,11 +513,19 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "Person"
+                    "actor_type": "Person",
+                    "target": {
+                        "device_name": "Example Phone",
+                        "device_serial": "invalid serial",
+                        "user_email": "bob.smith@example.com"
+                    }
                 }
             },
             "message": "Device \"Example Phone\" (invalid serial) registration self-approved by bob.smith@example.com from another trusted device",
             "related": {
+                "hosts": [
+                    "Example Phone"
+                ],
                 "user": [
                     "B S",
                     "bob.smith@example.com"
@@ -476,11 +559,21 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "anyone",
+                        "to": "only registered owner"
+                    },
+                    "target": {
+                        "device_name": "host-example-01"
+                    }
                 }
             },
             "message": "Updated device registration for \"host-example-01\" changed auth mode from \"anyone\" to \"only registered owner\"",
             "related": {
+                "hosts": [
+                    "host-example-01"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -514,7 +607,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "provider_name": "test"
+                    }
                 }
             },
             "message": "Removed Device Management Provider: test",
@@ -590,7 +686,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "idp_url": "idp-example.okta.com"
+                    }
                 }
             },
             "message": "Identity provider 'idp-example.okta.com' was activated",
@@ -628,7 +727,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "org_name": "Example Org"
+                    }
                 }
             },
             "message": "SCIM provider bearer token generated for 'Example Org'",
@@ -666,7 +768,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "idp_url": "idp-example.okta.com"
+                    }
                 }
             },
             "message": "Updated SSO configuration for IdP: idp-example.okta.com",
@@ -704,7 +809,13 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "to": "disable_auto_snooze"
+                    },
+                    "target": {
+                        "org_id": "6098"
+                    }
                 }
             },
             "message": "Set auto-snooze policy for org 6098 to disable_auto_snooze",
@@ -742,7 +853,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "config_type": "Device Trust Level"
+                    }
                 }
             },
             "message": "Updated device registration configuration: Device Trust Level",
@@ -780,11 +894,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "host-example-01",
+                        "device_serial": "SN000000000001"
+                    }
                 }
             },
             "message": "Device 'host-example-01' (SN000000000001) removed",
             "related": {
+                "hosts": [
+                    "host-example-01"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -818,11 +939,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "host-example-01",
+                        "device_serial": "SN000000000001"
+                    }
                 }
             },
             "message": "Requested device deletion for 'host-example-01' (SN000000000001) ()",
             "related": {
+                "hosts": [
+                    "host-example-01"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -856,7 +984,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "provider_name": "test"
+                    }
                 }
             },
             "message": "Added a Device Management Provider: test",
@@ -894,7 +1025,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "api_key_name": "example-api-key-1"
+                    }
                 }
             },
             "message": "Revealed full API Key token example-api-key-1",
@@ -932,7 +1066,11 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "only registered owner",
+                        "to": "anyone"
+                    }
                 }
             },
             "message": "Changed Default Authentication Mode\" who can authenticate from \"only registered owner\" to \"anyone\"",
@@ -970,7 +1108,11 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "curl, process_envs, ps, quicklook_cache, shell_history",
+                        "to": "curl, process_envs, ps, quicklook_cache, shell_history"
+                    }
                 }
             },
             "message": "Osquery Blocklist Updated From: \"curl, process_envs, ps, quicklook_cache, shell_history\" To: \"curl, process_envs, ps, quicklook_cache, shell_history\"",
@@ -1008,11 +1150,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "example-macbook",
+                        "device_serial": "SN000000000002"
+                    }
                 }
             },
             "message": "Device 'example-macbook' (SN000000000002) removed",
             "related": {
+                "hosts": [
+                    "example-macbook"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -1046,11 +1195,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "example-macbook",
+                        "device_serial": "SN000000000002"
+                    }
                 }
             },
             "message": "Requested device deletion for 'example-macbook' (SN000000000002) ()",
             "related": {
+                "hosts": [
+                    "example-macbook"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -1084,11 +1240,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "device_name": "example-macbook",
+                        "device_serial": "SN000000000002"
+                    }
                 }
             },
             "message": "Cancelled pending deletion for 'example-macbook' (SN000000000002)",
             "related": {
+                "hosts": [
+                    "example-macbook"
+                ],
                 "user": [
                     "Alice Johnson",
                     "alice.johnson@example.com"
@@ -1122,7 +1285,11 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "example-macbook-new",
+                        "to": "example-macbook"
+                    }
                 }
             },
             "message": "Changed device name from 'example-macbook-new' to 'example-macbook'",
@@ -1160,7 +1327,13 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "to": "enable_all"
+                    },
+                    "target": {
+                        "org_id": "6098"
+                    }
                 }
             },
             "message": "Set auto-snooze policy for org 6098 to enable_all",
@@ -1198,7 +1371,13 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "to": "enable_only_snoozable"
+                    },
+                    "target": {
+                        "org_id": "6098"
+                    }
                 }
             },
             "message": "Set auto-snooze policy for org 6098 to enable_only_snoozable",
@@ -1312,7 +1491,11 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "true",
+                        "to": "false"
+                    }
                 }
             },
             "message": "Changed Privacy Center Custom Resource Section visibility from true to false",
@@ -1350,7 +1533,11 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "change": {
+                        "from": "false",
+                        "to": "true"
+                    }
                 }
             },
             "message": "Changed Privacy Center Custom Resource Section visibility from false to true",
@@ -1388,7 +1575,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "check_name": "1Password - Disallow 1Password Emergency Kit to Be Stored in Plaintext"
+                    }
                 }
             },
             "message": "Enabled check '1Password - Disallow 1Password Emergency Kit to Be Stored in Plaintext'",
@@ -1464,7 +1654,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "user_email": "alice.johnson@example.com"
+                    }
                 }
             },
             "message": "user 'alice.johnson@example.com' accepted invitation to Kolide",
@@ -1502,14 +1695,18 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "user_email": "alice.johnson@example.com"
+                    }
                 }
             },
             "message": "Invited 'alice.johnson@example.com' to access kolide",
             "related": {
                 "user": [
                     "Charlie Davis",
-                    "charlie.davis@example.com"
+                    "charlie.davis@example.com",
+                    "alice.johnson@example.com"
                 ]
             },
             "tags": [

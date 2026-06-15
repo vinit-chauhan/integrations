@@ -52,3 +52,6 @@
         - name: event_description
           type: keyword
           description: Human-readable description of the sub-event.
+    - name: downloaded_packages
+      type: keyword
+      description: Names of packages downloaded to the device during the authentication session.

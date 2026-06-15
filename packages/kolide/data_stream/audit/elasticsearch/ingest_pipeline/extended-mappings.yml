@@ -1,0 +1,253 @@
+---
+description: >-
+  Extended field extraction for Kolide audit_log events. Parses the human-readable
+  description (message) with dissect patterns to populate structured target,
+  change, and reason fields.
+processors:
+  # ── Device registration: approval ────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Approved pending device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}". Reason: "%{kolide.audit.reason}"'
+      tag: dissect_device_reg_approved
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device registration: denial ──────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Denied pending device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}". Reason: "%{kolide.audit.reason}"'
+      tag: dissect_device_reg_denied
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device registration: reopened after denial ───────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Reopened previously denied device registration for "%{kolide.audit.target.user_email}" and device "%{kolide.audit.target.device_name}".'
+      tag: dissect_device_reg_reopened
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device registration: self-approved ───────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Device "%{kolide.audit.target.device_name}" (%{kolide.audit.target.device_serial}) registration self-approved by %{kolide.audit.target.user_email} from another trusted device'
+      tag: dissect_device_reg_self_approved
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device registration: removed ─────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Removed device registration for "%{kolide.audit.target.device_name}" that was registered to "%{kolide.audit.target.user_email}"'
+      tag: dissect_device_reg_removed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device registration: auth mode changed ───────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Updated device registration for "%{kolide.audit.target.device_name}" changed auth mode from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
+      tag: dissect_device_reg_auth_mode
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device: removed (single-quote format) ────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Device '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial}) removed"
+      tag: dissect_device_removed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device: deletion requested ───────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Requested device deletion for '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial}) ()"
+      tag: dissect_device_deletion_requested
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device: deletion cancelled ───────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Cancelled pending deletion for '%{kolide.audit.target.device_name}' (%{kolide.audit.target.device_serial})"
+      tag: dissect_device_deletion_cancelled
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device: name changed ─────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Changed device name from '%{kolide.audit.change.from}' to '%{kolide.audit.change.to}'"
+      tag: dissect_device_name_changed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Check: paused ────────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Paused check '%{kolide.audit.target.check_name}'"
+      tag: dissect_check_paused
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Check: enabled ───────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Enabled check '%{kolide.audit.target.check_name}'"
+      tag: dissect_check_enabled
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Issue: all-future exemption ──────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Exempted all future issues for "%{kolide.audit.target.check_name}" for device: "%{kolide.audit.target.device_name}". Reason: %{kolide.audit.reason}. (Expires %{kolide.audit.expires_at})'
+      tag: dissect_issue_exempted_all_future
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Issue: specific exemption ────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Exempted issue %{kolide.audit.target.issue_id}: '%{kolide.audit.target.check_name}', reason: '%{kolide.audit.reason}'"
+      tag: dissect_issue_exempted_specific
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: generic field changed ───────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Changed '%{kolide.audit.change.field}' from '%{kolide.audit.change.from}' to '%{kolide.audit.change.to}'"
+      tag: dissect_setting_changed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: default authentication mode ─────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Changed Default Authentication Mode" who can authenticate from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
+      tag: dissect_auth_mode_changed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: Privacy Center visibility ───────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Changed Privacy Center Custom Resource Section visibility from %{kolide.audit.change.from} to %{kolide.audit.change.to}'
+      tag: dissect_privacy_center_visibility
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: Osquery blocklist ────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Osquery Blocklist Updated From: "%{kolide.audit.change.from}" To: "%{kolide.audit.change.to}"'
+      tag: dissect_osquery_blocklist
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: auto-snooze policy ──────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Set auto-snooze policy for org %{kolide.audit.target.org_id} to %{kolide.audit.change.to}'
+      tag: dissect_auto_snooze_policy
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Setting: device registration configuration ───────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Updated device registration configuration: %{kolide.audit.target.config_type}'
+      tag: dissect_device_reg_config
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── IdP / SSO ─────────────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Identity provider '%{kolide.audit.target.idp_url}' was activated"
+      tag: dissect_idp_activated
+      ignore_failure: true
+      ignore_missing: true
+  - dissect:
+      field: message
+      pattern: 'Updated SSO configuration for IdP: %{kolide.audit.target.idp_url}'
+      tag: dissect_sso_config_updated
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── SCIM ──────────────────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "SCIM provider bearer token generated for '%{kolide.audit.target.org_name}'"
+      tag: dissect_scim_token_generated
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── Device management provider ───────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Added a Device Management Provider: %{kolide.audit.target.provider_name}'
+      tag: dissect_dmp_added
+      ignore_failure: true
+      ignore_missing: true
+  - dissect:
+      field: message
+      pattern: 'Removed Device Management Provider: %{kolide.audit.target.provider_name}'
+      tag: dissect_dmp_removed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── API key ───────────────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: 'Revealed full API Key token %{kolide.audit.target.api_key_name}'
+      tag: dissect_api_key_revealed
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── User invitation ───────────────────────────────────────────────────────────
+  - dissect:
+      field: message
+      pattern: "Invited '%{kolide.audit.target.user_email}' to access kolide"
+      tag: dissect_user_invited
+      ignore_failure: true
+      ignore_missing: true
+  - dissect:
+      field: message
+      pattern: "user '%{kolide.audit.target.user_email}' accepted invitation to Kolide"
+      tag: dissect_user_invitation_accepted
+      ignore_failure: true
+      ignore_missing: true
+
+  # ── related.* enrichment ─────────────────────────────────────────────────────
+  - append:
+      field: related.hosts
+      tag: append_related_hosts_target_device
+      value: '{{{kolide.audit.target.device_name}}}'
+      allow_duplicates: false
+      if: ctx.kolide?.audit?.target?.device_name != null
+  - append:
+      field: related.user
+      tag: append_related_user_target_email
+      value: '{{{kolide.audit.target.user_email}}}'
+      allow_duplicates: false
+      if: ctx.kolide?.audit?.target?.user_email != null
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

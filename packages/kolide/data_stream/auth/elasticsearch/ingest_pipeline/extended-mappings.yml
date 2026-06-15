@@ -1,0 +1,58 @@
+---
+description: >-
+  Extended field extraction for Kolide auth_log events. Sets event.outcome from
+  the session result and extracts structured data from sub-event descriptions.
+processors:
+  # ── event.outcome from session result ────────────────────────────────────────
+  - set:
+      field: event.outcome
+      tag: set_event_outcome_success
+      value: success
+      if: ctx.kolide?.auth?.result == 'Success'
+  - set:
+      field: event.outcome
+      tag: set_event_outcome_failure
+      value: failure
+      if: ctx.kolide?.auth?.result == 'Fail'
+
+  # ── Extract downloaded package names from sub-event descriptions ─────────────
+  - script:
+      lang: painless
+      tag: extract_downloaded_packages
+      if: ctx.kolide?.auth?.events instanceof List
+      ignore_failure: true
+      description: >-
+        Scan sub-event descriptions for downloaded package names and collect
+        them into kolide.auth.downloaded_packages.
+      source: |-
+        def prefix = 'Downloaded package: ';
+        def packages = new ArrayList();
+        for (def ev : ctx.kolide.auth.events) {
+          def desc = ev?.event_description;
+          if (desc instanceof String && desc.startsWith(prefix)) {
+            packages.add(desc.substring(prefix.length()));
+          }
+        }
+        if (!packages.isEmpty()) {
+          if (ctx.kolide.auth.downloaded_packages == null) {
+            ctx.kolide.auth.downloaded_packages = packages;
+          } else {
+            ctx.kolide.auth.downloaded_packages.addAll(packages);
+          }
+        }
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

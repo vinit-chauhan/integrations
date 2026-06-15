@@ -40,3 +40,5 @@
   external: ecs
 - name: related.user
   external: ecs
+- name: file.device
+  external: ecs

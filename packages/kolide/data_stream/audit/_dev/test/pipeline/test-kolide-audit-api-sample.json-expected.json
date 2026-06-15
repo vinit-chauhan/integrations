@@ -20,7 +20,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "check_name": "iTerm2 - Require Secure Keyboard Entry to Be Enabled"
+                    }
                 }
             },
             "message": "Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'",

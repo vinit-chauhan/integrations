@@ -317,6 +317,9 @@
             "kolide": {
                 "auth": {
                     "agent_version": "2.1.1",
+                    "downloaded_packages": [
+                        "linux-systemd-deb"
+                    ],
                     "events": [
                         {
                             "event_description": "SAML session started by bob.smith@example.com",
@@ -526,6 +529,9 @@
             },
             "kolide": {
                 "auth": {
+                    "downloaded_packages": [
+                        "linux-systemd-deb"
+                    ],
                     "events": [
                         {
                             "event_description": "SAML session started by bob.smith@example.com",

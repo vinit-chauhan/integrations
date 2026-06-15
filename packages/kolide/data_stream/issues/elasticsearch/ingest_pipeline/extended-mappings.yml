@@ -1,0 +1,58 @@
+---
+description: >-
+  Extended field extraction for Kolide issue records. Promotes check-specific
+  fields from kolide.issues.value to ECS and custom fields based on the check type.
+processors:
+  # ── Software version (Chrome, OS update checks) ──────────────────────────────
+  - set:
+      field: kolide.issues.detected_version
+      tag: set_detected_version
+      copy_from: kolide.issues.value.version
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.version instanceof String
+  - set:
+      field: kolide.issues.expected_version
+      tag: set_expected_version
+      copy_from: kolide.issues.value.newest_version
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.newest_version instanceof String
+
+  # ── SSH key algorithm type ────────────────────────────────────────────────────
+  - set:
+      field: kolide.issues.ssh_key_type
+      tag: set_ssh_key_type
+      copy_from: kolide.issues.value.key_type
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.key_type instanceof String
+
+  # ── Disk encryption: block device ────────────────────────────────────────────
+  - set:
+      field: file.device
+      tag: set_file_device
+      copy_from: kolide.issues.value.device
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.value?.device instanceof String && ctx.file?.device == null
+
+  # ── related.user: Chrome username (when not already promoted from value.username) ──
+  - append:
+      field: related.user
+      tag: append_related_user_from_value_username
+      value: '{{{kolide.issues.value.username}}}'
+      allow_duplicates: false
+      if: ctx.kolide?.issues?.value?.username instanceof String && ctx.user?.name == null
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

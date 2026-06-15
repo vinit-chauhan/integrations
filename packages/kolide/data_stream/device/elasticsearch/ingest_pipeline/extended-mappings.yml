@@ -1,0 +1,47 @@
+---
+description: >-
+  Extended field extraction for Kolide device records. Sets host.os.type from
+  the device platform reported by the Kolide API.
+processors:
+  # ── host.os.type from kolide device_type / host.os.platform ─────────────────
+  - set:
+      field: host.os.type
+      tag: set_os_type_android
+      value: android
+      if: ctx.host?.os?.platform == 'android'
+  - set:
+      field: host.os.type
+      tag: set_os_type_macos
+      value: macos
+      if: ctx.host?.os?.platform == 'mac'
+  - set:
+      field: host.os.type
+      tag: set_os_type_windows
+      value: windows
+      if: ctx.host?.os?.platform == 'windows'
+  - set:
+      field: host.os.type
+      tag: set_os_type_linux
+      value: linux
+      if: ctx.host?.os?.platform == 'linux'
+  - set:
+      field: host.os.type
+      tag: set_os_type_ios
+      value: ios
+      if: ctx.host?.os?.platform == 'ios'
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

@@ -333,6 +333,12 @@ processors:
       allow_duplicates: false
       if: ctx.host?.name != null
 
+  # --- Extended field extraction from message/description ---
+  - pipeline:
+      name: '{{ IngestPipeline "extended-mappings" }}'
+      tag: extended_mappings
+      ignore_missing_pipeline: true
+
   # --- Cleanup ---
   - remove:
       field:

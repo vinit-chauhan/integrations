@@ -5,3 +5,59 @@
     - name: actor_type
       type: keyword
       description: Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`.
+    - name: target
+      type: group
+      description: Subject of the audited action, distinct from the actor who performed it.
+      fields:
+        - name: user_email
+          type: keyword
+          description: Email address of the user affected by the action.
+        - name: device_name
+          type: keyword
+          description: Name of the device affected by the action.
+        - name: device_serial
+          type: keyword
+          description: Serial number of the device affected by the action.
+        - name: check_name
+          type: keyword
+          description: Name of the Kolide check affected by the action.
+        - name: issue_id
+          type: keyword
+          description: Numeric identifier of the issue affected by the action.
+        - name: org_id
+          type: keyword
+          description: Numeric identifier of the organization.
+        - name: idp_url
+          type: keyword
+          description: URL or hostname of the identity provider.
+        - name: provider_name
+          type: keyword
+          description: Name of the device management provider.
+        - name: org_name
+          type: keyword
+          description: Display name of the organization.
+        - name: config_type
+          type: keyword
+          description: Type of the configuration that was updated.
+        - name: api_key_name
+          type: keyword
+          description: Name or label of the API key that was revealed or created.
+    - name: change
+      type: group
+      description: Before/after values for settings changes extracted from the audit description.
+      fields:
+        - name: field
+          type: keyword
+          description: Name of the setting that was changed.
+        - name: from
+          type: keyword
+          description: Previous value of the setting.
+        - name: to
+          type: keyword
+          description: New value of the setting.
+    - name: reason
+      type: keyword
+      description: Human-provided reason for an exemption, approval, or denial.
+    - name: expires_at
+      type: keyword
+      description: Expiry date for an exemption, as a human-readable string from the audit log.
