@@ -2,6 +2,13 @@
 - version: "0.2.7"
   changes:
     - description: >-
+        Classified audit log events by setting `event.action` to the documented Kolide event
+        name (snake_case, e.g. `device_registration_approved`, `webhook_created`), derived from
+        the description. Events whose description matches no known pattern retain the generic
+        `audit_log` (API) / webhook event value.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+    - description: >-
         Expanded audit log extended parsing to cover every documented Kolide audit event
         category (checks, devices, device registrations, exemption requests, people, managed
         web apps, groups, log pipeline, live queries, Okta webhooks, billing, end-user portal,

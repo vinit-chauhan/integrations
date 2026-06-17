@@ -1,15 +1,23 @@
 ---
 description: >-
   Extended field extraction for Kolide audit_log events. Parses the human-readable
-  description (message) into ECS and structured custom fields. Patterns cover every
-  documented audit log event category
-  (https://www.kolide.com/docs/admins/settings-admin-tools/audit-log#events). 
-  Where the description observed in real instance data
-  differs from the documented template (colons, trailing clauses, device serial
-  suffix), both variants are supported via alternations in a single grok processor.
-  Prefer ECS fields (host.name, rule.name, user.target.email) over the vendor
-  namespace where a semantic match exists. Every grok pattern is anchored and uses
-  `ignore_failure: true` so non-matching descriptions fall through untouched.
+  description (message) into ECS and structured custom fields, then classifies each
+  event by setting `event.action` to the documented event name (snake_case) from
+  https://www.kolide.com/docs/admins/settings-admin-tools/audit-log#events. The
+  event name is not present in the API/webhook payload; it is derived from the
+  description. Field extraction uses anchored grok processors grouped by category
+  (each with `ignore_failure: true` so non-matching descriptions fall through). The
+  `event.action` classification is performed once per document by a single Painless
+  script (rather than one set/if pair per event type) to avoid per-event processor
+  overhead. Events whose description matches no known prefix keep the generic
+  `audit_log` (API) / webhook event value already on `event.action`. The
+  documentation renders curly typographic quotes, but the REST API and webhook
+  payloads deliver straight ASCII quotes (" and '), so patterns match straight
+  quotes only. Where the description observed in real instance data differs from the
+  documented template (colons, trailing clauses, device serial suffix), both
+  variants are supported via alternations in a single grok. Prefer ECS fields
+  (host.name, rule.name, user.target.email) over the vendor namespace where a
+  semantic match exists.
 processors:
   # ════════════════════════════════════════════════════════════════════════════
   # Checks
@@ -495,6 +503,180 @@ processors:
       ignore_failure: true
       ignore_missing: true
       if: ctx.kolide?.audit?.change?.field == null && ctx.kolide?.audit?.change?.from == null
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # event.action classification (single pass). Derives the documented event name
+  # (snake_case) from the description and overwrites the generic `audit_log` /
+  # webhook default. One compiled script per document instead of a set/if pair per
+  # event type. Ordered most-specific first; the first matching prefix/equality
+  # wins. Unmatched descriptions leave event.action untouched (generic default).
+  # ════════════════════════════════════════════════════════════════════════════
+  - script:
+      lang: painless
+      tag: classify_event_action
+      description: Map the audit description to the documented event name (snake_case) in event.action.
+      if: ctx.message != null
+      source: |-
+        String m = ctx.message;
+        String a = null;
+
+        // Exact-match, fixed-description events (no extractable fields).
+        if (m == 'Created an API key') { a = 'api_key_created'; }
+        else if (m == 'Removed an API key') { a = 'api_key_deleted'; }
+        else if (m == 'Rotated API key') { a = 'api_key_secret_rotated'; }
+        else if (m == 'Enabled the logging pipeline') { a = 'logging_pipeline_enabled'; }
+        else if (m == 'Disabled the logging pipeline') { a = 'logging_pipeline_disabled'; }
+        else if (m == 'Updated osquery options') { a = 'updated_osquery_options'; }
+        else if (m == 'Reset all osquery options to their default value') { a = 'reset_osquery_options'; }
+        else if (m == 'Updated SAML configuration') { a = 'updated_saml_configuration'; }
+        else if (m == 'Okta event hooks verified') { a = 'saml_webhook_verification'; }
+        else if (m == 'Duplicate device found') { a = 'duplicate_device_found'; }
+        else if (m == 'created a Vanta integration') { a = 'vanta_integration_created'; }
+        else if (m == 'removed Vanta integration') { a = 'vanta_integration_deleted'; }
+        else if (m == "modified the organization's extended device compliance configuration") { a = 'extended_device_compliance_configuration_changed'; }
+
+        // Checks.
+        else if (m.startsWith('Deleted Check ')) { a = 'check_deleted'; }
+        else if (m.startsWith('Reverted Check ')) { a = 'check_reverted'; }
+        else if (m.startsWith('Updated existing Check ')) { a = 'check_updated'; }
+        else if (m.startsWith('Published new Check ')) { a = 'check_published'; }
+        else if (m.startsWith('Changed Fix Instructions Template ') || m.startsWith('Changed Rationale Template ')) { a = 'check_configuration_changed'; }
+        else if (m.startsWith('Updated device trust settings for ') || m.startsWith('Updated run targets for ')) { a = 'updated_check_device_trust_settings'; }
+        else if (m.startsWith('Paused check ')) { a = 'check_paused'; }
+        else if (m.startsWith('Enabled check ')) { a = 'check_enabled'; }
+
+        // Devices.
+        else if (m.startsWith('Changed device name from ')) { a = 'device_display_name_changed'; }
+        else if (m.startsWith('Cancelled pending deletion for ')) { a = 'canceled_device_removal'; }
+
+        // Device registrations.
+        else if (m.startsWith('Approved pending device registration for ')) { a = 'device_registration_approved'; }
+        else if (m.startsWith('Denied pending device registration for ')) { a = 'device_registration_denied'; }
+        else if (m.startsWith('Reopened previously ') && m.contains(' device registration for ')) { a = 'device_registration_reopened'; }
+        else if (m.contains(' registration self-approved by ')) { a = 'device_registration_self_approved'; }
+        else if (m.startsWith('Removed device registration for ')) { a = 'device_registration_removed'; }
+        else if (m.startsWith('TOFU device registration re-enabled for ')) { a = 'tofu_device_registration_re_enabled'; }
+        else if (m.startsWith('Updated device registration for ') && m.contains(' changed auth mode from ')) { a = 'device_registration_auth_mode_changed'; }
+        else if (m.startsWith('Changed Default Authentication Mode') || m.startsWith("Changed 'Allows ") || m.startsWith("Set 'Required ") || m.startsWith('Updated device registration configuration: ')) { a = 'device_registration_configuration_changed'; }
+
+        // Exemption requests.
+        else if (m.startsWith('Approved exemption request for ')) { a = 'exemption_request_approved'; }
+        else if (m.startsWith('Denied exemption request for ')) { a = 'exemption_request_denied'; }
+        else if (m.startsWith('Reopened previously ') && m.contains(' exemption for ')) { a = 'exemption_request_reopened'; }
+        else if (m.contains(' withdrew exemption request for check: ')) { a = 'exemption_request_withdrawn'; }
+        else if (m.startsWith('Exempted all future issues for ')) { a = 'check_marked_as_out_of_scope'; }
+        else if (m.startsWith('Exempted issue ')) { a = 'issue_exempted'; }
+
+        // People.
+        else if (m.startsWith('Reset factor enrollment for ')) { a = 'factor_enrollment_reset'; }
+        else if (m.startsWith('Verified factor enrollment for ')) { a = 'factor_enrollment_verified'; }
+        else if (m.startsWith('Merged the person, ')) { a = 'person_record_merged'; }
+        else if (m.startsWith('Restored the person, ')) { a = 'person_record_unmerged'; }
+
+        // Managed web app.
+        else if (m.startsWith('Created managed app ')) { a = 'managed_app_created'; }
+        else if (m.startsWith('Deleted managed app ')) { a = 'managed_app_deleted'; }
+        else if (m.startsWith('Sign on settings were updated for ')) { a = 'managed_app_sign_on_settings_updated'; }
+        else if (m.contains(' directly assigned people membership from ')) { a = 'managed_app_direct_assigned_people_membership_changed'; }
+        else if (m.contains(' directly assigned person groups membership from ')) { a = 'managed_app_person_groups_membership_changed'; }
+        else if (m.startsWith('Updated managed app ')) { a = 'managed_app_updated'; }
+
+        // Groups.
+        else if (m.startsWith('Mass-Removed members from device group: ')) { a = 'device_group_memberships_removed'; }
+        else if (m.startsWith('Created device group ')) { a = 'device_group_created'; }
+        else if (m.startsWith('Deleted device group ')) { a = 'device_group_deleted'; }
+
+        // Log pipeline.
+        else if (m.startsWith('Added device property logger ')) { a = 'device_property_logger_added'; }
+        else if (m.startsWith('Removed device property logger ')) { a = 'device_property_logger_removed'; }
+        else if (m.startsWith('Enabled the log pipeline destination ')) { a = 'enabled_log_pipeline_destination'; }
+        else if (m.startsWith('Disabled the log pipeline destination ')) { a = 'disabled_log_pipeline_destination'; }
+        else if (m.startsWith('Deleted the log pipeline destination ')) { a = 'deleted_log_pipeline_destination'; }
+        else if (m.startsWith('Updated the ') && m.contains(' log destination ')) { a = 'updated_log_pipeline_destination'; }
+        else if (m.startsWith('Created a ') && m.contains(' log pipeline destination named ')) { a = 'created_log_pipeline_destination'; }
+        else if (m.contains('osquery decorator ')) { a = 'osquery_decorator_changed'; }
+        else if (m.contains('osquery FIM category ')) { a = 'osquery_fim_category_changed'; }
+        else if (m.contains('discovery query ')) { a = 'discovery_query_changed'; }
+        else if (m.contains('osquery pack query ')) { a = 'osquery_pack_query_changed'; }
+        else if (m.contains('osquery query ')) { a = 'osquery_pack_query_changed'; }
+        else if (m.contains('osquery pack ')) { a = 'osquery_pack_changed'; }
+
+        // Live queries.
+        else if (m.startsWith('Created and ran Live Query Campaign ')) { a = 'live_query_created_and_run'; }
+        else if (m.startsWith('Updated and ran Live Query Campaign ')) { a = 'live_query_updated_and_run'; }
+        else if (m.startsWith('Deleted Live Query Campaign ')) { a = 'live_query_deleted'; }
+        else if (m.startsWith('CSV Downloaded For Device ')) { a = 'live_query_single_result_csv_exported'; }
+        else if (m.startsWith('Unpublished Live Query Campaign ')) { a = 'live_query_unpublished'; }
+        else if (m.startsWith('CSV Downloaded For Live Query Campaign ')) { a = 'live_query_csv_exported'; }
+        else if (m.startsWith('Published Live Query Campaign ')) { a = 'live_query_published'; }
+
+        // Okta webhooks (dynamic event name).
+        else if (m.startsWith('Okta event hook received for ') && ctx.kolide?.audit?.target?.okta_event != null) { a = ctx.kolide.audit.target.okta_event; }
+
+        // Billing.
+        else if (m.startsWith('Updated billing email to ')) { a = 'billing_email_updated'; }
+
+        // End user portal (privacy center).
+        else if (m.startsWith("Changed 'Privacy Center Access Restriction Settings'") || m.startsWith('Changed Privacy Center Custom Resource Section visibility ')) { a = 'privacy_center_configuration_changed'; }
+
+        // Automatic device removal.
+        else if (m.startsWith('Device ') && m.endsWith(' removed')) { a = 'device_removed'; }
+        else if (m.startsWith('triggered device deletion for ') || m.startsWith('Requested device deletion for ')) { a = 'device_deletion_requested'; }
+
+        // Restrictions.
+        else if (m.startsWith('Osquery Blocklist Updated From: ')) { a = 'osquery_blocklist_updated'; }
+
+        // Admin users.
+        else if (m.startsWith('user ') && m.endsWith(' accepted invitation to Kolide')) { a = 'kolide_team_member_created'; }
+        else if (m.startsWith('Invited ')) { a = 'kolide_team_member_invited'; }
+        else if (m.startsWith('Removed access for Kolide user ')) { a = 'kolide_team_member_deleted'; }
+        else if (m.contains(' restriction on ') && m.startsWith('Updated ')) { a = 'user_feature_restriction_changed'; }
+        else if (m.startsWith('Updated access for user ')) { a = 'user_access_changed'; }
+        else if (m.startsWith('Revoked invitations created by ')) { a = 'invitations_revoked_because_inviter_access_changed'; }
+        else if (m.startsWith('Added EPM user ')) { a = 'user_added'; }
+
+        // SSO settings.
+        else if (m.startsWith('Kolide IdP settings were updated from:')) { a = 'idp_settings_changed'; }
+        else if (m.startsWith('IdP Proxy webhook token generated for ')) { a = 'webhook_token_generated'; }
+        else if (m.startsWith('Kolide IdP: Additional Factor Sequencing was ')) { a = 'factor_sequencing_changed'; }
+        else if (m.startsWith('Identity provider ') && m.endsWith(' was activated')) { a = 'identity_provider_activated'; }
+        else if (m.startsWith('Updated SSO configuration for IdP: ')) { a = 'updated_sso_configuration'; }
+        else if (m.startsWith('SCIM provider bearer token generated for ')) { a = 'scim_provider_bearer_token_generated'; }
+
+        // Integrations (Google Workspace OAuth importer).
+        else if (m.startsWith('created a OAuth grant importer for a Google Workspace integration ')) { a = 'oauth_grant_importer_for_google_workspace_integration_created'; }
+        else if (m.startsWith('removed a OAuth grant importer for a Google Workspace integration ')) { a = 'oauth_grant_importer_for_google_workspace_integration_deleted'; }
+
+        // Device management providers.
+        else if (m.startsWith('Added a Device Management Provider')) { a = 'device_management_provider_added'; }
+        else if (m.startsWith('Updated Device Management Provider: ')) { a = 'device_management_provider_updated'; }
+        else if (m.startsWith('Removed Device Management Provider: ')) { a = 'device_management_provider_deleted'; }
+
+        // Settings: auto-snooze policy.
+        else if (m.startsWith('Set auto-snooze policy for org ')) { a = 'auto_snooze_policy_changed'; }
+
+        // End user remediation configuration.
+        else if (m == "modified the organization's end user remediation configuration" || m.startsWith('Updated End-User Remediation Configuration')) { a = 'end_user_remediation_configuration_changed'; }
+
+        // Developers (API keys & webhooks).
+        else if (m.startsWith('Revealed full API Key token ')) { a = 'api_key_secret_viewed'; }
+        else if (m.startsWith('API Key ') && ctx.kolide?.audit?.target?.api_key_name != null) { a = 'updated_api_key'; }
+        else if (m.startsWith('Created webhook with url ')) { a = 'webhook_created'; }
+        else if (m.startsWith('Deleted webhook with url ')) { a = 'webhook_deleted'; }
+        else if (m.startsWith('Enabled webhook with url ')) { a = 'webhook_enabled'; }
+        else if (m.startsWith('Disabled webhook with url ')) { a = 'webhook_disabled'; }
+        else if (m.startsWith('Revealed full webhook signing secret ')) { a = 'webhook_signing_secret_viewed'; }
+        else if (m.startsWith('Updated webhook url from ')) { a = 'webhook_url_changed'; }
+        else if (m.startsWith('Updated event subscriptions for webhook ')) { a = 'webhook_event_subscriptions_changed'; }
+        else if (m.startsWith('Rolled signing secret for webhook with url ')) { a = 'webhook_signing_secret_rolled'; }
+
+        // Generic feature restriction change fallback.
+        else if (m.startsWith("Changed '") && ctx.kolide?.audit?.change?.field != null) { a = 'feature_restriction_changed'; }
+
+        if (a != null) {
+          if (ctx.event == null) { ctx.event = new HashMap(); }
+          ctx.event.action = a;
+        }
 
   # ════════════════════════════════════════════════════════════════════════════
   # Derived / normalized fields

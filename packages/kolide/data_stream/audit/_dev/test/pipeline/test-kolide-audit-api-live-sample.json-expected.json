@@ -6,7 +6,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "feature_restriction_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -49,7 +49,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_approved",
                 "category": [
                     "iam",
                     "configuration"
@@ -99,7 +99,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_reopened",
                 "category": [
                     "iam",
                     "configuration"
@@ -151,7 +151,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_denied",
                 "category": [
                     "iam",
                     "configuration"
@@ -201,7 +201,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_removed",
                 "category": [
                     "iam",
                     "configuration"
@@ -249,7 +249,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_deletion_requested",
                 "category": [
                     "iam",
                     "configuration"
@@ -297,7 +297,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_removed",
                 "category": [
                     "iam",
                     "configuration"
@@ -346,7 +346,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "check_marked_as_out_of_scope",
                 "category": [
                     "iam",
                     "configuration"
@@ -396,7 +396,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "issue_exempted",
                 "category": [
                     "iam",
                     "configuration"
@@ -441,7 +441,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "issue_exempted",
                 "category": [
                     "iam",
                     "configuration"
@@ -486,7 +486,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "check_paused",
                 "category": [
                     "iam",
                     "configuration"
@@ -527,7 +527,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_self_approved",
                 "category": [
                     "iam",
                     "configuration"
@@ -578,7 +578,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_auth_mode_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -627,7 +627,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_management_provider_deleted",
                 "category": [
                     "iam",
                     "configuration"
@@ -668,7 +668,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "idp_settings_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -706,7 +706,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "identity_provider_activated",
                 "category": [
                     "iam",
                     "configuration"
@@ -750,7 +750,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "scim_provider_bearer_token_generated",
                 "category": [
                     "iam",
                     "configuration"
@@ -791,7 +791,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "updated_sso_configuration",
                 "category": [
                     "iam",
                     "configuration"
@@ -835,7 +835,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "auto_snooze_policy_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -879,7 +879,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -920,7 +920,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_removed",
                 "category": [
                     "iam",
                     "configuration"
@@ -968,7 +968,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_deletion_requested",
                 "category": [
                     "iam",
                     "configuration"
@@ -1016,7 +1016,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_management_provider_added",
                 "category": [
                     "iam",
                     "configuration"
@@ -1057,7 +1057,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "api_key_secret_viewed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1098,7 +1098,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_registration_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1140,7 +1140,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "osquery_blocklist_updated",
                 "category": [
                     "iam",
                     "configuration"
@@ -1182,7 +1182,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_removed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1230,7 +1230,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_deletion_requested",
                 "category": [
                     "iam",
                     "configuration"
@@ -1278,7 +1278,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "canceled_device_removal",
                 "category": [
                     "iam",
                     "configuration"
@@ -1326,7 +1326,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "device_display_name_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1368,7 +1368,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "auto_snooze_policy_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1412,7 +1412,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "auto_snooze_policy_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1456,7 +1456,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "end_user_remediation_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1494,7 +1494,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "end_user_remediation_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1532,7 +1532,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "privacy_center_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1574,7 +1574,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "privacy_center_configuration_changed",
                 "category": [
                     "iam",
                     "configuration"
@@ -1616,7 +1616,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "check_enabled",
                 "category": [
                     "iam",
                     "configuration"
@@ -1657,7 +1657,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "api_key_created",
                 "category": [
                     "iam",
                     "configuration"
@@ -1695,7 +1695,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "kolide_team_member_created",
                 "category": [
                     "iam",
                     "configuration"
@@ -1736,7 +1736,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log",
+                "action": "kolide_team_member_invited",
                 "category": [
                     "iam",
                     "configuration"

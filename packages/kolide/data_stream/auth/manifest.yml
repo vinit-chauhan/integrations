@@ -17,7 +17,7 @@ streams:
       - name: initial_interval
         type: text
         title: Initial Interval
-        description: How far back to look the first time the integration runs (e.g. 24h, 7d).
+        description: How far back to look the first time the integration runs. Supports seconds, minutes, and hours (e.g. 24h, 720h). Days (d) are not supported.
         required: true
         show_user: true
         default: 24h

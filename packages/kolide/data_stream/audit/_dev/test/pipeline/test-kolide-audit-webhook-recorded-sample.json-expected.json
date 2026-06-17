@@ -6,7 +6,7 @@
                 "version": "9.3.0"
             },
             "event": {
-                "action": "audit_log.recorded",
+                "action": "check_enabled",
                 "category": [
                     "iam",
                     "configuration"

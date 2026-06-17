@@ -707,17 +707,37 @@ The `audit` data stream provides the Kolide administrative audit log of console 
 | kolide.audit.actor_type | Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`. | keyword |
 | kolide.audit.change.field | Name of the setting that was changed. | keyword |
 | kolide.audit.change.from | Previous value of the setting. | keyword |
+| kolide.audit.change.groups_from | Previous set of allowed groups for a device registration auth mode change. | keyword |
+| kolide.audit.change.groups_to | New set of allowed groups for a device registration auth mode change. | keyword |
 | kolide.audit.change.to | New value of the setting. | keyword |
 | kolide.audit.expires_at | Expiry date for an exemption, as a human-readable string from the audit log. | keyword |
 | kolide.audit.reason | Human-provided reason for an exemption, approval, or denial. | keyword |
 | kolide.audit.target.api_key_name | Name or label of the API key that was revealed or created. | keyword |
+| kolide.audit.target.app_name | Name of the managed web application affected by the action. | keyword |
+| kolide.audit.target.campaign_id | Identifier of the live query campaign affected by the action. | keyword |
+| kolide.audit.target.check_names | Names of the checks set as required for device registration. | keyword |
 | kolide.audit.target.config_type | Type of the configuration that was updated. | keyword |
+| kolide.audit.target.count | Count of members or people associated with the audited object. | long |
+| kolide.audit.target.destination_name | Name of the log pipeline destination affected by the action. | keyword |
+| kolide.audit.target.destination_type | Type of the log pipeline destination (for example `Amazon S3`, `Splunk HEC`). | keyword |
 | kolide.audit.target.device_serial | Serial number of the device affected by the action. | keyword |
+| kolide.audit.target.feature | Name of the feature whose restriction was changed for a user. | keyword |
+| kolide.audit.target.fim_category | Name of the osquery FIM (file integrity monitoring) category affected by the action. | keyword |
+| kolide.audit.target.group_name | Name of the device group affected by the action. | keyword |
 | kolide.audit.target.idp_url | URL or hostname of the identity provider. | keyword |
 | kolide.audit.target.issue_id | Numeric identifier of the issue affected by the action. | keyword |
+| kolide.audit.target.logger_name | Name of the device property logger added or removed. | keyword |
+| kolide.audit.target.okta_event | Name of the Okta event hook received (for example `saml_idp_factor_setup`). | keyword |
 | kolide.audit.target.org_id | Numeric identifier of the organization. | keyword |
 | kolide.audit.target.org_name | Display name of the organization. | keyword |
+| kolide.audit.target.osquery_name | Name of the osquery decorator affected by the action. | keyword |
+| kolide.audit.target.pack_name | Name of the osquery pack affected by the action. | keyword |
+| kolide.audit.target.platform | Device platform referenced by a device registration configuration change (for example `macOS`, `Windows`). | keyword |
+| kolide.audit.target.prev_status | Previous status of a reopened device registration or exemption request (for example `denied` or `approved`). | keyword |
 | kolide.audit.target.provider_name | Name of the device management provider. | keyword |
+| kolide.audit.target.query_name | Name of the osquery discovery or pack query affected by the action. | keyword |
+| kolide.audit.target.tables | Osquery tables referenced by a live query campaign. | keyword |
+| kolide.audit.target.webhook_url | URL of the webhook affected by a developer webhook action. | keyword |
 | log.offset | Log offset. | long |
 | message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
 | related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
