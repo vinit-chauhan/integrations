@@ -372,17 +372,24 @@ processors:
       ignore_missing_pipeline: true
 
   # --- Deduplication ---
-  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
-  # skipping events that share the boundary second, so each poll re-collects the
-  # last record(s). Set a deterministic _id from event.id (the device id) so each
-  # poll overwrites the device's current-state document instead of duplicating it.
+  # CEL re-collects the full inventory each poll (no modified-since cursor exists).
+  # Fingerprint the raw record (event.original): identical snapshots overwrite, any
+  # field change yields a new _id (content-driven change capture). Webhook deliveries
+  # fall back to event.id (the per-delivery ULID) so each event is retained.
+  - fingerprint:
+      fields:
+        - event.original
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_original
+      if: ctx.event?.original != null && ctx.event.original != ''
   - fingerprint:
       fields:
         - event.id
       target_field: _id
       method: SHA-256
       tag: fingerprint_event_id
-      if: ctx.event?.id != null && ctx.event.id != ''
+      if: ctx.event?.original == null && ctx.event?.id != null && ctx.event.id != ''
 
   # --- Cleanup ---
   - remove:

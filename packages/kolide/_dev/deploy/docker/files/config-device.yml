@@ -1,75 +1,6 @@
 rules:
-  # Round 2+ (convergence): the cursor is the exact max record timestamp from
-  # round 1 (2024-03-13T11:42:09Z), so the initial query carries that timestamp.
-  # Return an empty page so polling converges and hit_count stays stable. (Against
-  # the real inclusive API the boundary record is re-returned and collapses via the
-  # _id fingerprint; the mock returns empty for simplicity.) Must precede the
-  # page-1 catch-all so it wins for the advanced-cursor query.
-  - path: /devices
-    methods: ['GET']
-    query_params:
-      per_page: '{per_page:.*}'
-      query: 'last_authenticated_at>2024-03-13T11:42:09Z'
-    request_headers:
-      Authorization:
-        - 'Bearer k2sk_v1_exampleexampleexample'
-      X-Kolide-Api-Version:
-        - '2026-04-07'
-    responses:
-      - status_code: 200
-        headers:
-          Content-Type:
-            - 'application/json'
-        body: |-
-          {"data": [], "pagination": {"next": "", "next_cursor": "", "current_cursor": "", "count": 0}}
-  # Round 1 — Page 1: initial request (per_page + query time filter, no cursor).
-  # Returns one device and a next-page link with a cursor token.
-  - path: /devices
-    methods: ['GET']
-    query_params:
-      per_page: '{per_page:.*}'
-      query: '{q:.*}'
-    request_headers:
-      Authorization:
-        - 'Bearer k2sk_v1_exampleexampleexample'
-      X-Kolide-Api-Version:
-        - '2026-04-07'
-    responses:
-      - status_code: 200
-        headers:
-          Content-Type:
-            - 'application/json'
-        body: |-
-          {
-            "data": [
-              {
-                "id": "1",
-                "name": "Alices-MacBook-Pro",
-                "registered_at": "2023-10-28T20:12:14Z",
-                "last_authenticated_at": "2024-03-11T21:28:17Z",
-                "last_seen_at": "2024-03-11T21:30:00Z",
-                "registered_owner_info": {"identifier": "1", "link": "https://api.example.com/people/1"},
-                "operating_system": "macOS 14.4.1",
-                "hardware_model": "MacBookPro18,1",
-                "serial": "C02EXAMPLE123",
-                "hardware_uuid": "00000000-0000-0000-0000-000000000000",
-                "note": "Loaner device",
-                "auth_state": "Good",
-                "will_block_at": null,
-                "product_image_url": "https://example.com/images/macbookpro.png",
-                "device_type": "Mac",
-                "form_factor": "Computer",
-                "auth_configuration": {"device_id": "1", "authentication_mode": "only_registered_owner", "person_groups": []}
-              }
-            ],
-            "pagination": {
-              "next": "http://{{ hostname }}:{{ env "PORT" }}/devices?per_page={{ .request.vars.per_page }}&cursor=CURSORPAGE2",
-              "current_cursor": "",
-              "next_cursor": "CURSORPAGE2",
-              "count": 1
-            }
-          }
-  # Round 1 — Page 2: follows pagination.next (cursor=CURSORPAGE2).
+  # Page 2: follows pagination.next (cursor=CURSORPAGE2). Listed before the page-1
+  # catch-all so the cursored request matches this rule first.
   - path: /devices
     methods: ['GET']
     query_params:
@@ -115,7 +46,7 @@ rules:
               "count": 1
             }
           }
-  # Round 1 — Page 3 (terminal): cursor=CURSORPAGE3, empty next/next_cursor stops pagination.
+  # Page 3 (terminal): cursor=CURSORPAGE3, empty next/next_cursor stops pagination.
   - path: /devices
     methods: ['GET']
     query_params:
@@ -158,6 +89,54 @@ rules:
               "next": "",
               "current_cursor": "CURSORPAGE3",
               "next_cursor": "",
+              "count": 1
+            }
+          }
+  # Page 1: every poll starts here (per_page only, no cursor) because the
+  # full-snapshot program re-collects the whole inventory each interval. Returns
+  # one device and a next-page cursor. Re-collected devices share content-based
+  # _ids, so repeated rounds overwrite rather than duplicate.
+  - path: /devices
+    methods: ['GET']
+    query_params:
+      per_page: '{per_page:.*}'
+    request_headers:
+      Authorization:
+        - 'Bearer k2sk_v1_exampleexampleexample'
+      X-Kolide-Api-Version:
+        - '2026-04-07'
+    responses:
+      - status_code: 200
+        headers:
+          Content-Type:
+            - 'application/json'
+        body: |-
+          {
+            "data": [
+              {
+                "id": "1",
+                "name": "Alices-MacBook-Pro",
+                "registered_at": "2023-10-28T20:12:14Z",
+                "last_authenticated_at": "2024-03-11T21:28:17Z",
+                "last_seen_at": "2024-03-11T21:30:00Z",
+                "registered_owner_info": {"identifier": "1", "link": "https://api.example.com/people/1"},
+                "operating_system": "macOS 14.4.1",
+                "hardware_model": "MacBookPro18,1",
+                "serial": "C02EXAMPLE123",
+                "hardware_uuid": "00000000-0000-0000-0000-000000000000",
+                "note": "Loaner device",
+                "auth_state": "Good",
+                "will_block_at": null,
+                "product_image_url": "https://example.com/images/macbookpro.png",
+                "device_type": "Mac",
+                "form_factor": "Computer",
+                "auth_configuration": {"device_id": "1", "authentication_mode": "only_registered_owner", "person_groups": []}
+              }
+            ],
+            "pagination": {
+              "next": "http://{{ hostname }}:{{ env "PORT" }}/devices?per_page={{ .request.vars.per_page }}&cursor=CURSORPAGE2",
+              "current_cursor": "",
+              "next_cursor": "CURSORPAGE2",
               "count": 1
             }
           }

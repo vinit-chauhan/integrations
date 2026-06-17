@@ -1,4 +1,13 @@
 # newer versions go on top
+- version: "0.2.8"
+  changes:
+    - description: >-
+        Changed the device data stream to re-collect the full device inventory on every poll
+        (the /devices API exposes no modified-since cursor) and to fingerprint the document `_id`
+        on the raw record content (`event.original`). Unchanged devices overwrite in place, while
+        any field change is captured as a new document, so device updates are no longer missed.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.7"
   changes:
     - description: >-
