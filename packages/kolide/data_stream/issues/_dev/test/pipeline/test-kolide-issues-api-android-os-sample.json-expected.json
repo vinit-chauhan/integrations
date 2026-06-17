@@ -23,7 +23,13 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.example.com/checks/20"
+                    },
                     "detected_at": "2024-03-11T09:00:00.000Z",
+                    "device_information": {
+                        "location": "https://api.example.com/devices/2"
+                    },
                     "exempted": false,
                     "last_rechecked_at": "2024-03-11T09:05:00.000Z",
                     "title": "Android Device OS Is Not Up to Date",

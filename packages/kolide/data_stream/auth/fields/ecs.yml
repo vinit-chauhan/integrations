@@ -14,6 +14,10 @@
   external: ecs
 - name: event.original
   external: ecs
+- name: event.start
+  external: ecs
+- name: message
+  external: ecs
 - name: user.name
   external: ecs
 - name: user.email

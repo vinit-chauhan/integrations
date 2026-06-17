@@ -1,4 +1,36 @@
 # newer versions go on top
+- version: "0.2.6"
+  changes:
+    - description: >-
+        Fixed duplicate ingestion from the REST API on the auth, audit, device, and issues
+        data streams. The collection cursor now tracks the exact most-recent record timestamp
+        (no longer leaving the lookback window pinned), and a deterministic document `_id`
+        (SHA-256 fingerprint of `event.id`) deduplicates the small boundary overlap that the
+        API's inclusive timestamp filter re-returns, without risking skipped events.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+    - description: >-
+        Fixed an auth CEL compilation error by replacing the unsupported three-argument
+        `map` macro, and keep the raw auth sub-events array in `event.original` instead of
+        indexing it as a separate field.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+- version: "0.2.5"
+  changes:
+    - description: >-
+        Fixed the path to the sample log file in the `send_kolide_webhooks.py` script.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+- version: "0.2.4"
+  changes:
+    - description: >-
+        Major refactoring of the ingest pipelines to improve log parsing and field mapping.
+        Split auth sub-events into separate records to improve correlation and reduce noise.
+        Added extended field extraction from message/description to improve searchability.
+        Added related.hosts, related.user, and related.ip enrichment.
+        Added ECS user.target.email promotion from kolide.audit.target.user_email.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.3"
   changes:
     - description: >-

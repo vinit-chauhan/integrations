@@ -2,6 +2,9 @@
   type: group
   description: Custom fields for Kolide SSO authentication sessions, collected from the REST API (GET /auth_logs) and webhooks (auth_logs.success / auth_logs.failure).
   fields:
+    - name: session_id
+      type: keyword
+      description: Identifier of the authentication session. Shared across all sub-events split from the same session so they can be correlated. From the API/webhook record `id`.
     - name: agent_version
       type: keyword
       description: Version of the Kolide agent (launcher) reported during the session. From API `agent_version` or webhook `launcher_version`.
@@ -39,19 +42,6 @@
         - name: link
           type: keyword
           description: API URL of the issue.
-    - name: events
-      type: group
-      description: Ordered sub-events of the authentication session (API only).
-      fields:
-        - name: timestamp
-          type: date
-          description: Time the sub-event occurred.
-        - name: event_type
-          type: keyword
-          description: 'Type of the sub-event. One of: sign_in_attempt, sign_in_success, sign_in_failure, device_blocked, device_will_block, skipped_device_will_block, device_notified, skipped_device_notified, factor_enrollment_timeout, factor_sequence_attempt, factor_sequence_success, factor_sequence_failure, factor_sequence_timeout, agent_detection_success, agent_detection_failure, agent_download_request, agent_enrolled, device_registration_request, device_registration_successful, device_registration_confirmation, device_registration_blocked, check_snoozed, checks_automatically_snoozed, expired_check_refresh_request, expired_check_refresh_complete, federated_auth_attempt, federated_auth_complete.'
-        - name: event_description
-          type: keyword
-          description: Human-readable description of the sub-event.
     - name: downloaded_packages
       type: keyword
       description: Names of packages downloaded to the device during the authentication session.

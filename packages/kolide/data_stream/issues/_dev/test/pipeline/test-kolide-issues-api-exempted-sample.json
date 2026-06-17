@@ -1,0 +1,7 @@
+{
+  "events": [
+    {
+      "message": "{\"id\":\"455148606\",\"issue_key\":\"check_target\",\"issue_value\":\"/\",\"title\":\"Disk Is Not Encrypted\",\"value\":{\"path\":\"/\",\"type\":\"ext4\",\"device\":\"/dev/sda1\",\"de_type\":\"\",\"check_target\":\"/\",\"de_encrypted\":\"No\",\"device_alias\":\"/dev/sda1\",\"de_encryption\":\"\",\"zfs_encryption\":\"\",\"check_target_type\":\"Mountpoint\",\"fscrypt_encrypted\":\"No\",\"fs_type_encryption\":\"\",\"fscrypt_encryption\":\"\",\"KOLIDE_CHECK_STATUS\":\"FAIL\",\"cryptluks_encryption\":\"\"},\"exempted\":true,\"resolved_at\":null,\"detected_at\":\"2026-06-14T20:31:58.869Z\",\"blocks_device_at\":null,\"device_information\":{\"identifier\":\"1000001\",\"link\":\"https://api.kolide.com/devices/1000001\"},\"check_information\":{\"identifier\":\"32\",\"link\":\"https://api.kolide.com/checks/32\"},\"last_rechecked_at\":\"2026-06-14T20:31:58.000Z\"}"
+    }
+  ]
+}

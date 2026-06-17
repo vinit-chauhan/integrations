@@ -1,18 +1,44 @@
 {
     "expected": [
         {
+            "data_stream": {
+                "dataset": "kolide.device",
+                "namespace": "default",
+                "type": "logs"
+            },
             "ecs": {
                 "version": "9.3.0"
             },
-            "event": "devices.created",
-            "id": "01HDVY8MA3CQ48HJ356FP8M2P6"
+            "json": {
+                "data": {
+                    "device_id": 1,
+                    "device_name": "Alices-MacBook-Pro"
+                },
+                "event": "devices.created",
+                "id": "01HDVY8MA3CQ48HJ356FP8M2P6",
+                "timestamp": "2023-10-28T20:05:33Z"
+            }
         },
         {
+            "data_stream": {
+                "dataset": "kolide.device",
+                "namespace": "default",
+                "type": "logs"
+            },
             "ecs": {
                 "version": "9.3.0"
             },
-            "event": "device_trust.status_changed",
-            "id": "01J7EXHMF0FCA14EW04JASYCRP"
+            "json": {
+                "data": {
+                    "device_id": 9,
+                    "device_name": "Bobs-Kolide-MacBook-Pro",
+                    "device_status": "blocked",
+                    "device_url": "https://api.kolide.com/devices/9"
+                },
+                "event": "device_trust.status_changed",
+                "id": "01J7EXHMF0FCA14EW04JASYCRP",
+                "timestamp": "2024-09-10T21:30:59Z"
+            }
         }
     ]
 }

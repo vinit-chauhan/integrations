@@ -232,6 +232,19 @@ processors:
       tag: extended_mappings
       ignore_missing_pipeline: true
 
+  # --- Deduplication ---
+  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
+  # skipping events that share the boundary second, so each poll re-collects the
+  # last record(s). Set a deterministic _id from event.id so those re-collected
+  # records overwrite rather than duplicate the previously ingested documents.
+  - fingerprint:
+      fields:
+        - event.id
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_id
+      if: ctx.event?.id != null && ctx.event.id != ''
+
   # --- Cleanup ---
   - remove:
       field:

@@ -1,22 +1,22 @@
 {
     "@timestamp": "2024-03-11T21:28:17.000Z",
     "agent": {
-        "ephemeral_id": "cf8cea75-104f-416e-9341-8c180ebad51d",
-        "id": "cdd494f6-00e8-47eb-9596-b77827cc49eb",
-        "name": "elastic-agent-19402",
+        "ephemeral_id": "9db83bc5-e945-480c-bfea-368b5ef60588",
+        "id": "f1301bc3-97a2-4d3b-9ded-9395b9c3f79c",
+        "name": "elastic-agent-73717",
         "type": "filebeat",
         "version": "9.4.1"
     },
     "data_stream": {
         "dataset": "kolide.device",
-        "namespace": "41985",
+        "namespace": "50990",
         "type": "logs"
     },
     "ecs": {
         "version": "9.3.0"
     },
     "elastic_agent": {
-        "id": "cdd494f6-00e8-47eb-9596-b77827cc49eb",
+        "id": "f1301bc3-97a2-4d3b-9ded-9395b9c3f79c",
         "snapshot": false,
         "version": "9.4.1"
     },
@@ -28,10 +28,10 @@
         ],
         "dataset": "kolide.device",
         "id": "1",
-        "ingested": "2026-06-04T22:23:05Z",
+        "ingested": "2026-06-17T18:36:52Z",
         "kind": "state",
         "module": "kolide",
-        "original": "{\"auth_configuration\":{\"authentication_mode\":\"only_registered_owner\",\"device_id\":\"1\",\"person_groups\":[]},\"auth_state\":\"Good\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"hardware_model\":\"MacBookPro18,1\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"id\":\"1\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"name\":\"Alices-MacBook-Pro\",\"note\":\"Loaner device\",\"operating_system\":\"macOS 14.4.1\",\"product_image_url\":\"https://example.com/images/macbookpro.png\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/people/1\"},\"serial\":\"C02EXAMPLE123\",\"will_block_at\":null}",
+        "original": "{\"auth_configuration\":{\"authentication_mode\":\"only_registered_owner\",\"device_id\":\"1\",\"person_groups\":[]},\"auth_state\":\"Good\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"hardware_model\":\"MacBookPro18,1\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"id\":\"1\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"name\":\"Alices-MacBook-Pro\",\"note\":\"Loaner device\",\"operating_system\":\"macOS 14.4.1\",\"product_image_url\":\"https://example.com/images/macbookpro.png\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"link\":\"https://api.example.com/people/1\"},\"serial\":\"C02EXAMPLE123\",\"will_block_at\":null}",
         "start": "2023-10-28T20:12:14.000Z",
         "type": [
             "info"
@@ -46,7 +46,8 @@
             "name": "macOS",
             "platform": "Mac",
             "version": "14.4.1"
-        }
+        },
+        "type": "desktop"
     },
     "input": {
         "type": "cel"

@@ -30,7 +30,13 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.kolide.com/checks/3"
+                    },
                     "detected_at": "2026-06-15T00:13:43.909Z",
+                    "device_information": {
+                        "location": "https://api.kolide.com/devices/1000002"
+                    },
                     "exempted": false,
                     "issue_key": "path",
                     "issue_value": "/home/example-user/.ssh/id_ed25519",
@@ -98,7 +104,13 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.kolide.com/checks/77350"
+                    },
                     "detected_at": "2026-06-15T13:57:33.781Z",
+                    "device_information": {
+                        "location": "https://api.kolide.com/devices/1000005"
+                    },
                     "exempted": false,
                     "last_rechecked_at": "2026-06-15T13:57:33.729Z",
                     "title": "Android Device OS Is Not Up to Date",
@@ -147,7 +159,13 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.kolide.com/checks/32"
+                    },
                     "detected_at": "2026-06-14T20:31:58.869Z",
+                    "device_information": {
+                        "location": "https://api.kolide.com/devices/1000003"
+                    },
                     "exempted": false,
                     "issue_key": "check_target",
                     "issue_value": "/",
@@ -203,8 +221,14 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.kolide.com/checks/75659"
+                    },
                     "detected_at": "2026-06-14T22:26:02.562Z",
                     "detected_version": "148.0.7778.167-64",
+                    "device_information": {
+                        "location": "https://api.kolide.com/devices/1000004"
+                    },
                     "exempted": false,
                     "expected_version": "149.0.7827.114",
                     "issue_key": "pk",

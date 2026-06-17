@@ -9,6 +9,29 @@ processors:
       tag: set_ecs_version
       value: '9.3.0'
 
+  # The webhook body arrives with a top-level `event` key that is a string
+  # (e.g. "audit_log.recorded"). ECS reserves `event` as an object, so we
+  # move it into a working `json` object so the routing_rules.yml conditions
+  # (which test ctx.json.event) can match correctly.
+  - rename:
+      field: event
+      target_field: json.event
+      tag: rename_webhook_event_to_json
+      ignore_missing: true
+      if: ctx.event instanceof String
+  - script:
+      lang: painless
+      tag: move_webhook_envelope_to_json
+      if: ctx.json?.event != null
+      description: >-
+        Move the remaining top-level webhook envelope fields (id, timestamp,
+        data) alongside json.event so the reroute processors receive all
+        envelope fields from ctx.json.
+      source: |-
+        if (ctx.containsKey('id')) { ctx.json.id = ctx.remove('id'); }
+        if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
+        if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
+
 on_failure:
   - append:
       field: error.message

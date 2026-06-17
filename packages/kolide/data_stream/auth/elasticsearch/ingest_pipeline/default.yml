@@ -45,7 +45,7 @@ processors:
         if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
         if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
 
-  # --- CEL / JSE00001 path: message holds the raw JSON of one auth_log_session ---
+  # --- CEL / JSE00001 path: message holds the raw JSON of one auth_log_session (or sub-event) ---
   - rename:
       field: message
       tag: rename_message_to_event_original
@@ -64,9 +64,11 @@ processors:
       target_field: json
       tag: parse_json_cel
       if: ctx.json == null && ctx.event?.original != null
-      description: Decode the CEL message (a JSON string of one auth_log_session) into the working json object.
+      description: Decode the CEL message (a JSON string of one auth_log_session or sub-event) into the working json object.
 
   # --- Common normalization (json now holds either the API object or the webhook envelope) ---
+  # When CEL expands a session into sub-events, json.timestamp is the sub-event timestamp
+  # and json.session_timestamp is the original session start time.
   - date:
       field: json.timestamp
       target_field: '@timestamp'
@@ -74,6 +76,14 @@ processors:
         - ISO8601
       tag: date_timestamp
       if: ctx.json?.timestamp != null
+
+  - date:
+      field: json.session_timestamp
+      target_field: event.start
+      formats:
+        - ISO8601
+      tag: date_session_start
+      if: ctx.json?.session_timestamp != null && ctx.json.session_timestamp != ''
 
   - set:
       field: event.kind
@@ -92,14 +102,36 @@ processors:
         - start
         - info
 
-  # event.id: webhook envelope ULID (json.id) / API session id (json.id)
+  # kolide.auth.session_id: the authentication session identifier, shared across all
+  # sub-events of the same session so they can be correlated. From the API/webhook record `id`.
+  - set:
+      field: kolide.auth.session_id
+      tag: set_session_id
+      copy_from: json.id
+      ignore_empty_value: true
+      if: ctx.json?.id != null && ctx.json.id != ''
+
+  # event.id: composite ID for API sub-events (session_id:sub_event_type:timestamp),
+  # or the session/envelope ID for sessions without sub-events and webhooks.
+  - set:
+      field: event.id
+      tag: set_event_id_sub_event
+      value: '{{{json.id}}}:{{{json.sub_event_type}}}:{{{json.timestamp}}}'
+      if: ctx.json?.sub_event_type != null && ctx.json?.sub_event_type != ''
   - rename:
       field: json.id
       target_field: event.id
       tag: rename_event_id
       ignore_missing: true
+      if: ctx.event?.id == null
 
-  # event.action: webhook event value, or auth_log for the API path
+  # event.action: sub-event type for API sub-events, webhook event value, or "auth_log" fallback.
+  - set:
+      field: event.action
+      tag: set_event_action_sub_event
+      copy_from: json.sub_event_type
+      ignore_empty_value: true
+      if: ctx.json?.sub_event_type != null && ctx.json?.sub_event_type != ''
   - rename:
       field: json.event
       target_field: event.action
@@ -110,6 +142,14 @@ processors:
       tag: set_event_action_api
       value: auth_log
       if: ctx.event?.action == null
+
+  # message: human-readable description of the sub-event (API path with sub-events only).
+  - set:
+      field: message
+      tag: set_message_sub_event
+      copy_from: json.sub_event_description
+      ignore_empty_value: true
+      if: ctx.json?.sub_event_description != null && ctx.json?.sub_event_description != ''
 
   # event.outcome: from API result, or from webhook event action
   - set:
@@ -301,11 +341,6 @@ processors:
       target_field: kolide.auth.issues_displayed
       tag: rename_issues_displayed
       ignore_missing: true
-  - rename:
-      field: json.events
-      target_field: kolide.auth.events
-      tag: rename_events
-      ignore_missing: true
 
   # --- related.* enrichment ---
   - append:
@@ -338,6 +373,19 @@ processors:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
       ignore_missing_pipeline: true
+
+  # --- Deduplication ---
+  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
+  # skipping events that share the boundary second, so each poll re-collects the
+  # last record(s). Set a deterministic _id from event.id so those re-collected
+  # records overwrite rather than duplicate the previously ingested documents.
+  - fingerprint:
+      fields:
+        - event.id
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_id
+      if: ctx.event?.id != null && ctx.event.id != ''
 
   # --- Cleanup ---
   - remove:

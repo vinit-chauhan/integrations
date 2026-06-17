@@ -1,8 +1,10 @@
 rules:
-  # Round 2+ (convergence): once the cursor advances to the max record timestamp
-  # from round 1, the initial query carries that timestamp. Return an empty page
-  # so polling converges and hit_count stays stable. Must precede the page-1
-  # catch-all so it wins for the advanced-cursor query.
+  # Round 2+ (convergence): the cursor is the exact max record timestamp from
+  # round 1 (2024-03-13T11:42:09Z), so the initial query carries that timestamp.
+  # Return an empty page so polling converges and hit_count stays stable. (Against
+  # the real inclusive API the boundary record is re-returned and collapses via the
+  # _id fingerprint; the mock returns empty for simplicity.) Must precede the
+  # page-1 catch-all so it wins for the advanced-cursor query.
   - path: /devices
     methods: ['GET']
     query_params:
@@ -46,7 +48,7 @@ rules:
                 "registered_at": "2023-10-28T20:12:14Z",
                 "last_authenticated_at": "2024-03-11T21:28:17Z",
                 "last_seen_at": "2024-03-11T21:30:00Z",
-                "registered_owner_info": {"identifier": "1", "location": "https://api.example.com/people/1"},
+                "registered_owner_info": {"identifier": "1", "link": "https://api.example.com/people/1"},
                 "operating_system": "macOS 14.4.1",
                 "hardware_model": "MacBookPro18,1",
                 "serial": "C02EXAMPLE123",
@@ -92,7 +94,7 @@ rules:
                 "registered_at": "2023-11-02T09:05:00Z",
                 "last_authenticated_at": "2024-03-12T08:15:42Z",
                 "last_seen_at": "2024-03-12T08:20:00Z",
-                "registered_owner_info": {"identifier": "2", "location": "https://api.example.com/people/2"},
+                "registered_owner_info": {"identifier": "2", "link": "https://api.example.com/people/2"},
                 "operating_system": "Ubuntu 22.04",
                 "hardware_model": "ThinkPad X1 Carbon",
                 "serial": "PF0EXAMPLE456",
@@ -138,7 +140,7 @@ rules:
                 "registered_at": "2023-11-10T14:22:30Z",
                 "last_authenticated_at": "2024-03-13T11:42:09Z",
                 "last_seen_at": "2024-03-13T12:00:00Z",
-                "registered_owner_info": {"identifier": "3", "location": "https://api.example.com/people/3"},
+                "registered_owner_info": {"identifier": "3", "link": "https://api.example.com/people/3"},
                 "operating_system": "Windows 11",
                 "hardware_model": "Surface Laptop 5",
                 "serial": "00EXAMPLE789",

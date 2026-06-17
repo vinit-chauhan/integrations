@@ -228,7 +228,7 @@ processors:
       field: host.type
       tag: set_host_type_desktop
       value: desktop
-      if: ctx.json?.form_factor == 'Computer'
+      if: ctx.json?.form_factor != null && ctx.json.form_factor.equalsIgnoreCase('Computer')
 
   # --- Owner (registered_owner / registered_owner_info) ---
   - rename:
@@ -270,11 +270,13 @@ processors:
       target_field: kolide.device.serial
       tag: rename_kolide_serial
       ignore_missing: true
+      if: ctx.json?.serial != null
   - rename:
       field: json.hardware_uuid
       target_field: kolide.device.hardware_uuid
       tag: rename_kolide_hardware_uuid
       ignore_missing: true
+      if: ctx.json?.hardware_uuid != null
   - rename:
       field: json.hardware_model
       target_field: kolide.device.hardware_model
@@ -285,6 +287,7 @@ processors:
       target_field: kolide.device.note
       tag: rename_kolide_note
       ignore_missing: true
+      if: ctx.json?.note != null
   - rename:
       field: json.form_factor
       target_field: kolide.device.form_factor
@@ -364,7 +367,7 @@ processors:
       tag: rename_kolide_owner_identifier
       ignore_missing: true
   - rename:
-      field: json.registered_owner_info.location
+      field: json.registered_owner_info.link
       target_field: kolide.device.registered_owner_info.location
       tag: rename_kolide_owner_location
       ignore_missing: true
@@ -411,6 +414,19 @@ processors:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
       ignore_missing_pipeline: true
+
+  # --- Deduplication ---
+  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
+  # skipping events that share the boundary second, so each poll re-collects the
+  # last record(s). Set a deterministic _id from event.id (the device id) so each
+  # poll overwrites the device's current-state document instead of duplicating it.
+  - fingerprint:
+      fields:
+        - event.id
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_id
+      if: ctx.event?.id != null && ctx.event.id != ''
 
   # --- Cleanup ---
   - remove:

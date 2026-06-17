@@ -57,7 +57,13 @@ program: |-
                 {
                   "events": records.map(e, {"message": e.encode_json()}),
                   "cursor": {
-                    "last_timestamp": (records.map(e, string(e.?last_authenticated_at.orValue(since))) + [since]).max(),
+                    "last_timestamp": (size(records) > 0) ?
+                      string(
+                        (records.map(e, timestamp(e.?last_authenticated_at.orValue(since)))
+                          + [timestamp(since)]).max()
+                      )
+                    :
+                      since,
                     ?"next": (body.?pagination.next_cursor.orValue("") != "") ?
                       optional.of(string(body.pagination.next_cursor))
                     :

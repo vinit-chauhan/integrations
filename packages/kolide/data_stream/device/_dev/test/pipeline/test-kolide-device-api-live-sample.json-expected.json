@@ -45,7 +45,8 @@
                     "product_image_url": "https://assets2.kolide.com/assets/inventory/devices/android_phone-0289b3e5.png",
                     "registered_at": "2026-06-15T14:45:20.335Z",
                     "registered_owner_info": {
-                        "identifier": "100001"
+                        "identifier": "100001",
+                        "location": "https://api.kolide.com/people/100001"
                     },
                     "status": "good",
                     "type": "Android"
@@ -90,7 +91,8 @@
                     "name": "Ubuntu 24.04.3 LTS (Noble",
                     "platform": "Linux",
                     "version": "Numbat)"
-                }
+                },
+                "type": "desktop"
             },
             "kolide": {
                 "device": {
@@ -108,7 +110,8 @@
                     "product_image_url": "https://assets2.kolide.com/assets/inventory/devices/linux-929081eb.png",
                     "registered_at": "2026-06-15T00:13:41.910Z",
                     "registered_owner_info": {
-                        "identifier": "100001"
+                        "identifier": "100001",
+                        "location": "https://api.kolide.com/people/100001"
                     },
                     "serial": "SN000000000001",
                     "status": "good",

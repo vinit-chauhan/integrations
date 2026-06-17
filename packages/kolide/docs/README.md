@@ -161,6 +161,7 @@ The `webhook` data stream is the single ingress point for all Kolide webhook eve
 | event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
 | event.module | Event module. | constant_keyword |
 | input.type | Type of filebeat input. | keyword |
+| json | Working object used to hold the raw Kolide webhook envelope fields before the event is routed to the appropriate data stream. Contains event (event type string), id (ULID), timestamp, and data (event payload). Cleaned up by the target data stream pipeline after routing. | flattened |
 | log.offset | Log offset. | long |
 
 
@@ -187,15 +188,14 @@ The `auth` data stream provides Kolide SSO authentication sessions, including th
 | event.module | Event module. | constant_keyword |
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
 | event.outcome | This is one of four ECS Categorization Fields, and indicates the lowest level in the ECS category hierarchy. `event.outcome` simply denotes whether the event represents a success or a failure from the perspective of the entity that produced the event. Note that when a single transaction is described in multiple events, each event may populate different values of `event.outcome`, according to their perspective. Also note that in the case of a compound event (a single event that contains multiple logical events), this field should be populated with the value that best captures the overall success or failure from the perspective of the event producer. Further note that not all events will have an associated outcome. For example, this field is generally not populated for metric events, events with `event.type:info`, or any events for which an outcome does not make logical sense. | keyword |
+| event.start | `event.start` contains the date when the event started or when the activity was first observed. | date |
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
 | host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
 | host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
 | host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
 | input.type | Type of filebeat input. | keyword |
 | kolide.auth.agent_version | Version of the Kolide agent (launcher) reported during the session. From API `agent_version` or webhook `launcher_version`. | keyword |
-| kolide.auth.events.event_description | Human-readable description of the sub-event. | keyword |
-| kolide.auth.events.event_type | Type of the sub-event. One of: sign_in_attempt, sign_in_success, sign_in_failure, device_blocked, device_will_block, skipped_device_will_block, device_notified, skipped_device_notified, factor_enrollment_timeout, factor_sequence_attempt, factor_sequence_success, factor_sequence_failure, factor_sequence_timeout, agent_detection_success, agent_detection_failure, agent_download_request, agent_enrolled, device_registration_request, device_registration_successful, device_registration_confirmation, device_registration_blocked, check_snoozed, checks_automatically_snoozed, expired_check_refresh_request, expired_check_refresh_complete, federated_auth_attempt, federated_auth_complete. | keyword |
-| kolide.auth.events.timestamp | Time the sub-event occurred. | date |
+| kolide.auth.downloaded_packages | Names of packages downloaded to the device during the authentication session. | keyword |
 | kolide.auth.initial_status | Device trust posture at the start of the session. One of: all_good, will_block, blocked, unknown. | keyword |
 | kolide.auth.issues_displayed.blocking_status | Blocking status of the issue. One of: blocked, will_block. | keyword |
 | kolide.auth.issues_displayed.id | Canonical identifier of the displayed issue. | keyword |
@@ -204,8 +204,10 @@ The `auth` data stream provides Kolide SSO authentication sessions, including th
 | kolide.auth.okta.app_instance_id | Okta app instance identifier from the SAML request. | keyword |
 | kolide.auth.okta.app_name | Okta app name from the SAML request. | keyword |
 | kolide.auth.result | Outcome of the authentication as reported by the API. One of: Success, Fail. | keyword |
+| kolide.auth.session_id | Identifier of the authentication session. Shared across all sub-events split from the same session so they can be correlated. From the API/webhook record `id`. | keyword |
 | kolide.auth.url | API URL of the full auth_log record (webhook only). | keyword |
 | log.offset | Log offset. | long |
+| message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
 | related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
 | related.ip | All of the IPs seen on your event. | ip |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
@@ -224,9 +226,15 @@ The `auth` data stream provides Kolide SSO authentication sessions, including th
 | user.id | Unique identifier of the user. | keyword |
 | user.name | Short name or login of the user. | keyword |
 | user.name.text | Multi-field of `user.name`. | match_only_text |
+| user_agent.device.name | Name of the device. | keyword |
 | user_agent.name | Name of the user agent. | keyword |
 | user_agent.original | Unparsed user_agent string. | keyword |
 | user_agent.original.text | Multi-field of `user_agent.original`. | match_only_text |
+| user_agent.os.full | Operating system name, including the version or code name. | keyword |
+| user_agent.os.full.text | Multi-field of `user_agent.os.full`. | match_only_text |
+| user_agent.os.name | Operating system name, without the version. | keyword |
+| user_agent.os.name.text | Multi-field of `user_agent.os.name`. | match_only_text |
+| user_agent.os.version | Operating system version as a raw string. | keyword |
 | user_agent.version | Version of the user agent. | keyword |
 
 
@@ -236,41 +244,21 @@ An example event for `auth` looks as following:
 
 ```json
 {
-    "@timestamp": "2024-03-11T21:28:17.000Z",
-    "agent": {
-        "ephemeral_id": "87124ffb-2507-495b-9cfd-36dad465eda2",
-        "id": "4668814d-bac0-4a39-b8f4-1882ac81bdc2",
-        "name": "elastic-agent-79180",
-        "type": "filebeat",
-        "version": "9.4.1"
-    },
-    "data_stream": {
-        "dataset": "kolide.auth",
-        "namespace": "29884",
-        "type": "logs"
-    },
+    "@timestamp": "2024-03-11T21:28:19.000Z",
     "ecs": {
         "version": "9.3.0"
     },
-    "elastic_agent": {
-        "id": "4668814d-bac0-4a39-b8f4-1882ac81bdc2",
-        "snapshot": false,
-        "version": "9.4.1"
-    },
     "event": {
-        "action": "auth_log",
-        "agent_id_status": "verified",
+        "action": "sign_in_success",
         "category": [
             "authentication",
             "session"
         ],
-        "dataset": "kolide.auth",
-        "id": "3374648",
-        "ingested": "2026-06-04T22:19:27Z",
+        "id": "3374648:sign_in_success:2024-03-11T21:28:19Z",
         "kind": "event",
-        "module": "kolide",
-        "original": "{\"agent_version\":\"1.4.0\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"city\":\"New York\",\"country\":\"United States\",\"device_info\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/devices/1\"},\"events\":[{\"event_description\":\"The end-user was redirected to Kolide via a valid SAML request\",\"event_type\":\"sign_in_attempt\",\"timestamp\":\"2024-03-11T21:28:17Z\"},{\"event_description\":\"The end-user clicked Continue to Sign In\",\"event_type\":\"sign_in_success\",\"timestamp\":\"2024-03-11T21:28:19Z\"}],\"id\":\"3374648\",\"initial_status\":\"all_good\",\"ip_address\":\"198.51.100.23\",\"issues_displayed\":[{\"blocking_status\":\"will_block\",\"id\":\"9999\",\"link\":\"https://api.example.com/issues/9999\",\"title\":\"macOS Firewall is Disabled\"}],\"okta_app_instance_id\":\"0oa1example2instance3\",\"okta_app_name\":\"Example Corp SSO\",\"person_email\":\"user@example.com\",\"person_info\":{\"identifier\":\"3\",\"location\":\"https://api.example.com/people/3\"},\"person_name\":\"Alice Johnson\",\"result\":\"Success\",\"timestamp\":\"2024-03-11T21:28:17Z\"}",
+        "original": "{\"id\":\"3374648\",\"timestamp\":\"2024-03-11T21:28:19Z\",\"person_name\":\"Alice Johnson\",\"person_email\":\"user@example.com\",\"person_info\":{\"identifier\":\"3\",\"location\":\"https://api.kolide.com/people/3\"},\"device_info\":{\"identifier\":\"1\",\"location\":\"https://api.kolide.com/devices/1\"},\"result\":\"Success\",\"initial_status\":\"all_good\",\"ip_address\":\"81.2.69.142\",\"agent_version\":\"1.4.0\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"okta_app_instance_id\":\"0oa1example2instance3\",\"okta_app_name\":\"Example Corp SSO\",\"issues_displayed\":[{\"title\":\"macOS Firewall is Disabled\",\"blocking_status\":\"will_block\",\"id\":\"9999\",\"link\":\"https://api.kolide.com/issues/9999\"}],\"events\":[{\"timestamp\":\"2024-03-11T21:28:17Z\",\"event_type\":\"sign_in_attempt\",\"event_description\":\"The end-user was redirected to Kolide via a valid SAML request\"},{\"timestamp\":\"2024-03-11T21:28:19Z\",\"event_type\":\"sign_in_success\",\"event_description\":\"The end-user clicked Continue to Sign In\"}],\"session_timestamp\":\"2024-03-11T21:28:17Z\",\"sub_event_type\":\"sign_in_success\",\"sub_event_description\":\"The end-user clicked Continue to Sign In\"}",
         "outcome": "success",
+        "start": "2024-03-11T21:28:17.000Z",
         "type": [
             "start",
             "info"
@@ -279,33 +267,30 @@ An example event for `auth` looks as following:
     "host": {
         "id": "1"
     },
-    "input": {
-        "type": "cel"
-    },
     "kolide": {
         "auth": {
             "agent_version": "1.4.0",
-            "events": {
-                "event_description": [
-                    "The end-user clicked Continue to Sign In",
-                    "The end-user was redirected to Kolide via a valid SAML request"
-                ],
-                "event_type": [
-                    "sign_in_attempt",
-                    "sign_in_success"
-                ],
-                "timestamp": [
-                    "2024-03-11T21:28:17.000Z",
-                    "2024-03-11T21:28:19.000Z"
-                ]
-            },
+            "events": [
+                {
+                    "event_description": "The end-user was redirected to Kolide via a valid SAML request",
+                    "event_type": "sign_in_attempt",
+                    "timestamp": "2024-03-11T21:28:17Z"
+                },
+                {
+                    "event_description": "The end-user clicked Continue to Sign In",
+                    "event_type": "sign_in_success",
+                    "timestamp": "2024-03-11T21:28:19Z"
+                }
+            ],
             "initial_status": "all_good",
-            "issues_displayed": {
-                "blocking_status": "will_block",
-                "id": "9999",
-                "link": "https://api.example.com/issues/9999",
-                "title": "macOS Firewall is Disabled"
-            },
+            "issues_displayed": [
+                {
+                    "blocking_status": "will_block",
+                    "id": "9999",
+                    "link": "https://api.kolide.com/issues/9999",
+                    "title": "macOS Firewall is Disabled"
+                }
+            ],
             "okta": {
                 "app_instance_id": "0oa1example2instance3",
                 "app_name": "Example Corp SSO"
@@ -313,9 +298,10 @@ An example event for `auth` looks as following:
             "result": "Success"
         }
     },
+    "message": "The end-user clicked Continue to Sign In",
     "related": {
         "ip": [
-            "198.51.100.23"
+            "81.2.69.142"
         ],
         "user": [
             "Alice Johnson",
@@ -323,33 +309,22 @@ An example event for `auth` looks as following:
         ]
     },
     "source": {
-        "as": {
-            "number": 64501,
-            "organization": {
-                "name": "Documentation ASN"
-            }
-        },
         "geo": {
-            "city_name": "Amsterdam",
+            "city_name": "London",
             "continent_name": "Europe",
-            "country_iso_code": "NL",
-            "country_name": "Netherlands",
+            "country_iso_code": "GB",
+            "country_name": "United Kingdom",
             "location": {
-                "coordinates": [
-                    4.889689916744828,
-                    52.37403995823115
-                ],
-                "type": "Point"
+                "lat": 51.5142,
+                "lon": -0.0931
             },
-            "region_iso_code": "NL-NH",
-            "region_name": "North Holland"
+            "region_iso_code": "GB-ENG",
+            "region_name": "England"
         },
-        "ip": "198.51.100.23"
+        "ip": "81.2.69.142"
     },
     "tags": [
-        "preserve_original_event",
-        "forwarded",
-        "kolide-auth"
+        "preserve_original_event"
     ],
     "user": {
         "email": "user@example.com",
@@ -397,6 +372,11 @@ The `issues` data stream provides Kolide posture-check failures and resolutions 
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
 | event.start | `event.start` contains the date when the event started or when the activity was first observed. | date |
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| file.device | Device that is the source of the file. | keyword |
+| file.hash.md5 | MD5 hash. | keyword |
+| file.hash.sha256 | SHA256 hash. | keyword |
+| file.path | Full path to the file, including the file name. It should include the drive letter, when appropriate. | keyword |
+| file.path.text | Multi-field of `file.path`. | match_only_text |
 | host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
 | host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
 | host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
@@ -406,20 +386,28 @@ The `issues` data stream provides Kolide posture-check failures and resolutions 
 | kolide.issues.check.tags | Tags associated with the check (webhook only). | keyword |
 | kolide.issues.check_information.location | API URL of the check record. | keyword |
 | kolide.issues.detected_at | Timestamp at which the issue was first detected (API only). | date |
+| kolide.issues.detected_version | Version of the software detected on the device (e.g. Chrome, OS). | keyword |
 | kolide.issues.device_information.location | API URL of the device record. | keyword |
 | kolide.issues.exempted | Whether the issue has been exempted from blocking the device (API only). | boolean |
+| kolide.issues.expected_version | Minimum or newest version required for compliance. | keyword |
 | kolide.issues.id | Canonical identifier of the issue. From API `id` or webhook `issue_id`. | keyword |
 | kolide.issues.issue_key | The key that identifies what kind of issue this is, for example `bundle_id` (API only). | keyword |
 | kolide.issues.issue_value | The value associated with the issue key, for example the offending bundle identifier (API only). | keyword |
 | kolide.issues.last_rechecked_at | Timestamp at which the issue was last rechecked (API only). | date |
 | kolide.issues.resolved_at | Timestamp at which the issue was resolved, if any (API only). | date |
+| kolide.issues.ssh_key_type | SSH key algorithm type (e.g. ssh-ed25519, ssh-rsa). | keyword |
 | kolide.issues.title | Short human-readable description of the issue. May be null on `issues.new` webhooks. | keyword |
 | kolide.issues.value | Structured details about why the device failed the check; the shape varies by check (API only). | flattened |
 | log.offset | Log offset. | long |
 | message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
+| package.version | Package version | keyword |
 | related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
+| related.user | All the user names or other user identifiers seen on the event. | keyword |
+| rule.category | A categorization value keyword used by the entity using the rule for detection of this event. | keyword |
 | rule.id | A rule ID that is unique within the scope of an agent, observer, or other entity using the rule for detection of this event. | keyword |
 | rule.name | The name of the rule or signature generating the event. | keyword |
+| user.name | Short name or login of the user. | keyword |
+| user.name.text | Multi-field of `user.name`. | match_only_text |
 
 
 ##### issues sample event
@@ -542,7 +530,9 @@ The `device` data stream provides Kolide device inventory records and device-tru
 | host.os.name | Operating system name, without the version. | keyword |
 | host.os.name.text | Multi-field of `host.os.name`. | match_only_text |
 | host.os.platform | Operating system platform (such centos, ubuntu, windows). | keyword |
+| host.os.type | Use the `os.type` field to categorize the operating system into one of the broad commercial families. If the OS you're dealing with is not listed as an expected value, the field should not be populated. Please let us know by opening an issue with ECS, to propose its addition. | keyword |
 | host.os.version | Operating system version as a raw string. | keyword |
+| host.type | Type of host. For Cloud providers this can be the machine type like `t2.medium`. If vm, this could be the container, for example, or other information meaningful in your environment. | keyword |
 | input.type | Type of filebeat input. | keyword |
 | kolide.device.auth_configuration.authentication_mode | Authentication mode, for example `only_registered_owner` or `any_registered_person`. | keyword |
 | kolide.device.auth_configuration.device_id | Identifier of the device the configuration applies to. | keyword |
@@ -694,12 +684,29 @@ The `audit` data stream provides the Kolide administrative audit log of console 
 | event.module | Event module. | constant_keyword |
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
+| host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
 | input.type | Type of filebeat input. | keyword |
 | kolide.audit.actor_type | Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`. | keyword |
+| kolide.audit.change.field | Name of the setting that was changed. | keyword |
+| kolide.audit.change.from | Previous value of the setting. | keyword |
+| kolide.audit.change.to | New value of the setting. | keyword |
+| kolide.audit.expires_at | Expiry date for an exemption, as a human-readable string from the audit log. | keyword |
+| kolide.audit.reason | Human-provided reason for an exemption, approval, or denial. | keyword |
+| kolide.audit.target.api_key_name | Name or label of the API key that was revealed or created. | keyword |
+| kolide.audit.target.config_type | Type of the configuration that was updated. | keyword |
+| kolide.audit.target.device_serial | Serial number of the device affected by the action. | keyword |
+| kolide.audit.target.idp_url | URL or hostname of the identity provider. | keyword |
+| kolide.audit.target.issue_id | Numeric identifier of the issue affected by the action. | keyword |
+| kolide.audit.target.org_id | Numeric identifier of the organization. | keyword |
+| kolide.audit.target.org_name | Display name of the organization. | keyword |
+| kolide.audit.target.provider_name | Name of the device management provider. | keyword |
 | log.offset | Log offset. | long |
 | message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
+| related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
 | related.ip | All of the IPs seen on your event. | ip |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
+| rule.name | The name of the rule or signature generating the event. | keyword |
 | source.as.number | Unique number allocated to the autonomous system. The autonomous system number (ASN) uniquely identifies each network on the Internet. | long |
 | source.as.organization.name | Organization name. | keyword |
 | source.as.organization.name.text | Multi-field of `source.as.organization.name`. | match_only_text |
@@ -711,9 +718,13 @@ The `audit` data stream provides the Kolide administrative audit log of console 
 | source.geo.region_iso_code | Region ISO code. | keyword |
 | source.geo.region_name | Region name. | keyword |
 | source.ip | IP address of the source (IPv4 or IPv6). | ip |
+| url.domain | Domain of the url, such as "www.elastic.co". In some cases a URL may refer to an IP and/or port directly, without a domain name. In this case, the IP address would go to the `domain` field. If the URL contains a literal IPv6 address enclosed by `[` and `]` (IETF RFC 2732), the `[` and `]` characters should also be captured in the `domain` field. | keyword |
 | user.email | User email address. | keyword |
 | user.name | Short name or login of the user. | keyword |
 | user.name.text | Multi-field of `user.name`. | match_only_text |
+| user.target.email | User email address. | keyword |
+| user.target.name | Short name or login of the user. | keyword |
+| user.target.name.text | Multi-field of `user.target.name`. | match_only_text |
 
 
 ##### audit sample event

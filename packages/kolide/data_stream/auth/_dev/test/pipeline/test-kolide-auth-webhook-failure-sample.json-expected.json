@@ -27,6 +27,7 @@
             "kolide": {
                 "auth": {
                     "agent_version": "1.4.0",
+                    "session_id": "01HDW1V4TDE1B3KCAMR8V7Z4S6",
                     "url": "https://api.kolide.com/auth_logs/id3374648"
                 }
             },

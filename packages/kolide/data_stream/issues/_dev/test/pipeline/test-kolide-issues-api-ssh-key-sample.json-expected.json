@@ -30,7 +30,13 @@
             },
             "kolide": {
                 "issues": {
+                    "check_information": {
+                        "location": "https://api.example.com/checks/10"
+                    },
                     "detected_at": "2024-03-11T10:00:00.000Z",
+                    "device_information": {
+                        "location": "https://api.example.com/devices/1"
+                    },
                     "exempted": false,
                     "issue_key": "path",
                     "issue_value": "/home/jsmith/.ssh/id_ed25519",

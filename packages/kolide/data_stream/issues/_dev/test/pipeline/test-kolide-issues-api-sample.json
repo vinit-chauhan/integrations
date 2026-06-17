@@ -1,7 +1,7 @@
 {
     "events": [
         {
-            "message": "{\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2023-10-28T20:50:15Z\",\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"device_information\":{\"identifier\":\"host-alpha\",\"location\":\"https://api.example.com/devices/1\"},\"check_information\":{\"identifier\":\"71\",\"location\":\"https://api.example.com/checks/71\"}}"
+            "message": "{\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2023-10-28T20:50:15Z\",\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"device_information\":{\"identifier\":\"host-alpha\",\"link\":\"https://api.example.com/devices/1\"},\"check_information\":{\"identifier\":\"71\",\"link\":\"https://api.example.com/checks/71\"}}"
         }
     ]
 }

@@ -1,8 +1,10 @@
 rules:
-  # Round 2+ (convergence): once the cursor advances to the max record timestamp
-  # from round 1, the initial query carries that timestamp. Return an empty page
-  # so polling converges and hit_count stays stable. Must precede the page-1
-  # catch-all so it wins for the advanced-cursor query.
+  # Round 2+ (convergence): the cursor is the exact max record timestamp from
+  # round 1 (2024-03-11T23:14:09Z), so the initial query carries that timestamp.
+  # Return an empty page so polling converges and hit_count stays stable. (Against
+  # the real inclusive API the boundary record is re-returned and collapses via the
+  # _id fingerprint; the mock returns empty for simplicity.) Must precede the
+  # page-1 catch-all so it wins for the advanced-cursor query.
   - path: /auth_logs
     methods: ['GET']
     query_params:

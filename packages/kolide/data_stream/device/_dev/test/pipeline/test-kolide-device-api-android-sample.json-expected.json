@@ -12,7 +12,7 @@
                 ],
                 "id": "2000001",
                 "kind": "state",
-                "original": "{\"id\": \"2000001\", \"name\": \"Pixel 7 Pro\", \"registered_at\": \"2024-01-15T08:00:00Z\", \"last_authenticated_at\": \"2024-03-11T21:28:17Z\", \"last_seen_at\": \"2024-03-11T21:30:00Z\", \"registered_owner_info\": {\"identifier\": \"42\", \"location\": \"https://api.example.com/people/42\"}, \"operating_system\": \"Android 14\", \"hardware_model\": \"Pixel 7 Pro\", \"auth_state\": \"Good\", \"product_image_url\": \"https://assets.example.com/pixel7pro.png\", \"device_type\": \"Android\", \"form_factor\": \"phone\", \"auth_configuration\": {\"device_id\": \"2000001\", \"authentication_mode\": \"anyone\", \"person_groups\": []}}",
+                "original": "{\"id\": \"2000001\", \"name\": \"Pixel 7 Pro\", \"registered_at\": \"2024-01-15T08:00:00Z\", \"last_authenticated_at\": \"2024-03-11T21:28:17Z\", \"last_seen_at\": \"2024-03-11T21:30:00Z\", \"registered_owner_info\": {\"identifier\": \"42\", \"link\": \"https://api.example.com/people/42\"}, \"operating_system\": \"Android 14\", \"hardware_model\": \"Pixel 7 Pro\", \"auth_state\": \"Good\", \"product_image_url\": \"https://assets.example.com/pixel7pro.png\", \"device_type\": \"Android\", \"form_factor\": \"phone\", \"auth_configuration\": {\"device_id\": \"2000001\", \"authentication_mode\": \"anyone\", \"person_groups\": []}}",
                 "start": "2024-01-15T08:00:00.000Z",
                 "type": [
                     "info"

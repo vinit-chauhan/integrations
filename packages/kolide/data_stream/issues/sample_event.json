@@ -1,22 +1,22 @@
 {
     "@timestamp": "2023-10-28T20:50:15.000Z",
     "agent": {
-        "ephemeral_id": "2ed971ff-d190-43a8-8984-efaf72404dd4",
-        "id": "7c36dda0-af09-4391-9078-9aeb7b040a9c",
-        "name": "elastic-agent-59731",
+        "ephemeral_id": "bd652a73-ebf7-465f-880c-ed90d1ba1e1e",
+        "id": "2b6a1f28-75ac-44c9-a16a-32343b75cc8e",
+        "name": "elastic-agent-77617",
         "type": "filebeat",
         "version": "9.4.1"
     },
     "data_stream": {
         "dataset": "kolide.issues",
-        "namespace": "10498",
+        "namespace": "76989",
         "type": "logs"
     },
     "ecs": {
         "version": "9.3.0"
     },
     "elastic_agent": {
-        "id": "7c36dda0-af09-4391-9078-9aeb7b040a9c",
+        "id": "2b6a1f28-75ac-44c9-a16a-32343b75cc8e",
         "snapshot": false,
         "version": "9.4.1"
     },
@@ -28,18 +28,17 @@
         ],
         "dataset": "kolide.issues",
         "id": "9999",
-        "ingested": "2026-06-04T22:21:16Z",
+        "ingested": "2026-06-17T18:37:53Z",
         "kind": "event",
         "module": "kolide",
-        "original": "{\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"check_information\":{\"identifier\":\"71\",\"location\":\"https://api.example.com/checks/71\"},\"detected_at\":\"2023-10-28T20:50:15Z\",\"device_information\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/devices/1\"},\"exempted\":false,\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"resolved_at\":null,\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false}}",
+        "original": "{\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"check_information\":{\"identifier\":\"71\",\"link\":\"https://api.example.com/checks/71\"},\"detected_at\":\"2023-10-28T20:50:15Z\",\"device_information\":{\"identifier\":\"1\",\"link\":\"https://api.example.com/devices/1\"},\"exempted\":false,\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"resolved_at\":null,\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false}}",
         "start": "2023-10-28T20:50:15.000Z",
         "type": [
             "creation"
         ]
     },
     "host": {
-        "hostname": "1",
-        "name": "1"
+        "id": "1"
     },
     "input": {
         "type": "cel"
@@ -65,11 +64,6 @@
         }
     },
     "message": "macOS Firewall is Disabled",
-    "related": {
-        "hosts": [
-            "1"
-        ]
-    },
     "rule": {
         "id": "71"
     },
