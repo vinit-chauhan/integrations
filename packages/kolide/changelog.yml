@@ -1,4 +1,21 @@
 # newer versions go on top
+- version: "0.2.7"
+  changes:
+    - description: >-
+        Expanded audit log extended parsing to cover every documented Kolide audit event
+        category (checks, devices, device registrations, exemption requests, people, managed
+        web apps, groups, log pipeline, live queries, Okta webhooks, billing, end-user portal,
+        automatic device removal, restrictions, admin users, SSO, integrations, device
+        management providers, and developers). Where the description observed in real instance
+        data differs from the documented template, both variants are now supported.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
+    - description: >-
+        Separated the REST API (CEL) and webhook ingest logic on the auth, audit, device, and
+        issues data streams. Each `default.yml` now handles only API-collected records and
+        delegates webhook deliveries to a dedicated `webhook.yml` pipeline.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.6"
   changes:
     - description: >-

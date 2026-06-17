@@ -244,19 +244,40 @@ An example event for `auth` looks as following:
 
 ```json
 {
-    "@timestamp": "2024-03-11T21:28:19.000Z",
+    "@timestamp": "2024-03-11T21:28:17.000Z",
+    "agent": {
+        "ephemeral_id": "a7e8f0c3-3f3c-4df1-a711-dca5f997077c",
+        "id": "d9df3829-c2e0-4721-8242-1cf13796bbc4",
+        "name": "elastic-agent-47734",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.auth",
+        "namespace": "93060",
+        "type": "logs"
+    },
     "ecs": {
         "version": "9.3.0"
     },
+    "elastic_agent": {
+        "id": "d9df3829-c2e0-4721-8242-1cf13796bbc4",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
     "event": {
-        "action": "sign_in_success",
+        "action": "sign_in_attempt",
+        "agent_id_status": "verified",
         "category": [
             "authentication",
             "session"
         ],
-        "id": "3374648:sign_in_success:2024-03-11T21:28:19Z",
+        "dataset": "kolide.auth",
+        "id": "3374648:sign_in_attempt:2024-03-11T21:28:17Z",
+        "ingested": "2026-06-17T18:36:02Z",
         "kind": "event",
-        "original": "{\"id\":\"3374648\",\"timestamp\":\"2024-03-11T21:28:19Z\",\"person_name\":\"Alice Johnson\",\"person_email\":\"user@example.com\",\"person_info\":{\"identifier\":\"3\",\"location\":\"https://api.kolide.com/people/3\"},\"device_info\":{\"identifier\":\"1\",\"location\":\"https://api.kolide.com/devices/1\"},\"result\":\"Success\",\"initial_status\":\"all_good\",\"ip_address\":\"81.2.69.142\",\"agent_version\":\"1.4.0\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"okta_app_instance_id\":\"0oa1example2instance3\",\"okta_app_name\":\"Example Corp SSO\",\"issues_displayed\":[{\"title\":\"macOS Firewall is Disabled\",\"blocking_status\":\"will_block\",\"id\":\"9999\",\"link\":\"https://api.kolide.com/issues/9999\"}],\"events\":[{\"timestamp\":\"2024-03-11T21:28:17Z\",\"event_type\":\"sign_in_attempt\",\"event_description\":\"The end-user was redirected to Kolide via a valid SAML request\"},{\"timestamp\":\"2024-03-11T21:28:19Z\",\"event_type\":\"sign_in_success\",\"event_description\":\"The end-user clicked Continue to Sign In\"}],\"session_timestamp\":\"2024-03-11T21:28:17Z\",\"sub_event_type\":\"sign_in_success\",\"sub_event_description\":\"The end-user clicked Continue to Sign In\"}",
+        "module": "kolide",
+        "original": "{\"agent_version\":\"1.4.0\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"city\":\"New York\",\"country\":\"United States\",\"device_info\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/devices/1\"},\"events\":[{\"event_description\":\"The end-user was redirected to Kolide via a valid SAML request\",\"event_type\":\"sign_in_attempt\",\"timestamp\":\"2024-03-11T21:28:17Z\"},{\"event_description\":\"The end-user clicked Continue to Sign In\",\"event_type\":\"sign_in_success\",\"timestamp\":\"2024-03-11T21:28:19Z\"}],\"id\":\"3374648\",\"initial_status\":\"all_good\",\"ip_address\":\"198.51.100.23\",\"issues_displayed\":[{\"blocking_status\":\"will_block\",\"id\":\"9999\",\"link\":\"https://api.example.com/issues/9999\",\"title\":\"macOS Firewall is Disabled\"}],\"okta_app_instance_id\":\"0oa1example2instance3\",\"okta_app_name\":\"Example Corp SSO\",\"person_email\":\"user@example.com\",\"person_info\":{\"identifier\":\"3\",\"location\":\"https://api.example.com/people/3\"},\"person_name\":\"Alice Johnson\",\"result\":\"Success\",\"session_timestamp\":\"2024-03-11T21:28:17Z\",\"sub_event_description\":\"The end-user was redirected to Kolide via a valid SAML request\",\"sub_event_type\":\"sign_in_attempt\",\"timestamp\":\"2024-03-11T21:28:17Z\"}",
         "outcome": "success",
         "start": "2024-03-11T21:28:17.000Z",
         "type": [
@@ -267,41 +288,31 @@ An example event for `auth` looks as following:
     "host": {
         "id": "1"
     },
+    "input": {
+        "type": "cel"
+    },
     "kolide": {
         "auth": {
             "agent_version": "1.4.0",
-            "events": [
-                {
-                    "event_description": "The end-user was redirected to Kolide via a valid SAML request",
-                    "event_type": "sign_in_attempt",
-                    "timestamp": "2024-03-11T21:28:17Z"
-                },
-                {
-                    "event_description": "The end-user clicked Continue to Sign In",
-                    "event_type": "sign_in_success",
-                    "timestamp": "2024-03-11T21:28:19Z"
-                }
-            ],
             "initial_status": "all_good",
-            "issues_displayed": [
-                {
-                    "blocking_status": "will_block",
-                    "id": "9999",
-                    "link": "https://api.kolide.com/issues/9999",
-                    "title": "macOS Firewall is Disabled"
-                }
-            ],
+            "issues_displayed": {
+                "blocking_status": "will_block",
+                "id": "9999",
+                "link": "https://api.example.com/issues/9999",
+                "title": "macOS Firewall is Disabled"
+            },
             "okta": {
                 "app_instance_id": "0oa1example2instance3",
                 "app_name": "Example Corp SSO"
             },
-            "result": "Success"
+            "result": "Success",
+            "session_id": "3374648"
         }
     },
-    "message": "The end-user clicked Continue to Sign In",
+    "message": "The end-user was redirected to Kolide via a valid SAML request",
     "related": {
         "ip": [
-            "81.2.69.142"
+            "198.51.100.23"
         ],
         "user": [
             "Alice Johnson",
@@ -309,22 +320,33 @@ An example event for `auth` looks as following:
         ]
     },
     "source": {
-        "geo": {
-            "city_name": "London",
-            "continent_name": "Europe",
-            "country_iso_code": "GB",
-            "country_name": "United Kingdom",
-            "location": {
-                "lat": 51.5142,
-                "lon": -0.0931
-            },
-            "region_iso_code": "GB-ENG",
-            "region_name": "England"
+        "as": {
+            "number": 64501,
+            "organization": {
+                "name": "Documentation ASN"
+            }
         },
-        "ip": "81.2.69.142"
+        "geo": {
+            "city_name": "Amsterdam",
+            "continent_name": "Europe",
+            "country_iso_code": "NL",
+            "country_name": "Netherlands",
+            "location": {
+                "coordinates": [
+                    4.889689916744828,
+                    52.37403995823115
+                ],
+                "type": "Point"
+            },
+            "region_iso_code": "NL-NH",
+            "region_name": "North Holland"
+        },
+        "ip": "198.51.100.23"
     },
     "tags": [
-        "preserve_original_event"
+        "preserve_original_event",
+        "forwarded",
+        "kolide-auth"
     ],
     "user": {
         "email": "user@example.com",
@@ -418,22 +440,22 @@ An example event for `issues` looks as following:
 {
     "@timestamp": "2023-10-28T20:50:15.000Z",
     "agent": {
-        "ephemeral_id": "2ed971ff-d190-43a8-8984-efaf72404dd4",
-        "id": "7c36dda0-af09-4391-9078-9aeb7b040a9c",
-        "name": "elastic-agent-59731",
+        "ephemeral_id": "bd652a73-ebf7-465f-880c-ed90d1ba1e1e",
+        "id": "2b6a1f28-75ac-44c9-a16a-32343b75cc8e",
+        "name": "elastic-agent-77617",
         "type": "filebeat",
         "version": "9.4.1"
     },
     "data_stream": {
         "dataset": "kolide.issues",
-        "namespace": "10498",
+        "namespace": "76989",
         "type": "logs"
     },
     "ecs": {
         "version": "9.3.0"
     },
     "elastic_agent": {
-        "id": "7c36dda0-af09-4391-9078-9aeb7b040a9c",
+        "id": "2b6a1f28-75ac-44c9-a16a-32343b75cc8e",
         "snapshot": false,
         "version": "9.4.1"
     },
@@ -445,18 +467,17 @@ An example event for `issues` looks as following:
         ],
         "dataset": "kolide.issues",
         "id": "9999",
-        "ingested": "2026-06-04T22:21:16Z",
+        "ingested": "2026-06-17T18:37:53Z",
         "kind": "event",
         "module": "kolide",
-        "original": "{\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"check_information\":{\"identifier\":\"71\",\"location\":\"https://api.example.com/checks/71\"},\"detected_at\":\"2023-10-28T20:50:15Z\",\"device_information\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/devices/1\"},\"exempted\":false,\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"resolved_at\":null,\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false}}",
+        "original": "{\"blocks_device_at\":\"2023-11-04T20:50:15Z\",\"check_information\":{\"identifier\":\"71\",\"link\":\"https://api.example.com/checks/71\"},\"detected_at\":\"2023-10-28T20:50:15Z\",\"device_information\":{\"identifier\":\"1\",\"link\":\"https://api.example.com/devices/1\"},\"exempted\":false,\"id\":\"9999\",\"issue_key\":\"bundle_id\",\"issue_value\":\"com.example.app\",\"last_rechecked_at\":\"2023-10-28T21:00:58Z\",\"resolved_at\":null,\"title\":\"macOS Firewall is Disabled\",\"value\":{\"firewall_enabled\":false}}",
         "start": "2023-10-28T20:50:15.000Z",
         "type": [
             "creation"
         ]
     },
     "host": {
-        "hostname": "1",
-        "name": "1"
+        "id": "1"
     },
     "input": {
         "type": "cel"
@@ -482,11 +503,6 @@ An example event for `issues` looks as following:
         }
     },
     "message": "macOS Firewall is Disabled",
-    "related": {
-        "hosts": [
-            "1"
-        ]
-    },
     "rule": {
         "id": "71"
     },
@@ -571,22 +587,22 @@ An example event for `device` looks as following:
 {
     "@timestamp": "2024-03-11T21:28:17.000Z",
     "agent": {
-        "ephemeral_id": "cf8cea75-104f-416e-9341-8c180ebad51d",
-        "id": "cdd494f6-00e8-47eb-9596-b77827cc49eb",
-        "name": "elastic-agent-19402",
+        "ephemeral_id": "9db83bc5-e945-480c-bfea-368b5ef60588",
+        "id": "f1301bc3-97a2-4d3b-9ded-9395b9c3f79c",
+        "name": "elastic-agent-73717",
         "type": "filebeat",
         "version": "9.4.1"
     },
     "data_stream": {
         "dataset": "kolide.device",
-        "namespace": "41985",
+        "namespace": "50990",
         "type": "logs"
     },
     "ecs": {
         "version": "9.3.0"
     },
     "elastic_agent": {
-        "id": "cdd494f6-00e8-47eb-9596-b77827cc49eb",
+        "id": "f1301bc3-97a2-4d3b-9ded-9395b9c3f79c",
         "snapshot": false,
         "version": "9.4.1"
     },
@@ -598,10 +614,10 @@ An example event for `device` looks as following:
         ],
         "dataset": "kolide.device",
         "id": "1",
-        "ingested": "2026-06-04T22:23:05Z",
+        "ingested": "2026-06-17T18:36:52Z",
         "kind": "state",
         "module": "kolide",
-        "original": "{\"auth_configuration\":{\"authentication_mode\":\"only_registered_owner\",\"device_id\":\"1\",\"person_groups\":[]},\"auth_state\":\"Good\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"hardware_model\":\"MacBookPro18,1\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"id\":\"1\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"name\":\"Alices-MacBook-Pro\",\"note\":\"Loaner device\",\"operating_system\":\"macOS 14.4.1\",\"product_image_url\":\"https://example.com/images/macbookpro.png\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"location\":\"https://api.example.com/people/1\"},\"serial\":\"C02EXAMPLE123\",\"will_block_at\":null}",
+        "original": "{\"auth_configuration\":{\"authentication_mode\":\"only_registered_owner\",\"device_id\":\"1\",\"person_groups\":[]},\"auth_state\":\"Good\",\"device_type\":\"Mac\",\"form_factor\":\"Computer\",\"hardware_model\":\"MacBookPro18,1\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000000\",\"id\":\"1\",\"last_authenticated_at\":\"2024-03-11T21:28:17Z\",\"last_seen_at\":\"2024-03-11T21:30:00Z\",\"name\":\"Alices-MacBook-Pro\",\"note\":\"Loaner device\",\"operating_system\":\"macOS 14.4.1\",\"product_image_url\":\"https://example.com/images/macbookpro.png\",\"registered_at\":\"2023-10-28T20:12:14Z\",\"registered_owner_info\":{\"identifier\":\"1\",\"link\":\"https://api.example.com/people/1\"},\"serial\":\"C02EXAMPLE123\",\"will_block_at\":null}",
         "start": "2023-10-28T20:12:14.000Z",
         "type": [
             "info"
@@ -616,7 +632,8 @@ An example event for `device` looks as following:
             "name": "macOS",
             "platform": "Mac",
             "version": "14.4.1"
-        }
+        },
+        "type": "desktop"
     },
     "input": {
         "type": "cel"
@@ -735,22 +752,22 @@ An example event for `audit` looks as following:
 {
     "@timestamp": "2024-03-11T21:28:17.000Z",
     "agent": {
-        "ephemeral_id": "f5fc03f8-dc60-4a75-9037-c2789842b268",
-        "id": "700f9451-faf0-45e9-a68c-34e4bf3b0ebd",
-        "name": "elastic-agent-91082",
+        "ephemeral_id": "f734b99d-fd67-4981-bb45-59ca1024a4bf",
+        "id": "ce1af407-b9ee-42ff-9448-8cd015c5ac91",
+        "name": "elastic-agent-94474",
         "type": "filebeat",
         "version": "9.4.1"
     },
     "data_stream": {
         "dataset": "kolide.audit",
-        "namespace": "68458",
+        "namespace": "14195",
         "type": "logs"
     },
     "ecs": {
         "version": "9.3.0"
     },
     "elastic_agent": {
-        "id": "700f9451-faf0-45e9-a68c-34e4bf3b0ebd",
+        "id": "ce1af407-b9ee-42ff-9448-8cd015c5ac91",
         "snapshot": false,
         "version": "9.4.1"
     },
@@ -763,7 +780,7 @@ An example event for `audit` looks as following:
         ],
         "dataset": "kolide.audit",
         "id": "01JA67B1DYJCKJ1J73T0F5EWGR",
-        "ingested": "2026-06-04T22:24:56Z",
+        "ingested": "2026-06-17T18:35:10Z",
         "kind": "event",
         "module": "kolide",
         "original": "{\"actor_info\":{\"actor_email\":\"alice@example.com\",\"actor_name\":\"Alice Johnson\",\"actor_type\":\"User\"},\"actor_name\":\"Alice Johnson\",\"description\":\"Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'\",\"id\":\"01JA67B1DYJCKJ1J73T0F5EWGR\",\"timestamp\":\"2024-03-11T21:28:17Z\"}",
@@ -785,6 +802,9 @@ An example event for `audit` looks as following:
             "Alice Johnson",
             "alice@example.com"
         ]
+    },
+    "rule": {
+        "name": "iTerm2 - Require Secure Keyboard Entry to Be Enabled"
     },
     "tags": [
         "preserve_original_event",

@@ -117,7 +117,10 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "User"
+                    "actor_type": "User",
+                    "target": {
+                        "prev_status": "denied"
+                    }
                 }
             },
             "message": "Reopened previously denied device registration for \"bob.smith@example.com\" and device \"Example Phone\".",
@@ -1721,7 +1724,10 @@
             ],
             "user": {
                 "email": "alice.johnson@example.com",
-                "name": "Alice"
+                "name": "Alice",
+                "target": {
+                    "email": "alice.johnson@example.com"
+                }
             }
         },
         {

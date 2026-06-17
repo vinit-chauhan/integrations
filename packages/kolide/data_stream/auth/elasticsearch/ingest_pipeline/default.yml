@@ -1,5 +1,5 @@
 ---
-description: Pipeline for processing Kolide auth_log (authentication session) events from the REST API (CEL) and webhooks.
+description: Pipeline for processing Kolide auth_log (authentication session) events from the REST API (CEL). Webhook deliveries are delegated to the webhook.yml pipeline.
 processors:
   - set:
       field: ecs.version
@@ -25,9 +25,9 @@ processors:
   # --- end CEL-only ---
 
   # Webhook path: the body is delivered at the document root, where the `event`
-  # key is a string that would collide with the ECS `event` object. Capture the
-  # raw body into event.original and move the envelope into the working `json`
-  # object so both inputs converge on the same shape.
+  # key is a string that would collide with the ECS `event` object. Move the
+  # envelope into the working `json` object so both inputs converge on the same
+  # shape, then delegate the webhook-specific field extraction to webhook.yml.
   - rename:
       field: event
       tag: rename_webhook_event_envelope
@@ -125,23 +125,25 @@ processors:
       ignore_missing: true
       if: ctx.event?.id == null
 
-  # event.action: sub-event type for API sub-events, webhook event value, or "auth_log" fallback.
+  # --- Webhook delivery: delegate the webhook-specific field extraction. ---
+  - pipeline:
+      name: '{{ IngestPipeline "webhook" }}'
+      tag: dispatch_webhook
+      if: ctx.json?.event != null
+
+  # --- API (CEL) field extraction. Skipped for webhook deliveries. ---
+  # event.action: sub-event type for API sub-events, or "auth_log" fallback.
   - set:
       field: event.action
       tag: set_event_action_sub_event
       copy_from: json.sub_event_type
       ignore_empty_value: true
-      if: ctx.json?.sub_event_type != null && ctx.json?.sub_event_type != ''
-  - rename:
-      field: json.event
-      target_field: event.action
-      tag: rename_event_action_webhook
-      ignore_missing: true
+      if: ctx.json?.event == null && ctx.json?.sub_event_type != null && ctx.json?.sub_event_type != ''
   - set:
       field: event.action
       tag: set_event_action_api
       value: auth_log
-      if: ctx.event?.action == null
+      if: ctx.json?.event == null && ctx.event?.action == null
 
   # message: human-readable description of the sub-event (API path with sub-events only).
   - set:
@@ -149,31 +151,21 @@ processors:
       tag: set_message_sub_event
       copy_from: json.sub_event_description
       ignore_empty_value: true
-      if: ctx.json?.sub_event_description != null && ctx.json?.sub_event_description != ''
+      if: ctx.json?.event == null && ctx.json?.sub_event_description != null && ctx.json?.sub_event_description != ''
 
-  # event.outcome: from API result, or from webhook event action
+  # event.outcome from API result.
   - set:
       field: event.outcome
       tag: set_outcome_success_api
       value: success
-      if: ctx.json?.result == 'Success'
+      if: ctx.json?.event == null && ctx.json?.result == 'Success'
   - set:
       field: event.outcome
       tag: set_outcome_failure_api
       value: failure
-      if: ctx.json?.result == 'Fail'
-  - set:
-      field: event.outcome
-      tag: set_outcome_success_webhook
-      value: success
-      if: ctx.event?.action == 'auth_logs.success'
-  - set:
-      field: event.outcome
-      tag: set_outcome_failure_webhook
-      value: failure
-      if: ctx.event?.action == 'auth_logs.failure'
+      if: ctx.json?.event == null && ctx.json?.result == 'Fail'
 
-  # --- User ---
+  # --- User (API) ---
   - rename:
       field: json.person_name
       target_field: user.name
@@ -189,35 +181,13 @@ processors:
       target_field: user.id
       tag: rename_user_id_api
       ignore_missing: true
-  - convert:
-      field: json.data.person_id
-      target_field: user.id
-      type: string
-      tag: convert_user_id_webhook
-      ignore_missing: true
 
-  # --- Host (device) ---
-  - rename:
-      field: json.data.device_name
-      target_field: host.name
-      tag: rename_host_name_webhook
-      ignore_missing: true
-  - convert:
-      field: json.data.device_id
-      target_field: host.id
-      type: string
-      tag: convert_host_id_webhook
-      ignore_missing: true
+  # --- Host (device) (API) ---
   - rename:
       field: json.device_info.identifier
       target_field: host.id
       tag: rename_host_id_api
       ignore_missing: true
-  - set:
-      field: host.hostname
-      tag: set_host_hostname
-      copy_from: host.name
-      if: ctx.host?.name != null
 
   # --- Source IP (API only) + geo enrichment ---
   - rename:
@@ -273,21 +243,11 @@ processors:
       tag: remove_redundant_city
       ignore_missing: true
 
-  # --- User agent ---
+  # --- User agent (API) ---
   - rename:
       field: json.browser_name
       target_field: user_agent.name
       tag: rename_ua_name_api
-      ignore_missing: true
-  - rename:
-      field: json.data.browser_name
-      target_field: user_agent.name
-      tag: rename_ua_name_webhook
-      ignore_missing: true
-  - rename:
-      field: json.data.browser_version
-      target_field: user_agent.version
-      tag: rename_ua_version_webhook
       ignore_missing: true
   - rename:
       field: json.browser_user_agent
@@ -300,16 +260,11 @@ processors:
       if: ctx.user_agent?.original != null
       tag: enrich_user_agent
 
-  # --- Kolide custom fields ---
+  # --- Kolide custom fields (API) ---
   - rename:
       field: json.agent_version
       target_field: kolide.auth.agent_version
       tag: rename_agent_version_api
-      ignore_missing: true
-  - rename:
-      field: json.data.launcher_version
-      target_field: kolide.auth.agent_version
-      tag: rename_agent_version_webhook
       ignore_missing: true
   - rename:
       field: json.result
@@ -332,15 +287,17 @@ processors:
       tag: rename_okta_app_instance_id
       ignore_missing: true
   - rename:
-      field: json.data.auth_log_url
-      target_field: kolide.auth.url
-      tag: rename_auth_log_url
-      ignore_missing: true
-  - rename:
       field: json.issues_displayed
       target_field: kolide.auth.issues_displayed
       tag: rename_issues_displayed
       ignore_missing: true
+
+  # --- Host hostname (common, derived from host.name set by either path) ---
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
 
   # --- related.* enrichment ---
   - append:

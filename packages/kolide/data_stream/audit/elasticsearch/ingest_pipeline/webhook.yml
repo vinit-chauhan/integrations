@@ -1,0 +1,60 @@
+---
+description: >-
+  Webhook-specific field extraction for Kolide audit_log events. Invoked by the
+  audit default.yml pipeline when the document is a webhook delivery (json.event
+  is set). The common envelope handling, related.* enrichment, extended-mappings
+  call, deduplication, and cleanup remain in default.yml.
+processors:
+  # event.action: webhook event value (audit_log.recorded).
+  - rename:
+      field: json.event
+      target_field: event.action
+      tag: rename_event_action_webhook
+      ignore_missing: true
+
+  # --- Actor (user) ---
+  - rename:
+      field: json.data.actor_name
+      target_field: user.name
+      tag: rename_user_name_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.actor_email
+      target_field: user.email
+      tag: rename_user_email_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.actor_type
+      target_field: kolide.audit.actor_type
+      tag: rename_actor_type_webhook
+      ignore_missing: true
+
+  # --- Source IP ---
+  - rename:
+      field: json.data.ip_address
+      target_field: source.ip
+      tag: rename_source_ip_webhook
+      ignore_missing: true
+
+  # --- message / description ---
+  - rename:
+      field: json.data.description
+      target_field: message
+      tag: rename_message_webhook
+      ignore_missing: true
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

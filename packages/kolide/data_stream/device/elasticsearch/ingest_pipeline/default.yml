@@ -1,5 +1,5 @@
 ---
-description: Pipeline for processing Kolide device records from the REST API (CEL) and device webhooks.
+description: Pipeline for processing Kolide device records from the REST API (CEL). Webhook deliveries are delegated to the webhook.yml pipeline.
 processors:
   - set:
       field: ecs.version
@@ -25,9 +25,9 @@ processors:
   # --- end CEL-only ---
 
   # Webhook path: the body is delivered at the document root, where the `event`
-  # key is a string that would collide with the ECS `event` object. Capture the
-  # raw envelope into the working `json` object so both inputs converge on the
-  # same shape.
+  # key is a string that would collide with the ECS `event` object. Move the
+  # envelope into the working `json` object so both inputs converge on the same
+  # shape, then delegate the webhook-specific field extraction to webhook.yml.
   - rename:
       field: event
       tag: rename_webhook_event_envelope
@@ -99,50 +99,11 @@ processors:
         ctx.json?.timestamp == null && ctx.json?.last_authenticated_at == null
         && ctx.json?.last_seen_at == null && ctx.json?.registered_at != null
 
-  # --- event.kind: event for webhook events, state for API inventory records. ---
-  - set:
-      field: event.kind
-      tag: set_event_kind_webhook
-      value: event
-      if: ctx.json?.event != null
-  - set:
-      field: event.kind
-      tag: set_event_kind_api
-      value: state
-      if: ctx.json?.event == null
   - append:
       field: event.category
       tag: append_event_category
       value:
         - host
-
-  # --- event.type. Category `host` only permits access/change/end/info/start,
-  #     so created/destroyed/registered/status_changed all normalize to change,
-  #     and the API inventory snapshot is info. ---
-  - append:
-      field: event.type
-      tag: append_event_type_change_webhook
-      value:
-        - change
-      if: ctx.json?.event != null
-  - append:
-      field: event.type
-      tag: append_event_type_info_api
-      value:
-        - info
-      if: ctx.json?.event == null
-
-  # --- event.action: webhook event value, or `device` for the API path. ---
-  - set:
-      field: event.action
-      tag: set_event_action_webhook
-      copy_from: json.event
-      if: ctx.json?.event != null
-  - set:
-      field: event.action
-      tag: set_event_action_api
-      value: device
-      if: ctx.json?.event == null
 
   # --- event.id: webhook envelope ULID (json.id) / API device id (json.id). ---
   - convert:
@@ -161,12 +122,36 @@ processors:
       tag: date_event_start
       if: ctx.json?.registered_at != null
 
-  # --- Host (device) ---
-  - rename:
-      field: json.data.device_name
-      target_field: host.name
-      tag: rename_host_name_webhook
-      ignore_missing: true
+  # --- Webhook delivery: delegate the webhook-specific field extraction. ---
+  - pipeline:
+      name: '{{ IngestPipeline "webhook" }}'
+      tag: dispatch_webhook
+      if: ctx.json?.event != null
+
+  # --- API (CEL) field extraction. Skipped for webhook deliveries. ---
+  # --- event.kind: state for API inventory records. ---
+  - set:
+      field: event.kind
+      tag: set_event_kind_api
+      value: state
+      if: ctx.json?.event == null
+
+  # --- event.type: the API inventory snapshot is info. ---
+  - append:
+      field: event.type
+      tag: append_event_type_info_api
+      value:
+        - info
+      if: ctx.json?.event == null
+
+  # --- event.action: `device` for the API path. ---
+  - set:
+      field: event.action
+      tag: set_event_action_api
+      value: device
+      if: ctx.json?.event == null
+
+  # --- Host (device) (API) ---
   - rename:
       field: json.name
       target_field: host.name
@@ -174,23 +159,12 @@ processors:
       ignore_missing: true
       if: ctx.host?.name == null
   - convert:
-      field: json.data.device_id
-      target_field: host.id
-      type: string
-      tag: convert_host_id_webhook
-      ignore_missing: true
-  - convert:
       field: json.id
       target_field: host.id
       type: string
       tag: convert_host_id_api
       ignore_missing: true
       if: ctx.host?.id == null
-  - set:
-      field: host.hostname
-      tag: set_host_hostname
-      copy_from: host.name
-      if: ctx.host?.name != null
 
   # --- Host OS (API only). operating_system -> host.os.full, with a best-effort
   #     split into host.os.name / host.os.version. device_type -> host.os.platform. ---
@@ -230,23 +204,7 @@ processors:
       value: desktop
       if: ctx.json?.form_factor != null && ctx.json.form_factor.equalsIgnoreCase('Computer')
 
-  # --- Owner (registered_owner / registered_owner_info) ---
-  - rename:
-      field: json.data.registered_owner.email
-      target_field: user.email
-      tag: rename_user_email_webhook
-      ignore_missing: true
-  - rename:
-      field: json.data.registered_owner.name
-      target_field: user.name
-      tag: rename_user_name_webhook
-      ignore_missing: true
-  - convert:
-      field: json.data.registered_owner.id
-      target_field: user.id
-      type: string
-      tag: convert_user_id_webhook
-      ignore_missing: true
+  # --- Owner (registered_owner_info) (API) ---
   - convert:
       field: json.registered_owner_info.identifier
       target_field: user.id
@@ -255,7 +213,7 @@ processors:
       ignore_missing: true
       if: ctx.user?.id == null
 
-  # --- Kolide custom device fields (API + webhook) ---
+  # --- Kolide custom device fields (API) ---
   - set:
       field: kolide.device.type
       tag: set_kolide_device_type
@@ -303,34 +261,8 @@ processors:
       target_field: kolide.device.auth_state
       tag: rename_kolide_auth_state
       ignore_missing: true
-  - rename:
-      field: json.data.device_status
-      target_field: kolide.device.device_status
-      tag: rename_kolide_device_status
-      ignore_missing: true
-  - rename:
-      field: json.data.device_url
-      target_field: kolide.device.device_url
-      tag: rename_kolide_device_url_webhook
-      ignore_missing: true
 
-  # Normalized status: lowercase both the webhook device_status and the API
-  # auth_state so a single field can be queried regardless of source.
-  - set:
-      field: kolide.device.status
-      tag: set_status_from_device_status
-      copy_from: kolide.device.device_status
-      if: ctx.kolide?.device?.device_status != null
-  - set:
-      field: kolide.device.status
-      tag: set_status_from_auth_state
-      copy_from: kolide.device.auth_state
-      if: ctx.kolide?.device?.status == null && ctx.kolide?.device?.auth_state != null
-  - lowercase:
-      field: kolide.device.status
-      tag: lowercase_status
-      ignore_missing: true
-
+  # --- Kolide device timestamps (API) ---
   - date:
       field: json.registered_at
       target_field: kolide.device.registered_at
@@ -387,6 +319,30 @@ processors:
       field: json.auth_configuration.person_groups
       target_field: kolide.device.auth_configuration.person_groups
       tag: rename_kolide_auth_config_person_groups
+      ignore_missing: true
+
+  # --- Common: host.hostname derived from host.name set by either path. ---
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
+
+  # --- Common: normalized status. Lowercase both the webhook device_status and
+  #     the API auth_state so a single field can be queried regardless of source. ---
+  - set:
+      field: kolide.device.status
+      tag: set_status_from_device_status
+      copy_from: kolide.device.device_status
+      if: ctx.kolide?.device?.device_status != null
+  - set:
+      field: kolide.device.status
+      tag: set_status_from_auth_state
+      copy_from: kolide.device.auth_state
+      if: ctx.kolide?.device?.status == null && ctx.kolide?.device?.auth_state != null
+  - lowercase:
+      field: kolide.device.status
+      tag: lowercase_status
       ignore_missing: true
 
   # --- related.* enrichment ---

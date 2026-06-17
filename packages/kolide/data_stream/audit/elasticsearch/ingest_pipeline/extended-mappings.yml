@@ -1,225 +1,505 @@
 ---
 description: >-
   Extended field extraction for Kolide audit_log events. Parses the human-readable
-  description (message) with dissect patterns to populate ECS and structured
-  custom fields. Prefer ECS fields (host.name, rule.name, user.target.email)
-  over vendor namespace where a semantic match exists.
+  description (message) into ECS and structured custom fields. Patterns cover every
+  documented audit log event category
+  (https://www.kolide.com/docs/admins/settings-admin-tools/audit-log#events). 
+  Where the description observed in real instance data
+  differs from the documented template (colons, trailing clauses, device serial
+  suffix), both variants are supported via alternations in a single grok processor.
+  Prefer ECS fields (host.name, rule.name, user.target.email) over the vendor
+  namespace where a semantic match exists. Every grok pattern is anchored and uses
+  `ignore_failure: true` so non-matching descriptions fall through untouched.
 processors:
-  # ── Device registration: approval ────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Checks
+  # ════════════════════════════════════════════════════════════════════════════
+  # check deleted / reverted / updated / published; rationale & fix-instruction edits.
+  - grok:
       field: message
-      pattern: 'Approved pending device registration for "%{user.target.email}" and device "%{host.name}". Reason: "%{kolide.audit.reason}"'
-      tag: dissect_device_reg_approved
+      patterns:
+        - '^Deleted Check "%{DATA:rule.name}"$'
+        - '^Reverted Check "%{DATA:rule.name}" to a prior version$'
+        - '^Reverted Check "%{DATA:rule.name}" %{DATA} to a prior version$'
+        - '^Updated existing Check "%{DATA:rule.name}"$'
+        - '^Published new Check "%{DATA:rule.name}"$'
+        - "^Changed Fix Instructions Template Text for Check '%{DATA:rule.name}'$"
+        - "^Changed Rationale Template Text for Check '%{DATA:rule.name}'$"
+        - "^Changed Fix Instructions Template Strategy for Check '%{DATA:rule.name}' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Changed Rationale Template Strategy for Check '%{DATA:rule.name}' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+      tag: grok_check_lifecycle
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device registration: denial ──────────────────────────────────────────────
-  - dissect:
+  # check device trust settings / run targets changed.
+  - grok:
       field: message
-      pattern: 'Denied pending device registration for "%{user.target.email}" and device "%{host.name}". Reason: "%{kolide.audit.reason}"'
-      tag: dissect_device_reg_denied
+      patterns:
+        - "^Updated device trust settings for '%{DATA:rule.name}' from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$"
+        - "^Updated run targets for '%{DATA:rule.name}' from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$"
+      tag: grok_check_device_trust
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device registration: reopened after denial ───────────────────────────────
-  - dissect:
+  # check paused / enabled (observed in real instance data; not in current docs).
+  - grok:
       field: message
-      pattern: 'Reopened previously denied device registration for "%{user.target.email}" and device "%{host.name}".'
-      tag: dissect_device_reg_reopened
+      patterns:
+        - "^Paused check '%{DATA:rule.name}'$"
+        - "^Enabled check '%{DATA:rule.name}'$"
+      tag: grok_check_paused_enabled
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device registration: self-approved ───────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Devices
+  # ════════════════════════════════════════════════════════════════════════════
+  # device display name changed.
+  - grok:
       field: message
-      pattern: 'Device "%{host.name}" (%{kolide.audit.target.device_serial}) registration self-approved by %{user.target.email} from another trusted device'
-      tag: dissect_device_reg_self_approved
+      patterns:
+        - "^Changed device name from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+      tag: grok_device_name_changed
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device registration: removed ─────────────────────────────────────────────
-  - dissect:
+  # canceled device removal. Docs: "Cancelled pending deletion for '{device}'".
+  # Real instance data appends the serial: "...for '{name}' ({serial})".
+  - grok:
       field: message
-      pattern: 'Removed device registration for "%{host.name}" that was registered to "%{user.target.email}"'
-      tag: dissect_device_reg_removed
+      patterns:
+        - "^Cancelled pending deletion for '%{DATA:host.name}' \\(%{DATA:kolide.audit.target.device_serial}\\)$"
+        - "^Cancelled pending deletion for '%{DATA:host.name}'$"
+      tag: grok_device_deletion_cancelled
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device registration: auth mode changed ───────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Device Registrations
+  # ════════════════════════════════════════════════════════════════════════════
+  # device registration approved / denied.
+  - grok:
       field: message
-      pattern: 'Updated device registration for "%{host.name}" changed auth mode from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
-      tag: dissect_device_reg_auth_mode
+      patterns:
+        - '^Approved pending device registration for "%{DATA:user.target.email}" and device "%{DATA:host.name}"\. Reason: "%{DATA:kolide.audit.reason}"$'
+        - '^Denied pending device registration for "%{DATA:user.target.email}" and device "%{DATA:host.name}"\. Reason: "%{DATA:kolide.audit.reason}"$'
+      tag: grok_device_reg_approved_denied
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device: removed (single-quote format) ────────────────────────────────────
-  - dissect:
+  # device registration reopened. Docs use a variable {prev_status}; real data
+  # shows "denied". Capture whatever status word appears.
+  - grok:
       field: message
-      pattern: "Device '%{host.name}' (%{kolide.audit.target.device_serial}) removed"
-      tag: dissect_device_removed
+      patterns:
+        - '^Reopened previously %{WORD:kolide.audit.target.prev_status} device registration for "%{DATA:user.target.email}" and device "%{DATA:host.name}"\.$'
+      tag: grok_device_reg_reopened
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device: deletion requested ───────────────────────────────────────────────
-  - dissect:
+  # device registration self-approved (observed in real instance data).
+  - grok:
       field: message
-      pattern: "Requested device deletion for '%{host.name}' (%{kolide.audit.target.device_serial}) ()"
-      tag: dissect_device_deletion_requested
+      patterns:
+        - '^Device "%{DATA:host.name}" \(%{DATA:kolide.audit.target.device_serial}\) registration self-approved by %{DATA:user.target.email} from another trusted device$'
+      tag: grok_device_reg_self_approved
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device: deletion cancelled ───────────────────────────────────────────────
-  - dissect:
+  # device registration removed. Docs: email unquoted; real data: email quoted.
+  - grok:
       field: message
-      pattern: "Cancelled pending deletion for '%{host.name}' (%{kolide.audit.target.device_serial})"
-      tag: dissect_device_deletion_cancelled
+      patterns:
+        - '^Removed device registration for "%{DATA:host.name}" that was registered to "%{DATA:user.target.email}"$'
+        - '^Removed device registration for "%{DATA:host.name}" that was registered to %{GREEDYDATA:user.target.email}$'
+      tag: grok_device_reg_removed
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device: name changed ─────────────────────────────────────────────────────
-  - dissect:
+  # tofu device registration re-enabled.
+  - grok:
       field: message
-      pattern: "Changed device name from '%{kolide.audit.change.from}' to '%{kolide.audit.change.to}'"
-      tag: dissect_device_name_changed
+      patterns:
+        - "^TOFU device registration re-enabled for '%{DATA:host.name}'$"
+      tag: grok_device_reg_tofu_reenabled
       ignore_failure: true
       ignore_missing: true
 
-  # ── Check: paused ────────────────────────────────────────────────────────────
-  - dissect:
+  # device registration auth_mode changed. Docs include a trailing "and changed
+  # allowed groups ..." clause; real data omits it. Support both.
+  - grok:
       field: message
-      pattern: "Paused check '%{rule.name}'"
-      tag: dissect_check_paused
+      patterns:
+        - '^Updated device registration for "%{DATA:host.name}" changed auth mode from "%{DATA:kolide.audit.change.from}" to "%{DATA:kolide.audit.change.to}" and changed allowed groups from %{DATA:kolide.audit.change.groups_from} to %{GREEDYDATA:kolide.audit.change.groups_to}$'
+        - '^Updated device registration for "%{DATA:host.name}" changed auth mode from "%{DATA:kolide.audit.change.from}" to "%{GREEDYDATA:kolide.audit.change.to}"$'
+      tag: grok_device_reg_auth_mode
       ignore_failure: true
       ignore_missing: true
 
-  # ── Check: enabled ───────────────────────────────────────────────────────────
-  - dissect:
+  # device registration configuration changed: platform allow / required checks /
+  # default auth mode. Real data also shows "Updated device registration
+  # configuration: {config_type}".
+  - grok:
       field: message
-      pattern: "Enabled check '%{rule.name}'"
-      tag: dissect_check_enabled
+      patterns:
+        - "^Changed Default Authentication Mode changed who can authenticate from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$"
+        - "^Changed 'Allows %{DATA:kolide.audit.target.platform} device registration' from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$"
+        - "^Set 'Required %{DATA:kolide.audit.target.platform} checks' to %{GREEDYDATA:kolide.audit.target.check_names}$"
+        - "^Updated device registration configuration: %{GREEDYDATA:kolide.audit.target.config_type}$"
+      tag: grok_device_reg_config
       ignore_failure: true
       ignore_missing: true
 
-  # ── Issue: all-future exemption ──────────────────────────────────────────────
-  - dissect:
+  # default authentication mode changed (real instance variant with stray quote).
+  - grok:
       field: message
-      pattern: 'Exempted all future issues for "%{rule.name}" for device: "%{host.name}". Reason: %{kolide.audit.reason}. (Expires %{kolide.audit.expires_at})'
-      tag: dissect_issue_exempted_all_future
+      patterns:
+        - '^Changed Default Authentication Mode" who can authenticate from "%{DATA:kolide.audit.change.from}" to "%{GREEDYDATA:kolide.audit.change.to}"$'
+      tag: grok_auth_mode_changed_realvariant
       ignore_failure: true
       ignore_missing: true
 
-  # ── Issue: specific exemption ────────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Exemption Requests
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: "Exempted issue %{kolide.audit.target.issue_id}: '%{rule.name}', reason: '%{kolide.audit.reason}'"
-      tag: dissect_issue_exempted_specific
+      patterns:
+        - '^Approved exemption request for "%{DATA:user.target.email}" for check: "%{DATA:rule.name}"\. Reason: "%{DATA:kolide.audit.reason}"$'
+        - '^Denied exemption request for "%{DATA:user.target.email}" for check: "%{DATA:rule.name}"\. Reason: "%{DATA:kolide.audit.reason}"$'
+        - '^Reopened previously %{WORD:kolide.audit.target.prev_status} exemption for "%{DATA:rule.name}"\.$'
+        - '^%{DATA:user.target.email} withdrew exemption request for check: "%{DATA:rule.name}"$'
+      tag: grok_exemption_request
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: generic field changed ───────────────────────────────────────────
-  - dissect:
+  # Issue exemptions (observed in real instance data).
+  - grok:
       field: message
-      pattern: "Changed '%{kolide.audit.change.field}' from '%{kolide.audit.change.from}' to '%{kolide.audit.change.to}'"
-      tag: dissect_setting_changed
+      patterns:
+        - '^Exempted all future issues for "%{DATA:rule.name}" for device: "%{DATA:host.name}"\. Reason: %{DATA:kolide.audit.reason}\. \(Expires %{DATA:kolide.audit.expires_at}\)$'
+        - "^Exempted issue %{DATA:kolide.audit.target.issue_id}: '%{DATA:rule.name}', reason: '%{DATA:kolide.audit.reason}'$"
+      tag: grok_issue_exempted
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: default authentication mode ─────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # People
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Changed Default Authentication Mode" who can authenticate from "%{kolide.audit.change.from}" to "%{kolide.audit.change.to}"'
-      tag: dissect_auth_mode_changed
+      patterns:
+        - "^Reset factor enrollment for '%{DATA:user.target.name}'$"
+        - "^Verified factor enrollment for '%{DATA:user.target.name}'$"
+        - '^Merged the person, %{DATA:kolide.audit.change.from}, with %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Restored the person, %{DATA:user.target.name}, to it.s original state$'
+      tag: grok_people
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: Privacy Center visibility ───────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Managed Web App
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Changed Privacy Center Custom Resource Section visibility from %{kolide.audit.change.from} to %{kolide.audit.change.to}'
-      tag: dissect_privacy_center_visibility
+      patterns:
+        - '^Created managed app "%{DATA:kolide.audit.target.app_name}"$'
+        - '^Deleted managed app "%{DATA:kolide.audit.target.app_name}" with #?%{NUMBER:kolide.audit.target.count} people$'
+        - '^Updated managed app "%{DATA:kolide.audit.target.app_name}" from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Sign on settings were updated for "%{DATA:kolide.audit.target.app_name}" from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Updated managed app "#?%{DATA:kolide.audit.target.app_name}" directly assigned people membership from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Updated managed app "#?%{DATA:kolide.audit.target.app_name}" directly assigned person groups membership from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$'
+      tag: grok_managed_app
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: Osquery blocklist ────────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Groups
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Osquery Blocklist Updated From: "%{kolide.audit.change.from}" To: "%{kolide.audit.change.to}"'
-      tag: dissect_osquery_blocklist
+      patterns:
+        - '^Mass-Removed members from device group: "%{DATA:kolide.audit.target.group_name}"\. Device ID\(s\) removed: %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Created device group "%{DATA:kolide.audit.target.group_name}"$'
+        - '^Deleted device group "%{DATA:kolide.audit.target.group_name}" with %{NUMBER:kolide.audit.target.count} members$'
+      tag: grok_groups
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: auto-snooze policy ──────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Log Pipeline (osquery decorators, FIM categories, packs, queries, destinations)
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Set auto-snooze policy for org %{kolide.audit.target.org_id} to %{kolide.audit.change.to}'
-      tag: dissect_auto_snooze_policy
+      patterns:
+        - "^Added device property logger '%{DATA:kolide.audit.target.logger_name}'$"
+        - "^Removed device property logger '%{DATA:kolide.audit.target.logger_name}'$"
+        - "^Enabled the log pipeline destination '%{DATA:kolide.audit.target.destination_name}'$"
+        - "^Disabled the log pipeline destination '%{DATA:kolide.audit.target.destination_name}'$"
+        - "^Deleted the log pipeline destination '%{DATA:kolide.audit.target.destination_name}'$"
+        - "^Updated the %{DATA:kolide.audit.target.destination_type} log destination '%{DATA:kolide.audit.target.destination_name}'$"
+        - "^Created a %{DATA:kolide.audit.target.destination_type} log pipeline destination named '%{DATA:kolide.audit.target.destination_name}'$"
+      tag: grok_log_pipeline_destinations
+      ignore_failure: true
+      ignore_missing: true
+  - grok:
+      field: message
+      patterns:
+        - "^Updated the osquery decorator '%{DATA:kolide.audit.target.osquery_name}'$"
+        - "^Added an osquery decorator '%{DATA:kolide.audit.target.osquery_name}'$"
+        - "^Enabled osquery decorator '%{DATA:kolide.audit.target.osquery_name}'$"
+        - "^Deleted osquery decorator '%{DATA:kolide.audit.target.osquery_name}'$"
+        - "^Updated the osquery FIM category '%{DATA:kolide.audit.target.fim_category}'$"
+        - "^Created osquery FIM category '%{DATA:kolide.audit.target.fim_category}'$"
+        - "^Enabled osquery FIM category '%{DATA:kolide.audit.target.fim_category}'$"
+        - "^Disabled osquery FIM category '%{DATA:kolide.audit.target.fim_category}'$"
+        - "^Deleted the osquery FIM category '%{DATA:kolide.audit.target.fim_category}'$"
+      tag: grok_log_pipeline_osquery_decorators_fim
+      ignore_failure: true
+      ignore_missing: true
+  - grok:
+      field: message
+      patterns:
+        - "^Created discovery query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Updated the osquery discovery query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Deleted discovery query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Created osquery pack query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Updated the osquery query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Deleted osquery pack query '%{DATA:kolide.audit.target.query_name}'$"
+        - "^Created osquery pack '%{DATA:kolide.audit.target.pack_name}'$"
+        - "^Updated the osquery pack '%{DATA:kolide.audit.target.pack_name}'$"
+        - "^Enabled osquery pack '%{DATA:kolide.audit.target.pack_name}'$"
+        - "^Disabled osquery pack '%{DATA:kolide.audit.target.pack_name}'$"
+        - "^Deleted the osquery pack '%{DATA:kolide.audit.target.pack_name}'$"
+      tag: grok_log_pipeline_osquery_queries_packs
       ignore_failure: true
       ignore_missing: true
 
-  # ── Setting: device registration configuration ───────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Live Queries
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Updated device registration configuration: %{kolide.audit.target.config_type}'
-      tag: dissect_device_reg_config
+      patterns:
+        - '^Created and ran Live Query Campaign ID %{DATA:kolide.audit.target.campaign_id} that targets %{DATA} that uses table\(s\): %{GREEDYDATA:kolide.audit.target.tables}$'
+        - '^Updated and ran Live Query Campaign ID %{DATA:kolide.audit.target.campaign_id} that targets %{DATA} that uses table\(s\): %{GREEDYDATA:kolide.audit.target.tables}$'
+        - '^Deleted Live Query Campaign ID %{DATA:kolide.audit.target.campaign_id} : %{GREEDYDATA:rule.name}$'
+        - '^CSV Downloaded For Device %{DATA:host.name} - Live Query Campaign ID %{NUMBER:kolide.audit.target.campaign_id}$'
+        - '^Unpublished Live Query Campaign ID %{NUMBER:kolide.audit.target.campaign_id}$'
+        - '^CSV Downloaded For Live Query Campaign ID %{NUMBER:kolide.audit.target.campaign_id}$'
+        - '^Published Live Query Campaign ID %{NUMBER:kolide.audit.target.campaign_id}$'
+      tag: grok_live_queries
       ignore_failure: true
       ignore_missing: true
 
-  # ── IdP / SSO ─────────────────────────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Okta Webhooks
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: "Identity provider '%{kolide.audit.target.idp_url}' was activated"
-      tag: dissect_idp_activated
-      ignore_failure: true
-      ignore_missing: true
-  - dissect:
-      field: message
-      pattern: 'Updated SSO configuration for IdP: %{kolide.audit.target.idp_url}'
-      tag: dissect_sso_config_updated
-      ignore_failure: true
-      ignore_missing: true
-
-  # ── SCIM ──────────────────────────────────────────────────────────────────────
-  - dissect:
-      field: message
-      pattern: "SCIM provider bearer token generated for '%{kolide.audit.target.org_name}'"
-      tag: dissect_scim_token_generated
+      patterns:
+        - "^Okta event hook received for '%{DATA:kolide.audit.target.okta_event}'$"
+        - '^Okta event hooks verified$'
+      tag: grok_okta_webhooks
       ignore_failure: true
       ignore_missing: true
 
-  # ── Device management provider ───────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Billing
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Added a Device Management Provider: %{kolide.audit.target.provider_name}'
-      tag: dissect_dmp_added
-      ignore_failure: true
-      ignore_missing: true
-  - dissect:
-      field: message
-      pattern: 'Removed Device Management Provider: %{kolide.audit.target.provider_name}'
-      tag: dissect_dmp_removed
+      patterns:
+        - "^Updated billing email to '%{DATA:kolide.audit.change.to}' from '%{DATA:kolide.audit.change.from}'$"
+      tag: grok_billing
       ignore_failure: true
       ignore_missing: true
 
-  # ── API key ───────────────────────────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # End User Portal (Privacy Center)
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
       field: message
-      pattern: 'Revealed full API Key token %{kolide.audit.target.api_key_name}'
-      tag: dissect_api_key_revealed
+      patterns:
+        - "^Changed 'Privacy Center Access Restriction Settings' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - '^Changed Privacy Center Custom Resource Section visibility from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$'
+      tag: grok_privacy_center
       ignore_failure: true
       ignore_missing: true
 
-  # ── User invitation ───────────────────────────────────────────────────────────
-  - dissect:
+  # ════════════════════════════════════════════════════════════════════════════
+  # Automatic Device Removal
+  # ════════════════════════════════════════════════════════════════════════════
+  # Docs: "Device '{name}' removed". Real data appends a serial:
+  # "Device '{name}' ({serial}) removed". Support both.
+  - grok:
       field: message
-      pattern: "Invited '%{user.target.email}' to access kolide"
-      tag: dissect_user_invited
+      patterns:
+        - "^Device '%{DATA:host.name}' \\(%{DATA:kolide.audit.target.device_serial}\\) removed$"
+        - "^Device '%{DATA:host.name}' removed$"
+      tag: grok_device_removed
+      ignore_failure: true
+      ignore_missing: true
+  # Docs: "triggered device deletion for inactive device named '{name}'".
+  # Real data: "Requested device deletion for '{name}' ({serial}) ()". Support both.
+  - grok:
+      field: message
+      patterns:
+        - "^triggered device deletion for inactive device named '%{DATA:host.name}'$"
+        - "^Requested device deletion for '%{DATA:host.name}' \\(%{DATA:kolide.audit.target.device_serial}\\) \\(\\)$"
+      tag: grok_device_deletion_requested
       ignore_failure: true
       ignore_missing: true
 
-  # ── url.domain from IdP URL ───────────────────────────────────────────────────
-  # Values observed in audit logs are hostnames (e.g. "idp-example.okta.com").
-  # Full URL values would require url.full instead; audit logs show hostname-only.
+  # ════════════════════════════════════════════════════════════════════════════
+  # Restrictions
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^Osquery Blocklist Updated From: "%{DATA:kolide.audit.change.from}" To: "%{GREEDYDATA:kolide.audit.change.to}"$'
+      tag: grok_restrictions
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Admin Users
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - "^user '%{DATA:user.target.email}' accepted invitation to Kolide$"
+        - "^Invited '%{DATA:user.target.email}' to access kolide$"
+        - "^Removed access for Kolide user '%{DATA:user.target.name}'$"
+        - "^Updated %{DATA:kolide.audit.target.feature} restriction on %{DATA:user.target.name} from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Updated access for user '%{DATA:user.target.email}' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Revoked invitations created by '%{DATA:user.target.email}' because admin access was removed\\. Revoked invitations with email address\\(es\\): %{GREEDYDATA:kolide.audit.change.to}$"
+        - "^Added EPM user '#?%{DATA:user.target.name}' to Kolide$"
+      tag: grok_admin_users
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # SSO Settings
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^Kolide IdP settings were updated from:%{GREEDYDATA}$'
+        - "^IdP Proxy webhook token generated for '%{DATA:kolide.audit.target.org_name}'$"
+        - "^Kolide IdP: Additional Factor Sequencing was '%{DATA:kolide.audit.change.to}'$"
+        - '^Updated SAML configuration$'
+      tag: grok_sso_settings
+      ignore_failure: true
+      ignore_missing: true
+
+  # IdP / SSO activation observed in real instance data (not in docs).
+  - grok:
+      field: message
+      patterns:
+        - "^Identity provider '%{DATA:kolide.audit.target.idp_url}' was activated$"
+        - '^Updated SSO configuration for IdP: %{GREEDYDATA:kolide.audit.target.idp_url}$'
+      tag: grok_idp_realvariant
+      ignore_failure: true
+      ignore_missing: true
+
+  # SCIM provider bearer token (observed in real instance data).
+  - grok:
+      field: message
+      patterns:
+        - "^SCIM provider bearer token generated for '%{DATA:kolide.audit.target.org_name}'$"
+      tag: grok_scim_token_generated
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Integrations
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^created a Vanta integration$'
+        - '^removed Vanta integration$'
+        - '^created a OAuth grant importer for a Google Workspace integration with email %{GREEDYDATA:user.target.email}$'
+        - '^removed a OAuth grant importer for a Google Workspace integration with email %{GREEDYDATA:user.target.email}$'
+      tag: grok_integrations
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Device Management Providers. Docs: "Added a Device Management Provider {name}"
+  # (no colon). Real data: "Added a Device Management Provider: {name}" (colon).
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^Added a Device Management Provider:? %{GREEDYDATA:kolide.audit.target.provider_name}$'
+        - '^Updated Device Management Provider: %{DATA:kolide.audit.target.provider_name} from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
+        - '^Removed Device Management Provider: %{GREEDYDATA:kolide.audit.target.provider_name}$'
+      tag: grok_device_management_provider
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Settings: auto-snooze policy (observed in real instance data).
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^Set auto-snooze policy for org %{DATA:kolide.audit.target.org_id} to %{GREEDYDATA:kolide.audit.change.to}$'
+      tag: grok_auto_snooze_policy
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Developers (API keys & webhooks)
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - '^Revealed full API Key token %{GREEDYDATA:kolide.audit.target.api_key_name}$'
+        - '^API Key %{DATA:kolide.audit.target.api_key_name} from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
+      tag: grok_api_key
+      ignore_failure: true
+      ignore_missing: true
+  - grok:
+      field: message
+      patterns:
+        - "^Created webhook with url '%{DATA:kolide.audit.target.webhook_url}'$"
+        - "^Deleted webhook with url '%{DATA:kolide.audit.target.webhook_url}'$"
+        - "^Enabled webhook with url '%{DATA:kolide.audit.target.webhook_url}'$"
+        - "^Disabled webhook with url '%{DATA:kolide.audit.target.webhook_url}'$"
+        - '^Revealed full webhook signing secret %{GREEDYDATA:kolide.audit.target.webhook_url}$'
+        - "^Updated webhook url from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Updated event subscriptions for webhook '%{DATA:kolide.audit.target.webhook_url}' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Rolled signing secret for webhook with url '%{DATA:kolide.audit.target.webhook_url}'$"
+      tag: grok_webhooks
+      ignore_failure: true
+      ignore_missing: true
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Generic settings change fallback. Runs last so specific patterns above win.
+  # Covers both the documented Restrictions "feature restriction changed"
+  # (unquoted {new}) and Privacy Center / quoted-value settings changes:
+  #   "Changed '{field}' from '{from}' to '{to}'"  (quoted to-value)
+  #   "Changed '{field}' from '{from}' to {to}"    (unquoted to-value)
+  # The quoted variant is listed first so the surrounding quotes are stripped
+  # when present. Only runs when no more-specific pattern already populated change.
+  # ════════════════════════════════════════════════════════════════════════════
+  - grok:
+      field: message
+      patterns:
+        - "^Changed '%{DATA:kolide.audit.change.field}' from '%{DATA:kolide.audit.change.from}' to '%{DATA:kolide.audit.change.to}'$"
+        - "^Changed '%{DATA:kolide.audit.change.field}' from '%{DATA:kolide.audit.change.from}' to %{GREEDYDATA:kolide.audit.change.to}$"
+      tag: grok_setting_changed_generic
+      ignore_failure: true
+      ignore_missing: true
+      if: ctx.kolide?.audit?.change?.field == null && ctx.kolide?.audit?.change?.from == null
+
+  # ════════════════════════════════════════════════════════════════════════════
+  # Derived / normalized fields
+  # ════════════════════════════════════════════════════════════════════════════
+  # url.domain from IdP URL (values observed are hostnames).
   - set:
       field: url.domain
       tag: set_url_domain_from_idp
@@ -227,7 +507,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.audit?.target?.idp_url != null
 
-  # ── host.hostname mirrors host.name ──────────────────────────────────────────
+  # host.hostname mirrors host.name.
   - set:
       field: host.hostname
       tag: set_host_hostname
@@ -248,6 +528,12 @@ processors:
       value: '{{{user.target.email}}}'
       allow_duplicates: false
       if: ctx.user?.target?.email != null
+  - append:
+      field: related.user
+      tag: append_related_user_target_name
+      value: '{{{user.target.name}}}'
+      allow_duplicates: false
+      if: ctx.user?.target?.name != null
 
 on_failure:
   - append:

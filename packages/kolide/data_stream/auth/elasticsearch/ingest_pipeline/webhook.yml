@@ -1,0 +1,86 @@
+---
+description: >-
+  Webhook-specific field extraction for Kolide auth_log events. Invoked by the
+  auth default.yml pipeline when the document is a webhook delivery (json.event
+  is set). The common envelope handling, related.* enrichment, extended-mappings
+  call, deduplication, and cleanup remain in default.yml.
+processors:
+  # event.action: webhook event value (auth_logs.success / auth_logs.failure).
+  - rename:
+      field: json.event
+      target_field: event.action
+      tag: rename_event_action_webhook
+      ignore_missing: true
+
+  # event.outcome from the webhook event action.
+  - set:
+      field: event.outcome
+      tag: set_outcome_success_webhook
+      value: success
+      if: ctx.event?.action == 'auth_logs.success'
+  - set:
+      field: event.outcome
+      tag: set_outcome_failure_webhook
+      value: failure
+      if: ctx.event?.action == 'auth_logs.failure'
+
+  # --- User ---
+  - convert:
+      field: json.data.person_id
+      target_field: user.id
+      type: string
+      tag: convert_user_id_webhook
+      ignore_missing: true
+
+  # --- Host (device) ---
+  - rename:
+      field: json.data.device_name
+      target_field: host.name
+      tag: rename_host_name_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.device_id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_webhook
+      ignore_missing: true
+
+  # --- User agent ---
+  - rename:
+      field: json.data.browser_name
+      target_field: user_agent.name
+      tag: rename_ua_name_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.browser_version
+      target_field: user_agent.version
+      tag: rename_ua_version_webhook
+      ignore_missing: true
+
+  # --- Kolide custom fields ---
+  - rename:
+      field: json.data.launcher_version
+      target_field: kolide.auth.agent_version
+      tag: rename_agent_version_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.auth_log_url
+      target_field: kolide.auth.url
+      tag: rename_auth_log_url
+      ignore_missing: true
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

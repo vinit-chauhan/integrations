@@ -1,5 +1,5 @@
 ---
-description: Pipeline for processing Kolide issue events from the REST API (CEL) and webhooks.
+description: Pipeline for processing Kolide issue events from the REST API (CEL). Webhook deliveries are delegated to the webhook.yml pipeline.
 processors:
   - set:
       field: ecs.version
@@ -25,9 +25,9 @@ processors:
   # --- end CEL-only ---
 
   # Webhook path: the body is delivered at the document root, where the `event`
-  # key is a string that would collide with the ECS `event` object. Capture the
-  # raw body into event.original and move the envelope into the working `json`
-  # object so both inputs converge on the same shape.
+  # key is a string that would collide with the ECS `event` object. Move the
+  # envelope into the working `json` object so both inputs converge on the same
+  # shape, then delegate the webhook-specific field extraction to webhook.yml.
   - rename:
       field: event
       tag: rename_webhook_event_envelope
@@ -93,51 +93,48 @@ processors:
       value:
         - configuration
 
-  # event.type: issues.new -> [creation]; issues.resolved -> [change, end];
-  # API derives from resolved_at (null -> [creation]; set -> [change, end]).
-  - append:
-      field: event.type
-      tag: append_event_type_creation_webhook
-      value:
-        - creation
-      if: ctx.json?.event == 'issues.new'
-  - append:
-      field: event.type
-      tag: append_event_type_resolved_webhook
-      value:
-        - change
-      if: ctx.json?.event == 'issues.resolved'
-  - append:
-      field: event.type
-      tag: append_event_type_open_api
-      value:
-        - creation
-      if: ctx.json?.event == null && ctx.json?.resolved_at == null
-  - append:
-      field: event.type
-      tag: append_event_type_resolved_api
-      value:
-        - change
-      if: ctx.json?.event == null && ctx.json?.resolved_at != null
-
-  # event.action: webhook event value, or `issue` for the API path.
-  - rename:
-      field: json.event
-      target_field: event.action
-      tag: rename_event_action_webhook
-      ignore_missing: true
-  - set:
-      field: event.action
-      tag: set_event_action_api
-      value: issue
-      if: ctx.event?.action == null
-
   # event.id: webhook envelope ULID (json.id) / API issue id (json.id).
   - rename:
       field: json.id
       target_field: event.id
       tag: rename_event_id
       ignore_missing: true
+
+  # Mark webhook deliveries so the API-only blocks below can be skipped even
+  # after the webhook pipeline consumes json.event.
+  - set:
+      field: _tmp.is_webhook
+      tag: set_is_webhook
+      value: true
+      if: ctx.json?.event != null
+
+  # --- Webhook delivery: delegate the webhook-specific field extraction. ---
+  - pipeline:
+      name: '{{ IngestPipeline "webhook" }}'
+      tag: dispatch_webhook
+      if: ctx.json?.event != null
+
+  # --- API (CEL) field extraction. Skipped for webhook deliveries. ---
+  # event.type: API derives from resolved_at (null -> [creation]; set -> [change]).
+  - append:
+      field: event.type
+      tag: append_event_type_open_api
+      value:
+        - creation
+      if: ctx._tmp?.is_webhook == null && ctx.json?.resolved_at == null
+  - append:
+      field: event.type
+      tag: append_event_type_resolved_api
+      value:
+        - change
+      if: ctx._tmp?.is_webhook == null && ctx.json?.resolved_at != null
+
+  # event.action: `issue` for the API path.
+  - set:
+      field: event.action
+      tag: set_event_action_api
+      value: issue
+      if: ctx._tmp?.is_webhook == null && ctx.event?.action == null
 
   # event.start / event.end from API timestamps.
   - date:
@@ -155,42 +152,15 @@ processors:
       tag: date_event_end
       if: ctx.json?.resolved_at != null
 
-  # --- Host (device) ---
-  - rename:
-      field: json.data.device.name
-      target_field: host.name
-      tag: rename_host_name_webhook
-      ignore_missing: true
+  # --- Host (device) (API) ---
   - rename:
       field: json.device_information.identifier
       target_field: host.id
       tag: rename_host_id_api
       ignore_missing: true
       if: ctx.host?.id == null
-  - convert:
-      field: json.data.device.id
-      target_field: host.id
-      type: string
-      tag: convert_host_id_webhook
-      ignore_missing: true
-  - set:
-      field: host.hostname
-      tag: set_host_hostname
-      copy_from: host.name
-      if: ctx.host?.name != null
 
-  # --- Rule (check) ---
-  - rename:
-      field: json.data.check.name
-      target_field: rule.name
-      tag: rename_rule_name_webhook
-      ignore_missing: true
-  - convert:
-      field: json.data.check.id
-      target_field: rule.id
-      type: string
-      tag: convert_rule_id_webhook
-      ignore_missing: true
+  # --- Rule (check) (API) ---
   - rename:
       field: json.check_information.identifier
       target_field: rule.id
@@ -198,49 +168,15 @@ processors:
       ignore_missing: true
       if: ctx.rule?.id == null
 
-  # --- message / title ---
-  - rename:
-      field: json.data.title
-      target_field: kolide.issues.title
-      tag: rename_title_webhook
-      ignore_missing: true
-      if: ctx.json?.data?.title instanceof String
+  # --- title (API) ---
   - rename:
       field: json.title
       target_field: kolide.issues.title
       tag: rename_title_api
       ignore_missing: true
       if: ctx.kolide?.issues?.title == null && ctx.json?.title instanceof String
-  - set:
-      field: message
-      tag: set_message_from_title
-      copy_from: kolide.issues.title
-      if: ctx.kolide?.issues?.title != null
 
-  # --- Kolide custom fields ---
-  - convert:
-      field: json.data.issue_id
-      target_field: kolide.issues.id
-      type: string
-      tag: convert_issue_id_webhook
-      ignore_missing: true
-  - convert:
-      field: json.data.check_id
-      target_field: kolide.issues.check.id
-      type: string
-      tag: convert_check_id_webhook
-      ignore_missing: true
-  - rename:
-      field: json.data.check.tags
-      target_field: kolide.issues.check.tags
-      tag: rename_check_tags_webhook
-      ignore_missing: true
-  - set:
-      field: rule.category
-      tag: set_rule_category
-      copy_from: kolide.issues.check.tags
-      ignore_empty_value: true
-      if: ctx.kolide?.issues?.check?.tags instanceof List
+  # --- Kolide custom fields (API) ---
   - rename:
       field: json.issue_key
       target_field: kolide.issues.issue_key
@@ -304,7 +240,7 @@ processors:
       tag: date_last_rechecked_at
       if: ctx.json?.last_rechecked_at != null
 
-  # --- ECS promotion from check value (when present) ---
+  # --- ECS promotion from check value (API only) ---
   # The value object contains check-specific fields; promote well-known ones to ECS.
   - set:
       field: user.name
@@ -330,6 +266,28 @@ processors:
       copy_from: kolide.issues.value.fingerprint_sha256
       ignore_empty_value: true
       if: ctx.kolide?.issues?.value?.fingerprint_sha256 instanceof String
+
+  # --- Common: host.hostname derived from host.name set by either path. ---
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
+
+  # --- Common: message from the issue title (set by either path). ---
+  - set:
+      field: message
+      tag: set_message_from_title
+      copy_from: kolide.issues.title
+      if: ctx.kolide?.issues?.title != null
+
+  # --- Common: rule.category from check tags (set by the webhook path). ---
+  - set:
+      field: rule.category
+      tag: set_rule_category
+      copy_from: kolide.issues.check.tags
+      ignore_empty_value: true
+      if: ctx.kolide?.issues?.check?.tags instanceof List
 
   # --- related.* enrichment ---
   - append:
@@ -369,6 +327,7 @@ processors:
       field:
         - json
         - data
+        - _tmp
       tag: remove_temp_fields
       ignore_missing: true
   - append:

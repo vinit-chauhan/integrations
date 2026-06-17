@@ -1,0 +1,87 @@
+---
+description: >-
+  Webhook-specific field extraction for Kolide device events. Invoked by the
+  device default.yml pipeline when the document is a webhook delivery (json.event
+  is set). The common envelope handling, status normalization, related.*
+  enrichment, extended-mappings call, deduplication, and cleanup remain in
+  default.yml.
+processors:
+  # --- event.kind: event for webhook events (vs state for API inventory). ---
+  - set:
+      field: event.kind
+      tag: set_event_kind_webhook
+      value: event
+
+  # --- event.type. Category `host` only permits access/change/end/info/start,
+  #     so created/destroyed/registered/status_changed all normalize to change. ---
+  - append:
+      field: event.type
+      tag: append_event_type_change_webhook
+      value:
+        - change
+
+  # --- event.action: webhook event value. ---
+  - set:
+      field: event.action
+      tag: set_event_action_webhook
+      copy_from: json.event
+      if: ctx.json?.event != null
+
+  # --- Host (device) ---
+  - rename:
+      field: json.data.device_name
+      target_field: host.name
+      tag: rename_host_name_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.device_id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_webhook
+      ignore_missing: true
+
+  # --- Owner (registered_owner) ---
+  - rename:
+      field: json.data.registered_owner.email
+      target_field: user.email
+      tag: rename_user_email_webhook
+      ignore_missing: true
+  - rename:
+      field: json.data.registered_owner.name
+      target_field: user.name
+      tag: rename_user_name_webhook
+      ignore_missing: true
+  - convert:
+      field: json.data.registered_owner.id
+      target_field: user.id
+      type: string
+      tag: convert_user_id_webhook
+      ignore_missing: true
+
+  # --- Kolide custom device fields (webhook) ---
+  - rename:
+      field: json.data.device_status
+      target_field: kolide.device.device_status
+      tag: rename_kolide_device_status
+      ignore_missing: true
+  - rename:
+      field: json.data.device_url
+      target_field: kolide.device.device_url
+      tag: rename_kolide_device_url_webhook
+      ignore_missing: true
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false
