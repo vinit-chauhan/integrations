@@ -66,8 +66,14 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the CEL message (a JSON string of one device object) into the working json object.
 
-  # --- @timestamp: webhook envelope timestamp, or API last_authenticated_at
-  #     (fallback last_seen_at, then registered_at). ---
+  # --- @timestamp ---
+  # Webhook deliveries carry a real event timestamp (the envelope `timestamp`),
+  # so use it. The API (CEL) path is a full-inventory snapshot with no per-record
+  # modified-at field; the device's own timestamps (last_authenticated_at,
+  # last_seen_at, registered_at) describe device activity, not when this state was
+  # observed, and would back-date change documents to an unrelated time. Use the
+  # ingest time instead so each captured state change is timestamped at observation.
+  # The device timestamps remain available under kolide.device.*.
   - date:
       field: json.timestamp
       target_field: '@timestamp'
@@ -75,29 +81,11 @@ processors:
         - ISO8601
       tag: date_timestamp_webhook
       if: ctx.json?.timestamp != null
-  - date:
-      field: json.last_authenticated_at
-      target_field: '@timestamp'
-      formats:
-        - ISO8601
-      tag: date_timestamp_api_last_authenticated
-      if: ctx.json?.timestamp == null && ctx.json?.last_authenticated_at != null
-  - date:
-      field: json.last_seen_at
-      target_field: '@timestamp'
-      formats:
-        - ISO8601
-      tag: date_timestamp_api_last_seen
-      if: ctx.json?.timestamp == null && ctx.json?.last_authenticated_at == null && ctx.json?.last_seen_at != null
-  - date:
-      field: json.registered_at
-      target_field: '@timestamp'
-      formats:
-        - ISO8601
-      tag: date_timestamp_api_registered
-      if: >-
-        ctx.json?.timestamp == null && ctx.json?.last_authenticated_at == null
-        && ctx.json?.last_seen_at == null && ctx.json?.registered_at != null
+  - set:
+      field: '@timestamp'
+      copy_from: _ingest.timestamp
+      tag: set_timestamp_api_ingest
+      if: ctx.json?.timestamp == null
 
   - append:
       field: event.category

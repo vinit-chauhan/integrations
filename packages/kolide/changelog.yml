@@ -1,4 +1,14 @@
 # newer versions go on top
+- version: "0.2.9"
+  changes:
+    - description: >-
+        Fixed the device `@timestamp` on the REST API (CEL) path. Because the device inventory
+        snapshot has no per-record modified-at field, `@timestamp` now reflects the ingest
+        (observation) time instead of `last_authenticated_at`/`last_seen_at`, so captured state
+        changes are no longer back-dated to unrelated device-activity times. The device's own
+        timestamps remain available under `kolide.device.*`. Webhook events keep their event time.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.8"
   changes:
     - description: >-
