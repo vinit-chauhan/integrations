@@ -1,7 +1,0 @@
-{
-  "events": [
-    {
-      "message": "{\"id\":\"500000002\",\"title\":\"Android Device OS Is Not Up to Date\",\"value\":{\"KOLIDE_CHECK_STATUS\":\"FAIL\",\"androidOsSecurityPatchLevel\":\"2023-01-01\",\"androidSdkVersion\":\"32\",\"brand\":\"Google\",\"modelName\":\"Pixel 7\",\"samsungCSC\":\"\"},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2024-03-11T09:00:00Z\",\"blocks_device_at\":null,\"last_rechecked_at\":\"2024-03-11T09:05:00Z\",\"device_information\":{\"identifier\":\"device-android-01\",\"link\":\"https://api.example.com/devices/2\"},\"check_information\":{\"identifier\":\"20\",\"link\":\"https://api.example.com/checks/20\"}}"
-    }
-  ]
-}

@@ -1,34 +1,16 @@
 ---
 description: >-
-  Extended field extraction for Kolide audit_log events. Parses the human-readable
-  description (message) into ECS and structured custom fields, then classifies each
-  event by setting `event.action` to the documented event name (snake_case) from
-  https://www.kolide.com/docs/admins/settings-admin-tools/audit-log#events. The
-  event name is not present in the API/webhook payload; it is derived from the
-  description. Field extraction uses anchored grok processors grouped by category
-  (each with `ignore_failure: true` so non-matching descriptions fall through). The
-  `event.action` classification is performed once per document by a single Painless
-  script (rather than one set/if pair per event type) to avoid per-event processor
-  overhead. Events whose description matches no known prefix keep the generic
-  `audit_log` (API) / webhook event value already on `event.action`. The
-  documentation renders curly typographic quotes, but the REST API and webhook
-  payloads deliver straight ASCII quotes (" and '), so patterns match straight
-  quotes only. Where the description observed in real instance data differs from the
-  documented template (colons, trailing clauses, device serial suffix), both
-  variants are supported via alternations in a single grok. Prefer ECS fields
-  (host.name, rule.name, user.target.email) over the vendor namespace where a
-  semantic match exists.
+  Extended field extraction for Kolide audit_log events. Classifies each
+  description into the documented event name (snake_case) in event.action and
+  parses structured fields via category-gated grok blocks. Reference:
+  https://www.kolide.com/docs/admins/settings-admin-tools/audit-log#events.
+  Event names are not in the API/webhook payload; they are derived from the
+  description. Grok patterns use straight ASCII quotes (not typographic quotes).
+  Unmatched descriptions keep the generic audit_log / webhook default on
+  event.action.
 processors:
-  # ════════════════════════════════════════════════════════════════════════════
-  # event.action classification + grok routing (single pass). Derives the
-  # documented event name (snake_case) from the description and overwrites the
-  # generic `audit_log` / webhook default, and records the matched category in
-  # `_tmp.cat`. The category gates the grok blocks below (each grok runs only for
-  # its category) so a document executes at most one grok instead of all of them.
-  # One compiled script per document instead of a set/if pair per event type.
-  # Ordered most-specific first; the first matching prefix/equality wins. Unmatched
-  # descriptions leave event.action untouched (generic default) and run no grok.
-  # ════════════════════════════════════════════════════════════════════════════
+  # Classify event.action from description; set _tmp.cat to gate grok blocks below.
+  # Most-specific prefix wins; unmatched descriptions leave event.action unchanged.
   - script:
       lang: painless
       tag: classify_event_action
@@ -394,7 +376,7 @@ processors:
       field: message
       patterns:
         - '^Created managed app "%{DATA:kolide.audit.target.app_name}"$'
-        - '^Deleted managed app "%{DATA:kolide.audit.target.app_name}" with #?%{NUMBER:kolide.audit.target.count} people$'
+        - '^Deleted managed app "%{DATA:kolide.audit.target.app_name}" with #?%{NUMBER:kolide.audit.target.count:long} people$'
         - '^Updated managed app "%{DATA:kolide.audit.target.app_name}" from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
         - '^Sign on settings were updated for "%{DATA:kolide.audit.target.app_name}" from: %{DATA:kolide.audit.change.from} to: %{GREEDYDATA:kolide.audit.change.to}$'
         - '^Updated managed app "#?%{DATA:kolide.audit.target.app_name}" directly assigned people membership from %{DATA:kolide.audit.change.from} to %{GREEDYDATA:kolide.audit.change.to}$'
@@ -411,7 +393,7 @@ processors:
       patterns:
         - '^Mass-Removed members from device group: "%{DATA:kolide.audit.target.group_name}"\. Device ID\(s\) removed: %{GREEDYDATA:kolide.audit.change.to}$'
         - '^Created device group "%{DATA:kolide.audit.target.group_name}"$'
-        - '^Deleted device group "%{DATA:kolide.audit.target.group_name}" with %{NUMBER:kolide.audit.target.count} members$'
+        - '^Deleted device group "%{DATA:kolide.audit.target.group_name}" with %{NUMBER:kolide.audit.target.count:long} members$'
       tag: grok_groups
       ignore_failure: true
       if: ctx._tmp?.cat == 'groups'
@@ -667,15 +649,7 @@ processors:
       ignore_failure: true
       if: ctx._tmp?.cat == 'developers'
 
-  # ════════════════════════════════════════════════════════════════════════════
-  # Generic settings change fallback. Runs last so specific patterns above win.
-  # Covers both the documented Restrictions "feature restriction changed"
-  # (unquoted {new}) and Privacy Center / quoted-value settings changes:
-  #   "Changed '{field}' from '{from}' to '{to}'"  (quoted to-value)
-  #   "Changed '{field}' from '{from}' to {to}"    (unquoted to-value)
-  # The quoted variant is listed first so the surrounding quotes are stripped
-  # when present. Only runs when no more-specific pattern already populated change.
-  # ════════════════════════════════════════════════════════════════════════════
+  # Generic settings change fallback (unquoted to-value variant).
   - grok:
       field: message
       patterns:
@@ -685,17 +659,14 @@ processors:
       ignore_failure: true
       if: ctx._tmp?.cat == 'setting_generic' && ctx.kolide?.audit?.change?.field == null && ctx.kolide?.audit?.change?.from == null
 
-  # Generic "Changed '{field}' ..." settings change: classify only once the grok
-  # above confirmed a match by populating change.field (mirrors the prior guard).
+  # Set feature_restriction_changed once grok_setting_changed_generic matched.
   - set:
       field: event.action
       tag: set_event_action_feature_restriction_changed
       value: feature_restriction_changed
       if: ctx._tmp?.cat == 'setting_generic' && ctx.kolide?.audit?.change?.field != null
 
-  # Okta webhooks: event.action is the dynamic event name extracted by the grok
-  # above (only when the description carried one; "Okta event hooks verified" has
-  # no event name and keeps the action assigned by the classification script).
+  # Okta hook: event.action is the dynamic event name from grok (when present).
   - set:
       field: event.action
       tag: set_event_action_okta_event
@@ -703,16 +674,13 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.audit?.target?.okta_event != null
 
-  # Drop the routing scratch field.
+  # Drop grok routing scratch field.
   - remove:
       field: _tmp
       tag: remove_tmp
       ignore_missing: true
 
-  # ════════════════════════════════════════════════════════════════════════════
-  # Derived / normalized fields
-  # ════════════════════════════════════════════════════════════════════════════
-  # url.domain from IdP URL (values observed are hostnames).
+  # Derived fields and related.* enrichment from parsed targets.
   - set:
       field: url.domain
       tag: set_url_domain_from_idp
@@ -720,7 +688,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.audit?.target?.idp_url != null
 
-  # host.hostname mirrors host.name.
+  # host.hostname mirrors host.name when set by grok.
   - set:
       field: host.hostname
       tag: set_host_hostname

@@ -1,9 +1,10 @@
 ---
 description: >-
-  Extended field extraction for Kolide issue records. Promotes check-specific
-  fields from kolide.issues.value to ECS and custom fields based on the check type.
+  Check-type-specific field promotions from kolide.issues.value to ECS and
+  kolide.issues.* (software versions, SSH key type, disk device). Invoked from
+  default.yml after common value promotions. See https://www.kolide.com/docs/.
 processors:
-  # ── Software version (Chrome, OS update checks) ──────────────────────────────
+  # Software version checks (Chrome, OS updates): version -> detected/expected.
   - set:
       field: kolide.issues.detected_version
       tag: set_detected_version
@@ -23,7 +24,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.issues?.value?.newest_version instanceof String
 
-  # ── SSH key algorithm type ────────────────────────────────────────────────────
+  # SSH key checks: key_type -> kolide.issues.ssh_key_type.
   - set:
       field: kolide.issues.ssh_key_type
       tag: set_ssh_key_type
@@ -31,7 +32,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.issues?.value?.key_type instanceof String
 
-  # ── Disk encryption: block device ────────────────────────────────────────────
+  # Disk encryption checks: device -> file.device.
   - set:
       field: file.device
       tag: set_file_device
@@ -39,7 +40,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.issues?.value?.device instanceof String && ctx.file?.device == null
 
-  # ── related.user: Chrome username (when not already promoted from value.username) ──
+  # related.user when value.username was not promoted to user.name.
   - append:
       field: related.user
       tag: append_related_user_from_value_username

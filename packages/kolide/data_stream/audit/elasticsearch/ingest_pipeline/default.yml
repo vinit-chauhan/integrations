@@ -1,5 +1,9 @@
 ---
-description: Pipeline for processing Kolide audit log events from the REST API (CEL). Webhook deliveries are delegated to the webhook.yml pipeline.
+description: >-
+  Kolide audit_log ingest pipeline. Normalizes REST API (CEL) and webhook
+  deliveries into a common shape, then delegates webhook-specific extraction to
+  webhook.yml and description parsing to extended-mappings.yml. Event names are
+  documented at https://www.kolide.com/docs/admins/settings-admin-tools/audit-log.
 processors:
   - set:
       field: ecs.version
@@ -24,10 +28,9 @@ processors:
       description: error message set and no data to process.
   # --- end CEL-only ---
 
-  # Webhook path: the body is delivered at the document root, where the `event`
-  # key is a string that would collide with the ECS `event` object. Move the
-  # envelope into the working `json` object so both inputs converge on the same
-  # shape, then delegate the webhook-specific field extraction to webhook.yml.
+  # Webhook envelope: root `event` is a string (e.g. audit_log.recorded) and
+  # collides with the ECS `event` object. Move envelope fields into `json` so
+  # both inputs share the same working shape before webhook.yml runs.
   - rename:
       field: event
       tag: rename_webhook_event_envelope
@@ -45,7 +48,7 @@ processors:
         if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
         if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
 
-  # --- CEL / JSE00001 path: message holds the raw JSON of one audit_log object ---
+  # CEL/API path (JSE00001): `message` is a JSON string of one audit_log object.
   - rename:
       field: message
       tag: rename_message_to_event_original
@@ -66,8 +69,7 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the CEL message (a JSON string of one audit_log object) into the working json object.
 
-  # --- Common normalization ---
-  # @timestamp from the envelope/object timestamp.
+  # Common normalization: @timestamp and event.id from the audit_log object.
   - date:
       field: json.timestamp
       target_field: '@timestamp'
@@ -83,7 +85,7 @@ processors:
       tag: rename_event_id
       ignore_missing: true
 
-  # --- ECS categorization ---
+  # ECS categorization (all audit_log events are IAM/configuration changes).
   - set:
       field: event.kind
       tag: set_event_kind
@@ -100,22 +102,20 @@ processors:
       value:
         - change
 
-  # --- Webhook delivery: delegate the webhook-specific field extraction. ---
+  # Webhook path: extract actor, source IP, and message via webhook.yml.
   - pipeline:
       name: '{{ IngestPipeline "webhook" }}'
       tag: dispatch_webhook
       if: ctx.json?.event != null
 
-  # --- API (CEL) field extraction. Skipped for webhook deliveries. ---
-  # event.action: `audit_log` for the API path.
+  # API path: default event.action until extended-mappings.yml classifies the description.
   - set:
       field: event.action
       tag: set_event_action_api
       value: audit_log
       if: ctx.json?.event == null && ctx.event?.action == null
 
-  # --- Actor (user). The API delivers actor_info plus a top-level
-  #     actor_name/description on the audit_log object. ---
+  # Actor (API): actor_info plus top-level actor_name on the audit_log object.
   - rename:
       field: json.actor_info.actor_name
       target_field: user.name
@@ -147,7 +147,7 @@ processors:
       ignore_missing: true
       if: ctx.kolide?.audit?.actor_type == null
 
-  # --- message / description (API) ---
+  # Human-readable audit description (API).
   - rename:
       field: json.description
       target_field: message
@@ -155,7 +155,7 @@ processors:
       ignore_missing: true
       if: ctx.message == null
 
-  # --- Source IP geo enrichment (common; source.ip set by webhook path) ---
+  # Source IP geo/ASN enrichment (source.ip is set by the webhook path).
   - geoip:
       field: source.ip
       target_field: source.geo
@@ -203,17 +203,14 @@ processors:
       allow_duplicates: false
       if: ctx.source?.ip != null
 
-  # --- Extended field extraction from message/description ---
+  # Parse description into ECS/custom fields; classify event.action per Kolide docs.
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
       ignore_missing_pipeline: true
 
-  # --- Deduplication ---
-  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
-  # skipping events that share the boundary second, so each poll re-collects the
-  # last record(s). Set a deterministic _id from event.id so those re-collected
-  # records overwrite rather than duplicate the previously ingested documents.
+  # Deduplication: CEL cursor uses an inclusive (>=) boundary and may re-fetch
+  # the last record; fingerprint event.id so re-collected docs overwrite by _id.
   - fingerprint:
       fields:
         - event.id
@@ -222,7 +219,7 @@ processors:
       tag: fingerprint_event_id
       if: ctx.event?.id != null && ctx.event.id != ''
 
-  # --- Cleanup ---
+  # Cleanup temporary fields.
   - remove:
       field:
         - json

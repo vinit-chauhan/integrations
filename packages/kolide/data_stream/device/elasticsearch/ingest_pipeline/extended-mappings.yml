@@ -1,9 +1,14 @@
 ---
 description: >-
-  Extended field extraction for Kolide device records. Sets host.os.type from
-  the device platform reported by the Kolide API.
+  Extended field extraction for Kolide device records. Normalizes host.os.platform
+  to lowercase and sets host.os.type from the Kolide device_type (API) value.
 processors:
-  # ── host.os.type from kolide device_type / host.os.platform ─────────────────
+  # API device_type values are title-cased ("Linux", "Android", "Mac"); normalize
+  # before mapping to ECS host.os.type.
+  - lowercase:
+      field: host.os.platform
+      tag: lowercase_host_os_platform
+      ignore_missing: true
   - set:
       field: host.os.type
       tag: set_os_type_android

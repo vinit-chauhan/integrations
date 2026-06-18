@@ -1,7 +1,0 @@
-{
-  "events": [
-    {
-      "message": "{\"id\":\"1000001\",\"name\":\"my-laptop\",\"registered_at\":\"2026-06-15T00:13:41.910Z\",\"last_authenticated_at\":\"2026-06-15T14:02:40.284Z\",\"last_seen_at\":\"2026-06-15T14:48:42.000Z\",\"registered_owner_info\":{\"identifier\":\"100001\",\"link\":\"https://api.kolide.com/people/100001\"},\"operating_system\":\"Ubuntu 24.04.3 LTS (Noble Numbat)\",\"hardware_model\":\"Generic Laptop\",\"serial\":\"SERIALABC123\",\"hardware_uuid\":\"07b8f36b-0000-0000-0000-000000000001\",\"note\":null,\"auth_state\":\"Good\",\"will_block_at\":null,\"product_image_url\":\"https://assets2.kolide.com/assets/inventory/devices/linux-929081eb.png\",\"auth_configuration\":{\"device_id\":\"1000001\",\"authentication_mode\":\"only_registered_owner\",\"person_groups\":[]},\"device_type\":\"Linux\",\"form_factor\":\"computer\"}"
-    }
-  ]
-}

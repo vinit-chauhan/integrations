@@ -1,7 +1,0 @@
-{
-    "events": [
-        {
-            "message": "{\"id\":\"01JA67B1DYJCKJ1J73T0F5EWGR\",\"timestamp\":\"2024-10-14T19:16:05Z\",\"actor_name\":\"Alice Johnson\",\"description\":\"Enabled check 'iTerm2 - Require Secure Keyboard Entry to Be Enabled'\",\"actor_info\":{\"actor_name\":\"Alice Johnson\",\"actor_email\":\"alice.johnson@example.com\",\"actor_type\":\"User\"}}"
-        }
-    ]
-}

@@ -24,6 +24,7 @@ redact:
   fields:
     - api_key
 program: |-
+  // Paginated GET /devices inventory snapshot; each device is emitted as a JSON message.
   state.?cursor.next.orValue("").as(next_token,
     state.with(
       request(

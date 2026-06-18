@@ -1,18 +1,17 @@
 ---
 description: >-
-  Webhook-specific field extraction for Kolide auth_log events. Invoked by the
-  auth default.yml pipeline when the document is a webhook delivery (json.event
-  is set). The common envelope handling, related.* enrichment, extended-mappings
-  call, deduplication, and cleanup remain in default.yml.
+  Webhook field extraction for Kolide auth_log deliveries (auth_logs.success /
+  auth_logs.failure). Invoked from default.yml when json.event is set.
+  Reference: https://www.kolide.com/docs/admins/auth-logs
 processors:
-  # event.action: webhook event value (auth_logs.success / auth_logs.failure).
+  # event.action and event.outcome from webhook event name.
   - rename:
       field: json.event
       target_field: event.action
       tag: rename_event_action_webhook
       ignore_missing: true
 
-  # event.outcome from the webhook event action.
+  # event.outcome from auth_logs.success | auth_logs.failure.
   - set:
       field: event.outcome
       tag: set_outcome_success_webhook

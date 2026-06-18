@@ -25,6 +25,8 @@ redact:
   fields:
     - api_key
 program: |-
+  // Poll GET /issues; each record is emitted as a JSON string in `message`.
+  // Cursor uses detected_at with an inclusive boundary — see default.yml fingerprint.
   state.?cursor.next.orValue("").as(next_token,
     state.?cursor.last_timestamp.orValue(
       string(now - duration(state.initial_interval))

@@ -25,6 +25,8 @@ redact:
   fields:
     - api_key
 program: |-
+  // GET /auth_logs: expand each session into one document per sub-event (or one
+  // document when events[] is empty). See https://www.kolide.com/docs/admins/auth-logs
   state.?cursor.next.orValue("").as(next_token,
     state.?cursor.last_timestamp.orValue(
       string(now - duration(state.initial_interval))

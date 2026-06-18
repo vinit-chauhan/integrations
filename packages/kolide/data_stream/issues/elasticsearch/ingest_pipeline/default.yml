@@ -1,5 +1,8 @@
 ---
-description: Pipeline for processing Kolide issue events from the REST API (CEL). Webhook deliveries are delegated to the webhook.yml pipeline.
+description: >-
+  Parse Kolide issue records from GET /issues (CEL) and webhook deliveries
+  (issues.new, issues.resolved). See https://www.kolide.com/docs/ for check
+  definitions. Webhook field extraction is delegated to webhook.yml.
 processors:
   - set:
       field: ecs.version
@@ -24,10 +27,9 @@ processors:
       description: error message set and no data to process.
   # --- end CEL-only ---
 
-  # Webhook path: the body is delivered at the document root, where the `event`
-  # key is a string that would collide with the ECS `event` object. Move the
-  # envelope into the working `json` object so both inputs converge on the same
-  # shape, then delegate the webhook-specific field extraction to webhook.yml.
+  # Webhook envelope: root-level `event` is a string (issues.new / issues.resolved)
+  # and would collide with the ECS `event` object. Fold the envelope into `json`
+  # so API and webhook inputs share one normalization path.
   - rename:
       field: event
       tag: rename_webhook_event_envelope
@@ -45,7 +47,7 @@ processors:
         if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
         if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
 
-  # --- CEL / JSE00001 path: message holds the raw JSON of one issue object ---
+  # CEL / JSE00001: `message` is a JSON string of one GET /issues record.
   - rename:
       field: message
       tag: rename_message_to_event_original
@@ -66,8 +68,8 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the CEL message (a JSON string of one issue object) into the working json object.
 
-  # --- Common normalization (json now holds either the API object or the webhook envelope) ---
-  # @timestamp: webhook envelope timestamp, or API detected_at.
+  # Common normalization (`json` is an API issue object or a webhook envelope).
+  # @timestamp: webhook `timestamp`, else API `detected_at`.
   - date:
       field: json.timestamp
       target_field: '@timestamp'
@@ -93,29 +95,29 @@ processors:
       value:
         - configuration
 
-  # event.id: webhook envelope ULID (json.id) / API issue id (json.id).
+  # event.id: webhook delivery ULID (`json.id`) or API issue id (`json.id`).
   - rename:
       field: json.id
       target_field: event.id
       tag: rename_event_id
       ignore_missing: true
 
-  # Mark webhook deliveries so the API-only blocks below can be skipped even
-  # after the webhook pipeline consumes json.event.
+  # Flag webhook deliveries so API-only processors are skipped after webhook.yml
+  # renames `json.event` to `event.action`.
   - set:
       field: _tmp.is_webhook
       tag: set_is_webhook
       value: true
       if: ctx.json?.event != null
 
-  # --- Webhook delivery: delegate the webhook-specific field extraction. ---
+  # Webhook: field extraction in webhook.yml.
   - pipeline:
       name: '{{ IngestPipeline "webhook" }}'
       tag: dispatch_webhook
       if: ctx.json?.event != null
 
-  # --- API (CEL) field extraction. Skipped for webhook deliveries. ---
-  # event.type: API derives from resolved_at (null -> [creation]; set -> [change]).
+  # API (CEL) field extraction — skipped for webhook deliveries.
+  # event.type: unresolved issue -> [creation]; resolved_at set -> [change].
   - append:
       field: event.type
       tag: append_event_type_open_api
@@ -129,14 +131,14 @@ processors:
         - change
       if: ctx._tmp?.is_webhook == null && ctx.json?.resolved_at != null
 
-  # event.action: `issue` for the API path.
+  # event.action: constant `issue` on the API path.
   - set:
       field: event.action
       tag: set_event_action_api
       value: issue
       if: ctx._tmp?.is_webhook == null && ctx.event?.action == null
 
-  # event.start / event.end from API timestamps.
+  # event.start = detected_at; event.end = resolved_at (when present).
   - date:
       field: json.detected_at
       target_field: event.start
@@ -152,7 +154,7 @@ processors:
       tag: date_event_end
       if: ctx.json?.resolved_at != null
 
-  # --- Host (device) (API) ---
+  # Host (device) — API path.
   - rename:
       field: json.device_information.identifier
       target_field: host.id
@@ -160,7 +162,7 @@ processors:
       ignore_missing: true
       if: ctx.host?.id == null
 
-  # --- Rule (check) (API) ---
+  # Rule (check) — API path.
   - rename:
       field: json.check_information.identifier
       target_field: rule.id
@@ -168,7 +170,7 @@ processors:
       ignore_missing: true
       if: ctx.rule?.id == null
 
-  # --- title (API) ---
+  # Issue title — API path.
   - rename:
       field: json.title
       target_field: kolide.issues.title
@@ -176,7 +178,7 @@ processors:
       ignore_missing: true
       if: ctx.kolide?.issues?.title == null && ctx.json?.title instanceof String
 
-  # --- Kolide custom fields (API) ---
+  # Kolide issue fields — API path.
   - rename:
       field: json.issue_key
       target_field: kolide.issues.issue_key
@@ -240,8 +242,7 @@ processors:
       tag: date_last_rechecked_at
       if: ctx.json?.last_rechecked_at != null
 
-  # --- ECS promotion from check value (API only) ---
-  # The value object contains check-specific fields; promote well-known ones to ECS.
+  # ECS promotion from `value` (check-specific payload; API path only).
   - set:
       field: user.name
       tag: set_user_name_from_value
@@ -267,21 +268,21 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.issues?.value?.fingerprint_sha256 instanceof String
 
-  # --- Common: host.hostname derived from host.name set by either path. ---
+  # host.hostname from host.name (set by API or webhook path).
   - set:
       field: host.hostname
       tag: set_host_hostname
       copy_from: host.name
       if: ctx.host?.name != null
 
-  # --- Common: message from the issue title (set by either path). ---
+  # message from kolide.issues.title (either path).
   - set:
       field: message
       tag: set_message_from_title
       copy_from: kolide.issues.title
       if: ctx.kolide?.issues?.title != null
 
-  # --- Common: rule.category from check tags (set by the webhook path). ---
+  # rule.category from kolide.issues.check.tags (webhook path).
   - set:
       field: rule.category
       tag: set_rule_category
@@ -289,7 +290,7 @@ processors:
       ignore_empty_value: true
       if: ctx.kolide?.issues?.check?.tags instanceof List
 
-  # --- related.* enrichment ---
+  # related.* enrichment.
   - append:
       field: related.hosts
       tag: append_related_hosts
@@ -303,17 +304,14 @@ processors:
       allow_duplicates: false
       if: ctx.user?.name != null
 
-  # --- Extended field extraction from message/description ---
+  # Check-type-specific promotions (extended-mappings.yml).
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
       ignore_missing_pipeline: true
 
-  # --- Deduplication ---
-  # The CEL cursor uses an inclusive (>=) timestamp boundary on purpose to avoid
-  # skipping events that share the boundary second, so each poll re-collects the
-  # last record(s). Set a deterministic _id from event.id (the issue id) so each
-  # poll overwrites the issue's current-state document instead of duplicating it.
+  # Deduplication: CEL cursor uses an inclusive detected_at boundary, so the last
+  # record may be re-collected. Fingerprint event.id to _id so polls upsert state.
   - fingerprint:
       fields:
         - event.id
@@ -322,7 +320,7 @@ processors:
       tag: fingerprint_event_id
       if: ctx.event?.id != null && ctx.event.id != ''
 
-  # --- Cleanup ---
+  # Cleanup.
   - remove:
       field:
         - json

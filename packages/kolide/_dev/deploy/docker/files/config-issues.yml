@@ -166,7 +166,7 @@ rules:
           {
             "data": [
               {
-                "id": "455148606",
+                "id": "500000010",
                 "issue_key": "check_target",
                 "issue_value": "/",
                 "title": "Disk Is Not Encrypted",
@@ -180,7 +180,7 @@ rules:
                 "check_information": {"identifier": "32", "link": "https://api.kolide.com/checks/32"}
               },
               {
-                "id": "455173972",
+                "id": "500000012",
                 "issue_key": "pk",
                 "issue_value": "google-chrome-stable",
                 "title": "Chrome Browser Is Not Up to Date",

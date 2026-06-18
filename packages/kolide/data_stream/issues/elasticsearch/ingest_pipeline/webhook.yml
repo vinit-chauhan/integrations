@@ -1,10 +1,9 @@
 ---
 description: >-
-  Webhook-specific field extraction for Kolide issue events. Invoked by the
-  issues default.yml pipeline when the document is a webhook delivery (json.event
-  is set). The common envelope handling, message/title normalization, related.*
-  enrichment, extended-mappings call, deduplication, and cleanup remain in
-  default.yml.
+  Webhook field extraction for Kolide issue events (issues.new, issues.resolved).
+  Invoked from default.yml when `json.event` is set. Envelope handling, ECS
+  categorization, related.* enrichment, extended-mappings, deduplication, and
+  cleanup remain in default.yml. See https://www.kolide.com/docs/.
 processors:
   # event.type: issues.new -> [creation]; issues.resolved -> [change].
   - append:
@@ -20,14 +19,14 @@ processors:
         - change
       if: ctx.json?.event == 'issues.resolved'
 
-  # event.action: webhook event value.
+  # event.action: webhook event name (issues.new / issues.resolved).
   - rename:
       field: json.event
       target_field: event.action
       tag: rename_event_action_webhook
       ignore_missing: true
 
-  # --- Host (device) ---
+  # Host (device).
   - rename:
       field: json.data.device.name
       target_field: host.name
@@ -40,7 +39,7 @@ processors:
       tag: convert_host_id_webhook
       ignore_missing: true
 
-  # --- Rule (check) ---
+  # Rule (check).
   - rename:
       field: json.data.check.name
       target_field: rule.name
@@ -53,7 +52,7 @@ processors:
       tag: convert_rule_id_webhook
       ignore_missing: true
 
-  # --- title ---
+  # Issue title.
   - rename:
       field: json.data.title
       target_field: kolide.issues.title
@@ -61,7 +60,7 @@ processors:
       ignore_missing: true
       if: ctx.json?.data?.title instanceof String
 
-  # --- Kolide custom fields ---
+  # Kolide issue and check fields.
   - convert:
       field: json.data.issue_id
       target_field: kolide.issues.id

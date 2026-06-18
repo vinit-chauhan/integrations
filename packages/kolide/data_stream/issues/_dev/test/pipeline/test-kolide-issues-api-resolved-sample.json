@@ -1,7 +1,0 @@
-{
-  "events": [
-    {
-      "message": "{\"id\":\"455173972\",\"issue_key\":\"pk\",\"issue_value\":\"google-chrome-stable\",\"title\":\"Chrome Browser Is Not Up to Date\",\"value\":{\"pk\":\"google-chrome-stable\",\"channel\":\"stable\",\"version\":\"125.0.0.0\",\"username\":\"jsmith\",\"release_date\":\"2026-01-01\",\"KOLIDE_CHECK_STATUS\":\"FAIL\"},\"exempted\":false,\"resolved_at\":\"2026-06-15T13:59:00.000Z\",\"detected_at\":\"2026-06-15T12:00:00.000Z\",\"blocks_device_at\":null,\"device_information\":{\"identifier\":\"1000001\",\"link\":\"https://api.kolide.com/devices/1000001\"},\"check_information\":{\"identifier\":\"100\",\"link\":\"https://api.kolide.com/checks/100\"},\"last_rechecked_at\":\"2026-06-15T13:59:00.000Z\"}"
-    }
-  ]
-}

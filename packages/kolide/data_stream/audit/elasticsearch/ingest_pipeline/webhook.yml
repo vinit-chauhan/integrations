@@ -1,18 +1,19 @@
 ---
 description: >-
-  Webhook-specific field extraction for Kolide audit_log events. Invoked by the
-  audit default.yml pipeline when the document is a webhook delivery (json.event
-  is set). The common envelope handling, related.* enrichment, extended-mappings
-  call, deduplication, and cleanup remain in default.yml.
+  Webhook-specific field extraction for Kolide audit_log events. Invoked from
+  default.yml when json.event is set (audit_log.recorded). Common envelope
+  handling, geo enrichment, extended-mappings, deduplication, and cleanup remain
+  in default.yml. Event reference:
+  https://www.kolide.com/docs/admins/settings-admin-tools/audit-log.
 processors:
-  # event.action: webhook event value (audit_log.recorded).
+  # event.action: webhook event type (audit_log.recorded).
   - rename:
       field: json.event
       target_field: event.action
       tag: rename_event_action_webhook
       ignore_missing: true
 
-  # --- Actor (user) ---
+  # Actor from webhook payload.
   - rename:
       field: json.data.actor_name
       target_field: user.name
@@ -29,14 +30,14 @@ processors:
       tag: rename_actor_type_webhook
       ignore_missing: true
 
-  # --- Source IP ---
+  # Client IP from webhook payload.
   - rename:
       field: json.data.ip_address
       target_field: source.ip
       tag: rename_source_ip_webhook
       ignore_missing: true
 
-  # --- message / description ---
+  # Human-readable audit description.
   - rename:
       field: json.data.description
       target_field: message
