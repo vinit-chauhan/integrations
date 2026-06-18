@@ -27,6 +27,20 @@
                 "launcher_version": "1.4.0",
                 "person_id": 4
             }
+        },
+        {
+            "data": {
+                "auth_log_url": "https://api.kolide.com/auth_logs/id837172164185541731480814345",
+                "browser_name": "Chrome",
+                "browser_version": "149.0.0.0",
+                "device_id": 1153524,
+                "device_name": "Pixel 10 Pro",
+                "launcher_version": null,
+                "person_id": 864140
+            },
+            "event": "auth_logs.success",
+            "id": "01KVE3HDDV0W8NN66GP76EB6TQ",
+            "timestamp": "2026-06-18T19:32:44Z"
         }
     ]
 }

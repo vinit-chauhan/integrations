@@ -67,6 +67,16 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the CEL message JSON into json.
 
+  # --- S3 (Log Pipeline) input only ---
+  # aws-s3 deliveries carry the envelope {type, timestamp, data}. Lift `data` up
+  # to json.* so the shared API field extraction below applies (the S3 data field
+  # names match the API names).
+  - pipeline:
+      name: '{{ IngestPipeline "s3" }}'
+      tag: dispatch_s3
+      if: ctx.json?.type == 'auth_log'
+  # --- end S3-only ---
+
   # json.timestamp is the sub-event time (or session time); session_timestamp is session start.
   - date:
       field: json.timestamp
@@ -118,8 +128,6 @@ processors:
       tag: dispatch_webhook
       if: ctx.json?.event != null
 
-  # API-only field extraction (skipped when json.event is set).
-  # event.action: sub_event_type, or auth_log when the session has no sub-events.
   # Session id (json.id) — only on the API path. For webhook deliveries, session_id is extracted from 'auth_log_url' instead.
   - set:
       field: kolide.auth.session_id
@@ -127,6 +135,9 @@ processors:
       copy_from: json.id
       ignore_empty_value: true
       if: ctx.kolide?.auth?.session_id == null && ctx.json?.id != null && ctx.json?.id != ''
+
+  # API-only field extraction (skipped when json.event is set).
+  # event.action: sub_event_type, or auth_log when the session has no sub-events.
   - set:
       field: event.action
       tag: set_event_action_sub_event

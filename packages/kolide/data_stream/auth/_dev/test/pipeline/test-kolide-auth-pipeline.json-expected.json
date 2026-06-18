@@ -20,16 +20,12 @@
                     "info"
                 ]
             },
-            "host": {
-                "id": ""
-            },
             "kolide": {
                 "auth": {
                     "downloaded_packages": [
                         "linux-systemd-deb"
                     ],
                     "initial_status": "unknown",
-                    "issues_displayed": [],
                     "result": "Fail",
                     "session_id": "id-543149772982012844324275333"
                 }
@@ -101,7 +97,6 @@
                         "linux-systemd-deb"
                     ],
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000001"
                 }
@@ -171,16 +166,12 @@
                     "info"
                 ]
             },
-            "host": {
-                "id": ""
-            },
             "kolide": {
                 "auth": {
                     "downloaded_packages": [
                         "linux-systemd-deb"
                     ],
                     "initial_status": "unknown",
-                    "issues_displayed": [],
                     "result": "Fail",
                     "session_id": "id-543149772982012844324275333"
                 }
@@ -256,16 +247,12 @@
                     "info"
                 ]
             },
-            "host": {
-                "id": ""
-            },
             "kolide": {
                 "auth": {
                     "downloaded_packages": [
                         "linux-systemd-deb"
                     ],
                     "initial_status": "unknown",
-                    "issues_displayed": [],
                     "result": "Fail",
                     "session_id": "id-543149772982012844324275333"
                 }
@@ -351,7 +338,6 @@
                         "linux-systemd-deb"
                     ],
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000001"
                 }
@@ -437,7 +423,6 @@
                         "linux-systemd-deb"
                     ],
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000001"
                 }
@@ -522,7 +507,6 @@
                         "linux-systemd-deb"
                     ],
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000001"
                 }
@@ -603,7 +587,6 @@
             "kolide": {
                 "auth": {
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000002"
                 }
@@ -687,7 +670,6 @@
             "kolide": {
                 "auth": {
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success",
                     "session_id": "id-example-session-0000000000002"
                 }
@@ -861,7 +843,6 @@
             "kolide": {
                 "auth": {
                     "initial_status": "all_good",
-                    "issues_displayed": [],
                     "result": "Success"
                 }
             },

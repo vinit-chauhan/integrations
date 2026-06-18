@@ -91,6 +91,51 @@
                 "name": "Chrome",
                 "version": "122.0.0.0"
             }
+        },
+        {
+            "@timestamp": "2026-06-18T19:32:44.000Z",
+            "ecs": {
+                "version": "9.3.0"
+            },
+            "event": {
+                "action": "auth_logs.success",
+                "category": [
+                    "authentication",
+                    "session"
+                ],
+                "id": "01KVE3HDDV0W8NN66GP76EB6TQ",
+                "kind": "event",
+                "outcome": "success",
+                "type": [
+                    "info"
+                ]
+            },
+            "host": {
+                "hostname": "Pixel 10 Pro",
+                "id": "1153524",
+                "name": "Pixel 10 Pro"
+            },
+            "kolide": {
+                "auth": {
+                    "session_id": "id837172164185541731480814345",
+                    "url": "https://api.kolide.com/auth_logs/id837172164185541731480814345"
+                }
+            },
+            "related": {
+                "hosts": [
+                    "Pixel 10 Pro"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "id": "864140"
+            },
+            "user_agent": {
+                "name": "Chrome",
+                "version": "149.0.0.0"
+            }
         }
     ]
 }

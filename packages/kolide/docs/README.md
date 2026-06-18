@@ -12,10 +12,11 @@ This integration works with the current Kolide Device Trust platform ("Kolide K2
 
 ### How it works
 
-Each data stream supports two collection methods that you can choose between when configuring the integration:
+The integration supports three collection methods that you can choose between (and combine) when configuring it:
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
 - REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects new records using cursor-based pagination and a timestamp filter. This is useful for backfill and for fuller resource records.
+- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (`auth_logs/`, `audit_logs/`, `check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `check_runs/`. S3 is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
 
 ## What data does this integration collect?
 
@@ -25,7 +26,10 @@ The Kolide integration collects the following data streams:
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
-* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`).
+* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3 `audit_logs/`).
+* `device_check`: device check-run results from the Log Pipeline (S3 `check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
+
+The `auth` and `audit` data streams additionally support the Log Pipeline via an `aws-s3` input that reads the `auth_logs/` and `audit_logs/` prefixes.
 
 ### Supported use cases
 
@@ -56,6 +60,12 @@ For the REST API:
 1. Go to Settings > Developers > API Keys and create a new key (read access is sufficient).
 2. Copy the API key (shown once); it has the form `k2sk_v1_...`.
 
+For the AWS S3 Log Pipeline:
+1. In Kolide, go to Log Destinations and add a new Amazon S3 Bucket destination.
+2. Choose STS (recommended): create an IAM role in your own AWS account whose trust policy allows Kolide's AWS account (`516897320088`) to assume it, gated by the External ID that Kolide displays. Grant the role `s3:GetBucketLocation`, `s3:GetObject`, and `s3:PutObject` on the bucket so Kolide can write logs.
+3. Select the log types to deliver (authentication logs, audit logs, and check results) and, optionally, customize the object key template.
+4. On the read side, the Elastic Agent uses your own AWS credentials (not Kolide's role). For SQS mode, configure an S3 event notification (`s3:ObjectCreated:*`) to an SQS queue and grant the reader `s3:GetObject` plus `sqs:ReceiveMessage`, `sqs:DeleteMessage`, and `sqs:GetQueueAttributes`. For direct polling, grant `s3:GetObject` and `s3:ListBucket`. Add `kms:Decrypt` if the bucket uses SSE-KMS.
+
 Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow-listing is not a reliable control — rely on the HMAC signature instead.
 
 #### Vendor resources
@@ -68,6 +78,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
 4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, and/or `device_check`. Each defaults to its Kolide prefix (`auth_logs/`, `audit_logs/`, `check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix.
 
 ### Validation
 
@@ -87,6 +98,43 @@ For more information on architectures that can be used for scaling this integrat
 
 ### Inputs used
 These inputs can be used with this integration:
+<details>
+<summary>aws-s3</summary>
+
+## Setup
+
+Set up an Amazon S3
+To create an Amazon S3 bucket, follow [these steps](https://docs.aws.amazon.com/AmazonS3/latest/userguide/create-bucket-overview.html).
+- You can set the parameter "Bucket List Prefix" according to the requirement.
+
+- **AWS S3 polling mode**: Writes data to S3, and Elastic Agent polls the S3 bucket by listing its contents and reading new files. 
+- **AWS S3 SQS mode**: Writes data to S3; S3 sends a notification of a new object to SQS; the Elastic Agent receives the notification from SQS and then reads the S3 object. Multiple agents can be used in this mode.
+
+
+### Collecting logs from S3 bucket
+
+When log collection from an S3 bucket is enabled, you can access logs from S3 objects referenced by S3 notification events received through an SQS queue or by directly polling the list of S3 objects within the bucket.
+
+The use of SQS notification is preferred: polling list of S3 objects is expensive in terms of performance and costs and should be used only when no SQS notification can be attached to the S3 buckets. This input integration also supports S3 notification from SNS to SQS, or from EventBridge to SQS.
+
+To enable the SQS notification method, set the `queue_url` configuration value. To enable the S3 bucket list polling method, configure both the `bucket_arn` and number_of_workers values. Note that `queue_url` and `bucket_arn` cannot be set simultaneously, and at least one of these values must be specified. The `number_of_workers` parameter is the primary way to control ingestion throughput for both S3 polling and SQS modes. This parameter determines how many parallel workers process S3 objects simultaneously.
+
+NOTE: To access SQS and S3, these [specific AWS permissions](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-input-aws-s3.html#_aws_permissions_2) are required.
+
+  To collect logs via AWS S3, configure the following parameters:
+  - Collect logs via S3 Bucket toggled on
+  - Access Key ID
+  - Secret Access Key
+  - Bucket ARN or Access Point ARN
+  - Session Token
+
+  Alternatively, to collect logs via AWS SQS, configure the following parameters:
+  - Collect logs via S3 Bucket toggled off
+  - Queue URL
+  - Secret Access Key
+  - Access Key ID
+  - Session Token
+</details>
 <details>
 <summary>cel</summary>
 
@@ -837,6 +885,42 @@ An example event for `audit` looks as following:
     }
 }
 ```
+
+#### device_check
+
+The `device_check` data stream provides Kolide device check-run results delivered through the Log Pipeline (S3). Unlike the `issues` data stream, which tracks the failure lifecycle, this stream records every check run — `passing`, `failing`, `inapplicable`, and `unknown`.
+
+##### device_check fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.outcome | This is one of four ECS Categorization Fields, and indicates the lowest level in the ECS category hierarchy. `event.outcome` simply denotes whether the event represents a success or a failure from the perspective of the entity that produced the event. Note that when a single transaction is described in multiple events, each event may populate different values of `event.outcome`, according to their perspective. Also note that in the case of a compound event (a single event that contains multiple logical events), this field should be populated with the value that best captures the overall success or failure from the perspective of the event producer. Further note that not all events will have an associated outcome. For example, this field is generally not populated for metric events, events with `event.type:info`, or any events for which an outcome does not make logical sense. | keyword |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.device_check.check_id | Numeric identifier of the check that was run. | long |
+| kolide.device_check.check_result_data | The per-check result rows produced by the run. The shape varies by check, so the array is stored as a flattened field rather than mapping each key. | flattened |
+| kolide.device_check.check_slug | Slug identifying the check, e.g. `unencrypted` or `macos_remote_login`. | keyword |
+| kolide.device_check.device_id | Numeric identifier of the device the check was run against. | long |
+| kolide.device_check.status | Outcome of the check run. One of `passing`, `failing`, `inapplicable`, or `unknown`. | keyword |
+| log.offset | Log offset. | long |
+| related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
+| rule.id | A rule ID that is unique within the scope of an agent, observer, or other entity using the rule for detection of this event. | keyword |
+| rule.name | The name of the rule or signature generating the event. | keyword |
+
 
 
 ### Data streams using ILM policies

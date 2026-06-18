@@ -11,10 +11,11 @@ This integration works with the current Kolide Device Trust platform ("Kolide K2
 
 ### How it works
 
-Each data stream supports two collection methods that you can choose between when configuring the integration:
+The integration supports three collection methods that you can choose between (and combine) when configuring it:
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
 - REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects new records using cursor-based pagination and a timestamp filter. This is useful for backfill and for fuller resource records.
+- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (`auth_logs/`, `audit_logs/`, `check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `check_runs/`. S3 is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
 
 ## What data does this integration collect?
 
@@ -24,7 +25,10 @@ The Kolide integration collects the following data streams:
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
-* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`).
+* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3 `audit_logs/`).
+* `device_check`: device check-run results from the Log Pipeline (S3 `check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
+
+The `auth` and `audit` data streams additionally support the Log Pipeline via an `aws-s3` input that reads the `auth_logs/` and `audit_logs/` prefixes.
 
 ### Supported use cases
 
@@ -55,6 +59,12 @@ For the REST API:
 1. Go to Settings > Developers > API Keys and create a new key (read access is sufficient).
 2. Copy the API key (shown once); it has the form `k2sk_v1_...`.
 
+For the AWS S3 Log Pipeline:
+1. In Kolide, go to Log Destinations and add a new Amazon S3 Bucket destination.
+2. Choose STS (recommended): create an IAM role in your own AWS account whose trust policy allows Kolide's AWS account (`516897320088`) to assume it, gated by the External ID that Kolide displays. Grant the role `s3:GetBucketLocation`, `s3:GetObject`, and `s3:PutObject` on the bucket so Kolide can write logs.
+3. Select the log types to deliver (authentication logs, audit logs, and check results) and, optionally, customize the object key template.
+4. On the read side, the Elastic Agent uses your own AWS credentials (not Kolide's role). For SQS mode, configure an S3 event notification (`s3:ObjectCreated:*`) to an SQS queue and grant the reader `s3:GetObject` plus `sqs:ReceiveMessage`, `sqs:DeleteMessage`, and `sqs:GetQueueAttributes`. For direct polling, grant `s3:GetObject` and `s3:ListBucket`. Add `kms:Decrypt` if the bucket uses SSE-KMS.
+
 Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow-listing is not a reliable control — rely on the HMAC signature instead.
 
 #### Vendor resources
@@ -67,6 +77,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
 4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, and/or `device_check`. Each defaults to its Kolide prefix (`auth_logs/`, `audit_logs/`, `check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix.
 
 ### Validation
 
@@ -157,6 +168,14 @@ The `audit` data stream provides the Kolide administrative audit log of console 
 ##### audit sample event
 
 {{ event "audit" }}
+
+#### device_check
+
+The `device_check` data stream provides Kolide device check-run results delivered through the Log Pipeline (S3). Unlike the `issues` data stream, which tracks the failure lifecycle, this stream records every check run — `passing`, `failing`, `inapplicable`, and `unknown`.
+
+##### device_check fields
+
+{{ fields "device_check" }}
 
 {{ ilm }}
 

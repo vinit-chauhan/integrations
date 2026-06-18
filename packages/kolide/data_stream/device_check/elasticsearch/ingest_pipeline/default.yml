@@ -1,0 +1,162 @@
+---
+description: >-
+  Parse Kolide device check-run results (type "check_result") collected from the
+  Kolide Log Pipeline via the aws-s3 input. Unlike the issues data stream (which
+  tracks the failure lifecycle), check-run results include every run: passing,
+  failing, inapplicable, and unknown. Reference:
+  https://www.kolide.com/docs/admins/log-pipeline/overview
+processors:
+  - set:
+      field: ecs.version
+      tag: set_ecs_version
+      value: '9.3.0'
+
+  # The aws-s3 input delivers the raw object in `message`. Keep a raw copy in
+  # event.original, then decode it into the working `json` object below.
+  - rename:
+      field: message
+      tag: rename_message_to_event_original
+      target_field: event.original
+      ignore_missing: true
+      if: ctx.event?.original == null
+  - remove:
+      field: message
+      tag: remove_message
+      ignore_missing: true
+      if: ctx.event?.original != null
+  # Decode the Kolide check_result object from event.original into json.
+  - json:
+      field: event.original
+      target_field: json
+      tag: parse_json
+      if: ctx.json == null && ctx.event?.original != null
+      description: Decode the Kolide check_result object into the working json object.
+
+  - set:
+      field: event.kind
+      tag: set_event_kind
+      value: state
+  - append:
+      field: event.category
+      tag: append_event_category_host
+      value: host
+  - append:
+      field: event.type
+      tag: append_event_type_info
+      value: info
+  - set:
+      field: event.action
+      tag: set_event_action
+      value: check_result
+
+  # @timestamp from the envelope timestamp (ISO8601).
+  - date:
+      field: json.timestamp
+      tag: date_timestamp
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      if: ctx.json?.timestamp != null
+      on_failure:
+        - append:
+            field: error.message
+            value: 'failed to parse json.timestamp: {{{ _ingest.on_failure_message }}}'
+
+  # Check metadata.
+  - convert:
+      field: json.data.check_id
+      tag: convert_check_id
+      target_field: kolide.device_check.check_id
+      type: long
+      ignore_missing: true
+      on_failure:
+        - append:
+            field: error.message
+            value: 'failed to convert check_id: {{{ _ingest.on_failure_message }}}'
+  - convert:
+      field: kolide.device_check.check_id
+      tag: set_rule_id
+      target_field: rule.id
+      type: string
+      ignore_missing: true
+  - rename:
+      field: json.data.check_slug
+      tag: rename_check_slug
+      target_field: kolide.device_check.check_slug
+      ignore_missing: true
+  - set:
+      field: rule.name
+      tag: set_rule_name
+      copy_from: kolide.device_check.check_slug
+      ignore_empty_value: true
+  - convert:
+      field: json.data.device_id
+      tag: convert_device_id
+      target_field: kolide.device_check.device_id
+      type: long
+      ignore_missing: true
+      on_failure:
+        - append:
+            field: error.message
+            value: 'failed to convert device_id: {{{ _ingest.on_failure_message }}}'
+  - convert:
+      field: kolide.device_check.device_id
+      tag: set_host_id
+      target_field: host.id
+      type: string
+      ignore_missing: true
+
+  # Status: passing/failing/inapplicable/unknown.
+  - rename:
+      field: json.data.status
+      tag: rename_status
+      target_field: kolide.device_check.status
+      ignore_missing: true
+  - set:
+      field: event.outcome
+      tag: set_outcome_success
+      value: success
+      if: ctx.kolide?.device_check?.status == 'passing'
+  - set:
+      field: event.outcome
+      tag: set_outcome_failure
+      value: failure
+      if: ctx.kolide?.device_check?.status == 'failing'
+
+  # The per-check result rows are highly variable (arbitrary keys per check), so
+  # keep them as a single flattened field rather than mapping each key.
+  - rename:
+      field: json.data.check_result_data
+      tag: rename_check_result_data
+      target_field: kolide.device_check.check_result_data
+      ignore_missing: true
+
+  # Promote any device.id reference for correlation.
+  - append:
+      field: related.hosts
+      tag: append_related_hosts
+      value: '{{{host.id}}}'
+      allow_duplicates: false
+      if: ctx.host?.id != null
+
+  # Cleanup working object.
+  - remove:
+      field: json
+      tag: remove_json
+      ignore_missing: true
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

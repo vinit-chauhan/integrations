@@ -69,6 +69,16 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the CEL message (a JSON string of one audit_log object) into the working json object.
 
+  # --- S3 (Log Pipeline) input only ---
+  # aws-s3 deliveries carry the envelope {type, timestamp, data}. Lift `data` up
+  # to json.* and map the flat actor/IP fields the API path expects nested / from
+  # the webhook branch.
+  - pipeline:
+      name: '{{ IngestPipeline "s3" }}'
+      tag: dispatch_s3
+      if: ctx.json?.type == 'audit_log'
+  # --- end S3-only ---
+
   # Common normalization: @timestamp and event.id from the audit_log object.
   - date:
       field: json.timestamp
