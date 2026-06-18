@@ -42,9 +42,9 @@ streams:
         default: Authorization
       - name: hmac_key
         type: password
-        title: HMAC Key (Signing Secret)
+        title: Webhook Signing Secret
         description: |-
-          The Kolide webhook endpoint signing secret used to verify the HMAC-SHA256 signature of the raw request body. Shown once in the Kolide webhook settings screen when the endpoint is created.
+          The signing secret from the Kolide webhook endpoint settings. Kolide uses this to compute an HMAC-SHA256 signature over the raw request body and sends it in the `Authorization` header. Shown once when the endpoint is created in Kolide.
         required: false
         show_user: true
         secret: true
@@ -66,18 +66,18 @@ streams:
         default: ""
       - name: secret_header
         type: text
-        title: Secret Header
+        title: Webhook Identifier Header
         description: |-
-          Optional static header to require on every request. Kolide sends a per-endpoint identifier in the `X-Kolide-Webhook-Identifier` header.
+          The header Kolide uses to send the per-endpoint identifier. Kolide always uses `X-Kolide-Webhook-Identifier`.
         required: false
         show_user: false
         secret: false
         default: X-Kolide-Webhook-Identifier
       - name: secret_value
         type: password
-        title: Secret Value
+        title: Webhook Identifier
         description: |-
-          The expected value of the static secret header (the Kolide `X-Kolide-Webhook-Identifier` value for this endpoint).
+          The per-endpoint identifier value from the Kolide webhook settings. Kolide sends this in the `X-Kolide-Webhook-Identifier` header on every request.
         required: false
         show_user: true
         secret: true

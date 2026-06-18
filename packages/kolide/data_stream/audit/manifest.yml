@@ -119,7 +119,7 @@ streams:
           Prefix used to list objects in the bucket (polling mode). Defaults to the Kolide Log Pipeline prefix for this data type.
         required: false
         show_user: true
-        default: audit_logs/
+        default: kolide/audit_logs/
       - name: number_of_workers
         type: integer
         title: "[S3/SQS] Number of Workers"

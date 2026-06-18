@@ -2,7 +2,7 @@
 - version: "0.3.0"
   changes:
     - description: >-
-        Added support for collecting Kolide Log Pipeline data from an AWS S3 bucket. The `auth` and `audit` data streams gained an `aws-s3` input (reading the `auth_logs/` and `audit_logs/` prefixes) with a dedicated `s3.yml` parsing branch for the Log Pipeline shape, and a new `device_check` data stream collects check-run results from the `check_runs/` prefix. The `device_check` stream captures every check run (passing, failing, inapplicable, and unknown), which the failure-focused issues data stream does not cover. Each S3 input supports SQS notifications or direct bucket polling. Raw osquery `results` objects are not ingested.
+        Added support for collecting Kolide Log Pipeline data from an AWS S3 bucket. The `auth` and `audit` data streams gained an `aws-s3` input (reading the `kolide/auth_logs/` and `kolide/audit_logs/` prefixes) with a dedicated `s3.yml` parsing branch for the Log Pipeline shape, and a new `device_check` data stream collects check-run results from the `kolide/check_runs/` prefix. The `device_check` stream captures every check run (passing, failing, inapplicable, and unknown), which the failure-focused issues data stream does not cover. Each S3 input supports SQS notifications or direct bucket polling. Raw osquery `results` objects are not ingested.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.11"
