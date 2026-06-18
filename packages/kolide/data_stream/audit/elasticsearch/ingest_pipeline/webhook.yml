@@ -6,10 +6,12 @@ description: >-
   in default.yml. Event reference:
   https://www.kolide.com/docs/admins/settings-admin-tools/audit-log.
 processors:
-  # event.action: webhook event type (audit_log.recorded).
+  # event.action: set to webhook event type if it's something other than `audit_log.recorded`.
+  # To be consistent with the API path ( event.action: 'audit_log').
   - rename:
       field: json.event
       target_field: event.action
+      if: ctx.json?.event != 'audit_log.recorded'
       tag: rename_event_action_webhook
       ignore_missing: true
 

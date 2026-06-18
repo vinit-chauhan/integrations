@@ -4,6 +4,14 @@ description: >-
   devices.registered, devices.destroyed, device_trust.status_changed). Invoked
   from default.yml when json.event is set.
 processors:
+  # --- event.id: webhook envelope ULID. ---
+  - convert:
+      field: json.id
+      target_field: event.id
+      type: string
+      tag: convert_event_id
+      ignore_missing: true
+      
   # Webhook deliveries are change events (event.kind=event, event.type=change).
   - set:
       field: event.kind
@@ -66,6 +74,15 @@ processors:
       target_field: kolide.device.device_url
       tag: rename_kolide_device_url_webhook
       ignore_missing: true
+
+  # Webhook: fingerprint event.id (per-delivery ULID).
+  - fingerprint:
+      fields:
+        - event.id
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_id
+      if: ctx.event?.original == null && ctx.event?.id != null && ctx.event.id != ''
 
 on_failure:
   - append:

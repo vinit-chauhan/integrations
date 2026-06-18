@@ -90,14 +90,6 @@ processors:
       value:
         - host
 
-  # --- event.id: webhook envelope ULID or API device id (json.id). ---
-  - convert:
-      field: json.id
-      target_field: event.id
-      type: string
-      tag: convert_event_id
-      ignore_missing: true
-
   # --- event.start from registered_at when present. ---
   - date:
       field: json.registered_at
@@ -357,7 +349,6 @@ processors:
 
   # --- Deduplication ---
   # API: fingerprint event.original (full-inventory re-poll, no modified-since cursor).
-  # Webhook: fingerprint event.id (per-delivery ULID).
   - fingerprint:
       fields:
         - event.original
@@ -365,13 +356,6 @@ processors:
       method: SHA-256
       tag: fingerprint_event_original
       if: ctx.event?.original != null && ctx.event.original != ''
-  - fingerprint:
-      fields:
-        - event.id
-      target_field: _id
-      method: SHA-256
-      tag: fingerprint_event_id
-      if: ctx.event?.original == null && ctx.event?.id != null && ctx.event.id != ''
 
   # --- Cleanup ---
   - remove:

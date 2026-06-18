@@ -98,17 +98,7 @@ processors:
       field: event.type
       tag: append_event_type
       value:
-        - start
         - info
-
-  # Session id (json.id) — shared by all sub-events from the same auth_log record.
-  - set:
-      field: kolide.auth.session_id
-      tag: set_session_id
-      copy_from: json.id
-      ignore_empty_value: true
-      if: ctx.json?.id != null && ctx.json.id != ''
-
   # event.id: `{id}:{sub_event_type}:{timestamp}` for CEL sub-events; json.id otherwise.
   - set:
       field: event.id
@@ -130,6 +120,13 @@ processors:
 
   # API-only field extraction (skipped when json.event is set).
   # event.action: sub_event_type, or auth_log when the session has no sub-events.
+  # Session id (json.id) — only on the API path. For webhook deliveries, session_id is extracted from 'auth_log_url' instead.
+  - set:
+      field: kolide.auth.session_id
+      tag: set_session_id
+      copy_from: json.id
+      ignore_empty_value: true
+      if: ctx.kolide?.auth?.session_id == null && ctx.json?.id != null && ctx.json?.id != ''
   - set:
       field: event.action
       tag: set_event_action_sub_event

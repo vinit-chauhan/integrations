@@ -17,7 +17,6 @@
                 "outcome": "failure",
                 "start": "2026-06-14T23:49:36.914Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -89,7 +88,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T00:12:11.383Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -170,7 +168,6 @@
                 "outcome": "failure",
                 "start": "2026-06-14T23:49:36.914Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -256,7 +253,6 @@
                 "outcome": "failure",
                 "start": "2026-06-14T23:49:36.914Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -342,7 +338,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T00:12:11.383Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -429,7 +424,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T00:12:11.383Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -515,7 +509,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T00:12:11.383Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -601,7 +594,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T14:49:44.530Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -686,7 +678,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T14:49:44.530Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -771,7 +762,6 @@
                 "outcome": "success",
                 "start": "2026-06-15T00:12:11.383Z",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -862,7 +852,6 @@
                 "original": "{\"id\":\"session-no-subevents-001\",\"timestamp\":\"2024-03-11T21:00:00Z\",\"person_name\":\"Bob Smith\",\"person_email\":\"bob.smith@example.org\",\"person_info\":{\"identifier\":\"100\",\"link\":\"https://api.example.com/people/100\"},\"device_info\":{\"identifier\":\"200\",\"link\":\"https://api.example.com/devices/200\"},\"result\":\"Success\",\"initial_status\":\"all_good\",\"ip_address\":\"203.0.113.10\",\"country\":\"United States\",\"city\":\"Seattle\",\"browser_name\":\"Chrome\",\"browser_user_agent\":\"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36\",\"issues_displayed\":[],\"events\":[]}",
                 "outcome": "success",
                 "type": [
-                    "start",
                     "info"
                 ]
             },
@@ -873,8 +862,7 @@
                 "auth": {
                     "initial_status": "all_good",
                     "issues_displayed": [],
-                    "result": "Success",
-                    "session_id": "session-no-subevents-001"
+                    "result": "Success"
                 }
             },
             "related": {

@@ -62,6 +62,13 @@ processors:
       target_field: kolide.auth.agent_version
       tag: rename_agent_version_webhook
       ignore_missing: true
+  - grok:
+      field: json.data.auth_log_url
+      tag: grok_auth_log_url
+      patterns: 
+        - '^%{NOTSPACE}/auth_logs/%{DATA:kolide.auth.session_id}$'
+      if: ctx.json?.data?.auth_log_url != null && ctx.json?.data?.auth_log_url != ''
+      description: Extract session id from 'auth_log_url' for webhook deliveries.
   - rename:
       field: json.data.auth_log_url
       target_field: kolide.auth.url
