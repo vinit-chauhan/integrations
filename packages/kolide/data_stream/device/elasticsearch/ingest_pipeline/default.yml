@@ -348,20 +348,35 @@ processors:
       ignore_missing_pipeline: true
 
   # --- Deduplication ---
-  # API: fingerprint event.original (full-inventory re-poll, no modified-since cursor).
+  # API: full-inventory re-poll with no modified-since cursor. Fingerprint the full
+  # raw record (event.original) minus last_seen_at, which is a heartbeat that advances
+  # on every poll and would otherwise defeat dedup. Re-parse event.original into a temp
+  # object so every other field is included automatically (new API fields too); only
+  # last_seen_at is dropped.
+  - json:
+      field: event.original
+      target_field: _tmp.fingerprint_source
+      tag: parse_fingerprint_source
+      if: ctx.event?.original != null && ctx.event.original != '' && ctx.json?.event == null
+  - remove:
+      field: _tmp.fingerprint_source.last_seen_at
+      tag: remove_last_seen_at_from_fingerprint
+      ignore_missing: true
+      if: ctx._tmp?.fingerprint_source != null
   - fingerprint:
       fields:
-        - event.original
+        - _tmp.fingerprint_source
       target_field: _id
       method: SHA-256
-      tag: fingerprint_event_original
-      if: ctx.event?.original != null && ctx.event.original != ''
+      tag: fingerprint_event_original_no_last_seen
+      if: ctx._tmp?.fingerprint_source != null
 
   # --- Cleanup ---
   - remove:
       field:
         - json
         - data
+        - _tmp
       tag: remove_temp_fields
       ignore_missing: true
   - append:

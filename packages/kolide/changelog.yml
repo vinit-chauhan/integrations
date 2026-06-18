@@ -1,4 +1,10 @@
 # newer versions go on top
+- version: "0.2.11"
+  changes:
+    - description: >-
+        Excluded `last_seen_at` from the device document `_id` fingerprint. Because the device inventory is re-collected in full on every poll and `last_seen_at` is a heartbeat that advances each poll, fingerprinting the raw record produced a new document on every poll. The `_id` is now derived from the full raw record minus `last_seen_at`, so unchanged devices overwrite in place while real changes are still captured as new documents.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.2.10"
   changes:
     - description: >-
