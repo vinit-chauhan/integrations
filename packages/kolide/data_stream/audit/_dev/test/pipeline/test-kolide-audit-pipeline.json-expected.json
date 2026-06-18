@@ -2245,8 +2245,7 @@
             },
             "kolide": {
                 "audit": {
-                    "actor_type": "Person",
-                    "reason": ""
+                    "actor_type": "Person"
                 }
             },
             "message": "Approved pending device registration for \"erin.user@example.org\" and device \"Example Phone\". Reason: \"\"",

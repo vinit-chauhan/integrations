@@ -1,7 +1,7 @@
 {
     "expected": [
         {
-            "@timestamp": "2026-06-18T15:03:53.711851671Z",
+            "@timestamp": "2026-06-18T21:24:19.401893418Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -38,9 +38,6 @@
                     "last_seen_at": "2026-06-14T21:16:58.000Z",
                     "note": "Unused asset",
                     "product_image_url": "https://assets2.kolide.com/assets/inventory/devices/linux-929081eb.png",
-                    "registered_owner_info": {
-                        "identifier": ""
-                    },
                     "serial": "Default string",
                     "status": "good",
                     "type": "Linux"
@@ -53,13 +50,10 @@
             },
             "tags": [
                 "preserve_original_event"
-            ],
-            "user": {
-                "id": ""
-            }
+            ]
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.711857796Z",
+            "@timestamp": "2026-06-18T21:24:19.40189746Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -92,8 +86,7 @@
                 "device": {
                     "auth_configuration": {
                         "authentication_mode": "only_registered_owner",
-                        "device_id": "2000002",
-                        "person_groups": []
+                        "device_id": "2000002"
                     },
                     "auth_state": "Good",
                     "form_factor": "computer",
@@ -125,7 +118,7 @@
             }
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.71185863Z",
+            "@timestamp": "2026-06-18T21:24:19.401898001Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -158,8 +151,7 @@
                 "device": {
                     "auth_configuration": {
                         "authentication_mode": "anyone",
-                        "device_id": "2000003",
-                        "person_groups": []
+                        "device_id": "2000003"
                     },
                     "auth_state": "Good",
                     "form_factor": "phone",
@@ -190,7 +182,7 @@
             }
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.711859046Z",
+            "@timestamp": "2026-06-18T21:24:19.401898376Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -223,8 +215,7 @@
                 "device": {
                     "auth_configuration": {
                         "authentication_mode": "only_registered_owner",
-                        "device_id": "9000001",
-                        "person_groups": []
+                        "device_id": "9000001"
                     },
                     "auth_state": "Good",
                     "form_factor": "computer",
@@ -256,7 +247,7 @@
             }
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.711859421Z",
+            "@timestamp": "2026-06-18T21:24:19.401898668Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -289,8 +280,7 @@
                 "device": {
                     "auth_configuration": {
                         "authentication_mode": "only_registered_owner",
-                        "device_id": "9000002",
-                        "person_groups": []
+                        "device_id": "9000002"
                     },
                     "auth_state": "Good",
                     "form_factor": "computer",
@@ -322,7 +312,7 @@
             }
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.711859796Z",
+            "@timestamp": "2026-06-18T21:24:19.401898876Z",
             "ecs": {
                 "version": "9.3.0"
             },
@@ -355,8 +345,7 @@
                 "device": {
                     "auth_configuration": {
                         "authentication_mode": "anyone",
-                        "device_id": "9000003",
-                        "person_groups": []
+                        "device_id": "9000003"
                     },
                     "auth_state": "Good",
                     "form_factor": "tablet",
@@ -388,7 +377,7 @@
             }
         },
         {
-            "@timestamp": "2026-06-18T15:03:53.71186013Z",
+            "@timestamp": "2026-06-18T21:24:19.401899126Z",
             "ecs": {
                 "version": "9.3.0"
             },

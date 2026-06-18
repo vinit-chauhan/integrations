@@ -43,18 +43,12 @@
                         "KOLIDE_CHECK_STATUS": "FAIL",
                         "check_target": "/",
                         "check_target_type": "Mountpoint",
-                        "cryptluks_encryption": "",
                         "de_encrypted": "No",
-                        "de_encryption": "",
-                        "de_type": "",
                         "device": "/dev/nvme0n1p2",
                         "device_alias": "/dev/nvme0n1p2",
-                        "fs_type_encryption": "",
                         "fscrypt_encrypted": "No",
-                        "fscrypt_encryption": "",
                         "path": "/",
-                        "type": "ext4",
-                        "zfs_encryption": ""
+                        "type": "ext4"
                     }
                 }
             },
@@ -111,18 +105,15 @@
                     "title": "Unencrypted SSH Key Detected",
                     "value": {
                         "KOLIDE_CHECK_STATUS": "FAIL",
-                        "bits": "",
                         "encrypted": "0",
                         "file_created_at": "1970-01-01 00:00:00",
                         "fingerprint_md5": "00:11:22:33:44:55:66:77:88:99:aa:bb:cc:dd:ee:ff",
                         "fingerprint_sha256": "AAAABBBBCCCCDDDDEEEEFFFFGGGGHHHHIIIIJJJJKKK",
                         "gid": "1000",
                         "group_name": "example-user",
-                        "installed_onepw_version": "",
                         "key_type": "ssh-ed25519",
                         "md5": "00112233445566778899aabbccddeeff",
                         "opw_ssh_agent_enabled": "0",
-                        "opw_supports_deep_linking": "",
                         "opw_watchtower_ssh_key_detection_enabled": "0",
                         "os_platform": "ubuntu",
                         "path": "/home/example-user/.ssh/id_ed25519",
@@ -190,7 +181,6 @@
                         "KOLIDE_CHECK_STATUS": "FAIL",
                         "channel": "stable",
                         "google_chrome_path": "/opt/google/chrome/chrome",
-                        "minimum_version": "",
                         "newest_version": "149.0.7827.114",
                         "pk": "example-user/opt/google/chrome/chrome",
                         "release_date": "2026-06-11T18:50:40Z",
@@ -262,18 +252,13 @@
                         "KOLIDE_CHECK_STATUS": "FAIL",
                         "check_target": "/",
                         "check_target_type": "Mountpoint",
-                        "cryptluks_encryption": "",
                         "de_encrypted": "No",
                         "de_encryption": "not encrypted",
-                        "de_type": "",
                         "device": "/dev/sda2",
                         "device_alias": "/dev/sda2",
-                        "fs_type_encryption": "",
                         "fscrypt_encrypted": "No",
-                        "fscrypt_encryption": "",
                         "path": "/",
-                        "type": "ext4",
-                        "zfs_encryption": ""
+                        "type": "ext4"
                     }
                 }
             },
@@ -330,18 +315,15 @@
                     "title": "Unencrypted SSH Key Detected",
                     "value": {
                         "KOLIDE_CHECK_STATUS": "FAIL",
-                        "bits": "",
                         "encrypted": "0",
                         "file_created_at": "1970-01-01 00:00:00",
                         "fingerprint_md5": "ff:ee:dd:cc:bb:aa:99:88:77:66:55:44:33:22:11:00",
                         "fingerprint_sha256": "LLLLMMMMNNNNOOOOPPPPQQQQRRRRSSSSTTTTUUUUVVV",
                         "gid": "1000",
                         "group_name": "example-user",
-                        "installed_onepw_version": "",
                         "key_type": "ssh-ed25519",
                         "md5": "ffeeddccbbaa99887766554433221100",
                         "opw_ssh_agent_enabled": "0",
-                        "opw_supports_deep_linking": "",
                         "opw_watchtower_ssh_key_detection_enabled": "0",
                         "os_platform": "ubuntu",
                         "path": "/home/example-user/.ssh/id_ed25519",
@@ -409,18 +391,12 @@
                         "KOLIDE_CHECK_STATUS": "FAIL",
                         "check_target": "/",
                         "check_target_type": "Mountpoint",
-                        "cryptluks_encryption": "",
                         "de_encrypted": "No",
-                        "de_encryption": "",
-                        "de_type": "",
                         "device": "/dev/sda1",
                         "device_alias": "/dev/sda1",
-                        "fs_type_encryption": "",
                         "fscrypt_encrypted": "No",
-                        "fscrypt_encryption": "",
                         "path": "/",
-                        "type": "ext4",
-                        "zfs_encryption": ""
+                        "type": "ext4"
                     }
                 }
             },
@@ -470,8 +446,7 @@
                         "androidOsSecurityPatchLevel": "2023-01-01",
                         "androidSdkVersion": "32",
                         "brand": "Google",
-                        "modelName": "Pixel 7",
-                        "samsungCSC": ""
+                        "modelName": "Pixel 7"
                     }
                 }
             },

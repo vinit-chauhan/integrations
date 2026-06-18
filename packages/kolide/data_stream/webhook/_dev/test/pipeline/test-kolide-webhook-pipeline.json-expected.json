@@ -61,16 +61,14 @@
                 "data": {
                     "check": {
                         "id": 71,
-                        "name": "macOS Firewall - Require macOS Firewall is Enabled",
-                        "tags": []
+                        "name": "macOS Firewall - Require macOS Firewall is Enabled"
                     },
                     "check_id": 71,
                     "device": {
                         "id": 1,
                         "name": "host-alpha"
                     },
-                    "issue_id": 2,
-                    "title": null
+                    "issue_id": 2
                 },
                 "event": "issues.new",
                 "id": "01HDW0TFR12Q0DJFVY7Y0DBQ0N",
@@ -90,8 +88,7 @@
                 "data": {
                     "check": {
                         "id": 71,
-                        "name": "macOS Firewall - Require macOS Firewall is Enabled",
-                        "tags": []
+                        "name": "macOS Firewall - Require macOS Firewall is Enabled"
                     },
                     "device": {
                         "id": 1,

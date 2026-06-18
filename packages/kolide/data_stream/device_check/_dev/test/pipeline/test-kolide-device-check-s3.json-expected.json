@@ -26,18 +26,15 @@
                     "check_result_data": [
                         {
                             "KOLIDE_CHECK_STATUS": "FAIL",
-                            "bits": "",
                             "encrypted": "0",
                             "file_created_at": "1970-01-01 00:00:00",
                             "fingerprint_md5": "1e:2b:28:52:04:2c:96:e7:22:fd:c7:ec:e3:92:bf:0a",
                             "fingerprint_sha256": "fwnp4jQhyAF2gdylaSn7Pu8akEW3wg6okpAITmZm+1U",
                             "gid": "1000",
                             "group_name": "blake",
-                            "installed_onepw_version": "",
                             "key_type": "ssh-rsa",
                             "md5": "ef948a5f13a7241440c06a1bf8f9db27",
                             "opw_ssh_agent_enabled": "0",
-                            "opw_supports_deep_linking": "",
                             "opw_watchtower_ssh_key_detection_enabled": "0",
                             "os_platform": "ubuntu",
                             "path": "/home/blake/.ssh/id_rsa",
@@ -46,18 +43,15 @@
                         },
                         {
                             "KOLIDE_CHECK_STATUS": "FAIL",
-                            "bits": "",
                             "encrypted": "0",
                             "file_created_at": "1970-01-01 00:00:00",
                             "fingerprint_md5": "ca:f8:f8:5a:b1:f9:96:b7:3d:9f:31:3d:f6:17:fc:49",
                             "fingerprint_sha256": "kgH0DANAmGwfOVIRO3abyxttklMl3mYcOYHE+Cc/Ia0",
                             "gid": "1000",
                             "group_name": "blake",
-                            "installed_onepw_version": "",
                             "key_type": "ssh-rsa",
                             "md5": "4a80920408ee72b642ee7c768c032bdd",
                             "opw_ssh_agent_enabled": "0",
-                            "opw_supports_deep_linking": "",
                             "opw_watchtower_ssh_key_detection_enabled": "0",
                             "os_platform": "ubuntu",
                             "path": "/home/blake/.ssh/id_rsa2025",
@@ -207,10 +201,6 @@
                     "check_result_data": [
                         {
                             "KOLIDE_CHECK_STATUS": "PASS",
-                            "header": "",
-                            "pk": "",
-                            "rule_details": "",
-                            "source": "",
                             "unix_time": "1778873926"
                         }
                     ],
@@ -259,14 +249,11 @@
                         {
                             "KOLIDE_CHECK_STATUS": "PASS",
                             "forward_drop_required": "false",
-                            "forward_error": "",
                             "forward_policy": "DROP",
                             "input_drop_required": "false",
-                            "input_error": "",
                             "input_policy": "ACCEPT",
                             "os_name": "ubuntu",
                             "output_drop_required": "false",
-                            "output_error": "",
                             "output_policy": "ACCEPT"
                         }
                     ],
@@ -317,11 +304,8 @@
                             "current_os_version": "26.4.1",
                             "desktop_session": "0",
                             "logged_in": "0",
-                            "path": "",
-                            "plist_last_modified": "",
                             "system_bluetooth_radio_state": "on",
                             "system_paired_devices": "1",
-                            "user_bluetooth_sharing_enabled": "",
                             "username": "example"
                         },
                         {
