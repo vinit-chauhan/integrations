@@ -46,7 +46,8 @@
                     "firewall"
                 ],
                 "id": "71",
-                "name": "macOS Firewall - Require macOS Firewall is Enabled"
+                "name": "macOS Firewall - Require macOS Firewall is Enabled",
+                "reference": "https://api.kolide.com/checks/71"
             },
             "tags": [
                 "preserve_original_event"
@@ -98,7 +99,8 @@
                     "firewall"
                 ],
                 "id": "71",
-                "name": "macOS Firewall - Require macOS Firewall is Enabled"
+                "name": "macOS Firewall - Require macOS Firewall is Enabled",
+                "reference": "https://api.kolide.com/checks/71"
             },
             "tags": [
                 "preserve_original_event"

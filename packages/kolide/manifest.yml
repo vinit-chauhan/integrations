@@ -1,7 +1,7 @@
 format_version: "3.4.2"
 name: kolide
 title: "Kolide"
-version: "0.3.0"
+version: "0.3.1"
 source:
   license: "Elastic-2.0"
 description: "Collect logs from Kolide (by 1Password) Device Trust with Elastic Agent."
@@ -21,6 +21,15 @@ policy_templates:
   - name: kolide
     title: Kolide logs
     description: Collect logs from Kolide via webhooks (HTTP endpoint) and the REST API.
+    deployment_modes:
+      default:
+        enabled: true
+      agentless:
+        enabled: true
+        release: beta
+        organization: security
+        division: engineering
+        team: security-service-integrations
     inputs:
       - type: http_endpoint
         title: Collect Kolide logs via webhooks

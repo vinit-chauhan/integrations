@@ -1,4 +1,10 @@
 # newer versions go on top
+- version: "0.3.1"
+  changes:
+    - description: >-
+        Enabled agentless deployment for the Kolide integration. Agentless mode supports the REST API (CEL) and AWS S3 Log Pipeline (`aws-s3`) inputs. The webhook data stream (HTTP Endpoint input) is not available in agentless mode.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.3.0"
   changes:
     - description: >-

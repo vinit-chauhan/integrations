@@ -46,14 +46,14 @@
       type: group
       description: Reference to the device the issue was detected on (API only).
       fields:
-        - name: location
+        - name: link
           type: keyword
           description: API URL of the device record.
     - name: check_information
       type: group
       description: Reference to the check that produced the issue (API only).
       fields:
-        - name: location
+        - name: link
           type: keyword
           description: API URL of the check record.
     - name: detected_version

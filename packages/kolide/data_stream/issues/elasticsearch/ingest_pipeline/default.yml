@@ -137,6 +137,13 @@ processors:
       tag: set_event_action_api
       value: issue
       if: ctx._tmp?.is_webhook == null && ctx.event?.action == null
+  
+  # set kolide.issues.id from json.id for API path
+  - set: 
+      field: kolide.issues.id
+      tag: set_kolide_issues_id
+      value: json.id
+      if: ctx._tmp?.is_webhook == null && ctx.kolide?.issues?.id == null && ctx.json?.id != null
 
   # event.start = detected_at; event.end = resolved_at (when present).
   - date:
@@ -169,14 +176,29 @@ processors:
       tag: rename_rule_id_api
       ignore_missing: true
       if: ctx.rule?.id == null
-
-  # Issue title — API path.
   - rename:
       field: json.title
       target_field: kolide.issues.title
       tag: rename_title_api
       ignore_missing: true
       if: ctx.kolide?.issues?.title == null && ctx.json?.title instanceof String
+  - set:
+      field: rule.name
+      tag: set_rule_name_from_title
+      value: '{{{kolide.issues.title}}}'
+      if: ctx.kolide?.issues?.title != null && ctx.rule?.name == null
+  
+  # set rule.reference from json.check_information.link for API and generate from rule.id for webhook
+  - set:
+      field: rule.reference
+      tag: set_rule_reference
+      value: '{{{json.check_information.link}}}'
+      if: ctx.rule?.reference == null && ctx.json?.check_information?.link != null
+  - set:
+      field: rule.reference
+      tag: set_rule_reference_webhook
+      value: 'https://api.kolide.com/checks/{{{rule.id}}}'
+      if: ctx.rule?.reference == null && ctx.json?.check_information?.link == null && ctx.rule?.id != null
 
   # Kolide issue fields — API path.
   - rename:
@@ -205,12 +227,12 @@ processors:
       ignore_missing: true
   - rename:
       field: json.device_information.link
-      target_field: kolide.issues.device_information.location
+      target_field: kolide.issues.device_information.link
       tag: rename_device_location_api
       ignore_missing: true
   - rename:
       field: json.check_information.link
-      target_field: kolide.issues.check_information.location
+      target_field: kolide.issues.check_information.link
       tag: rename_check_location_api
       ignore_missing: true
   - date:

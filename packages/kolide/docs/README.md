@@ -16,7 +16,7 @@ The integration supports three collection methods that you can choose between (a
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
 - REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects new records using cursor-based pagination and a timestamp filter. This is useful for backfill and for fuller resource records.
-- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (`auth_logs/`, `audit_logs/`, `check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `check_runs/`. S3 is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
+- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `kolide/check_runs/`. S3 is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
 
 ## What data does this integration collect?
 
@@ -26,10 +26,10 @@ The Kolide integration collects the following data streams:
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
-* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3 `audit_logs/`).
-* `device_check`: device check-run results from the Log Pipeline (S3 `check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
+* `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3 `kolide/audit_logs/`).
+* `device_check`: device check-run results from the Log Pipeline (S3 `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
 
-The `auth` and `audit` data streams additionally support the Log Pipeline via an `aws-s3` input that reads the `auth_logs/` and `audit_logs/` prefixes.
+The `auth` and `audit` data streams additionally support the Log Pipeline via an `aws-s3` input that reads the `kolide/auth_logs/` and `kolide/audit_logs/` prefixes.
 
 ### Supported use cases
 
@@ -37,10 +37,23 @@ Monitoring device-trust posture, investigating SSO authentication outcomes along
 
 ## What do I need to use this integration?
 
-- Elastic Agent installed on a host that can either receive Kolide webhooks (a publicly reachable HTTPS endpoint) or reach `https://api.kolide.com`.
-- A Kolide tenant with Full Access administrator privileges to create API keys and/or webhook endpoints.
+- Elastic Agent installed on a host that can receive Kolide webhooks (a publicly reachable HTTPS endpoint), reach `https://api.kolide.com`, and/or read from your AWS S3 bucket or SQS queue.
+- A Kolide tenant with Full Access administrator privileges to create API keys, webhook endpoints, and/or Log Pipeline destinations.
 
 ## How do I deploy this integration?
+
+### Agentless deployment
+
+Agentless integrations allow you to collect data without having to manage Elastic Agent in your cloud. They make manual agent deployment unnecessary, so you can focus on your data instead of the agent that collects it. For more information, refer to [Agentless integrations](https://www.elastic.co/docs/manage-data/ingest/agentless/agentless-integrations) and the [Agentless integrations FAQ](https://www.elastic.co/docs/troubleshoot/security/agentless-integrations).
+
+Agentless deployments are only supported in Elastic Serverless and Elastic Cloud environments. This functionality is in beta and is subject to change. Beta features are not subject to the support SLA of official GA features.
+
+**NOTE:** When using an agentless deployment, the **webhook** data stream is not available. Webhooks require the HTTP Endpoint input, which is not supported in agentless mode. Use the REST API (CEL) input and/or the AWS S3 (Log Pipeline) input instead. The following data streams are available in agentless mode:
+
+- `auth`, `issues`, `device`, and `audit` via the REST API (CEL input)
+- `auth`, `audit`, and `device_check` via the AWS S3 Log Pipeline (`aws-s3` input)
+
+To collect webhook-delivered events in near real time, use an agent-based deployment.
 
 ### Agent-based deployment
 
@@ -48,7 +61,7 @@ Elastic Agent must be installed. For more details, check the Elastic Agent [inst
 
 ### Set up steps in Kolide
 
-As a Full Access administrator, sign in to Kolide and choose one or both collection methods:
+As a Full Access administrator, sign in to Kolide and choose one or more collection methods:
 
 For webhooks:
 1. Go to Settings > Developers > Webhooks and add **one** new endpoint.
@@ -78,7 +91,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
 4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
-5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, and/or `device_check`. Each defaults to its Kolide prefix (`auth_logs/`, `audit_logs/`, `check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix.
+5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, and/or `device_check`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
 
 ### Validation
 
@@ -89,6 +102,7 @@ After setup, generate or wait for activity in Kolide (for example, sign in via S
 - No data via webhooks: Confirm the Kolide endpoint URL matches the Agent's listen address, port, and path, that the endpoint is publicly reachable over HTTPS, and that the HMAC signing secret matches.
 - Webhook signature failures: Ensure the configured HMAC key equals the Kolide endpoint signing secret; Kolide signs the raw request body with HMAC-SHA256 and sends the lowercase hex digest in the `Authorization` header with no prefix.
 - No data via the REST API: Verify the API key is valid (a 401 indicates a disabled feature or bad token; a 403 indicates the key lacks permission) and that the host can reach `https://api.kolide.com`.
+- No data via AWS S3: Confirm the Elastic Agent credentials can `s3:ListBucket` and `s3:GetObject` on the bucket (and `sqs:ReceiveMessage` in SQS mode), that the bucket list prefix matches your Kolide object key template, and that SQS notifications are filtered to the correct prefix. Kolide writes to `kolide/auth_logs/`, `kolide/audit_logs/`, and `kolide/check_runs/` by default; osquery `results/` objects are not ingested.
 
 ## Performance and scaling
 
@@ -921,6 +935,87 @@ The `device_check` data stream provides Kolide device check-run results delivere
 | rule.id | A rule ID that is unique within the scope of an agent, observer, or other entity using the rule for detection of this event. | keyword |
 | rule.name | The name of the rule or signature generating the event. | keyword |
 
+
+##### device_check sample event
+
+An example event for `device_check` looks as following:
+
+```json
+{
+    "@timestamp": "2026-06-02T15:45:01.000Z",
+    "agent": {
+        "ephemeral_id": "b2c4d6e8-f0a1-4b3c-8d7e-9f0a1b2c3d4e",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "name": "elastic-agent-12345",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.device_check",
+        "namespace": "48291",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.3.0"
+    },
+    "elastic_agent": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
+    "event": {
+        "action": "check_result",
+        "agent_id_status": "verified",
+        "category": [
+            "host"
+        ],
+        "dataset": "kolide.device_check",
+        "ingested": "2026-06-17T18:40:00Z",
+        "kind": "state",
+        "module": "kolide",
+        "original": "{\"type\":\"check_result\",\"timestamp\":\"2026-06-02T15:45:01Z\",\"data\":{\"check_id\":10,\"check_slug\":\"macos_file_sharing\",\"device_id\":7386319,\"status\":\"passing\",\"check_result_data\":[{\"file_sharing\":\"0\",\"current_os_version\":\"26.4.1\",\"KOLIDE_CHECK_STATUS\":\"PASS\"}]}}",
+        "outcome": "success",
+        "type": [
+            "info"
+        ]
+    },
+    "host": {
+        "id": "7386319"
+    },
+    "input": {
+        "type": "aws-s3"
+    },
+    "kolide": {
+        "device_check": {
+            "check_id": 10,
+            "check_result_data": [
+                {
+                    "KOLIDE_CHECK_STATUS": "PASS",
+                    "current_os_version": "26.4.1",
+                    "file_sharing": "0"
+                }
+            ],
+            "check_slug": "macos_file_sharing",
+            "device_id": 7386319,
+            "status": "passing"
+        }
+    },
+    "related": {
+        "hosts": [
+            "7386319"
+        ]
+    },
+    "rule": {
+        "id": "10",
+        "name": "macos_file_sharing"
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-device-check-s3"
+    ]
+}
+```
 
 
 ### Data streams using ILM policies

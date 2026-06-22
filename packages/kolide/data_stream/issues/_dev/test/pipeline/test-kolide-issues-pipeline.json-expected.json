@@ -28,11 +28,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.kolide.com/checks/32"
+                        "link": "https://api.kolide.com/checks/32"
                     },
                     "detected_at": "2026-06-14T20:31:58.869Z",
                     "device_information": {
-                        "location": "https://api.kolide.com/devices/2000001"
+                        "link": "https://api.kolide.com/devices/2000001"
                     },
                     "exempted": false,
                     "issue_key": "check_target",
@@ -54,7 +54,9 @@
             },
             "message": "Disk Is Not Encrypted",
             "rule": {
-                "id": "32"
+                "id": "32",
+                "name": "Disk Is Not Encrypted",
+                "reference": "https://api.kolide.com/checks/32"
             },
             "tags": [
                 "preserve_original_event"
@@ -91,11 +93,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.kolide.com/checks/3"
+                        "link": "https://api.kolide.com/checks/3"
                     },
                     "detected_at": "2026-06-14T20:32:04.261Z",
                     "device_information": {
-                        "location": "https://api.kolide.com/devices/2000001"
+                        "link": "https://api.kolide.com/devices/2000001"
                     },
                     "exempted": false,
                     "issue_key": "path",
@@ -129,7 +131,9 @@
                 ]
             },
             "rule": {
-                "id": "3"
+                "id": "3",
+                "name": "Unencrypted SSH Key Detected",
+                "reference": "https://api.kolide.com/checks/3"
             },
             "tags": [
                 "preserve_original_event"
@@ -163,12 +167,12 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.kolide.com/checks/75659"
+                        "link": "https://api.kolide.com/checks/75659"
                     },
                     "detected_at": "2026-06-15T00:13:30.889Z",
                     "detected_version": "148.0.7778.167-64",
                     "device_information": {
-                        "location": "https://api.kolide.com/devices/2000002"
+                        "link": "https://api.kolide.com/devices/2000002"
                     },
                     "exempted": false,
                     "expected_version": "149.0.7827.114",
@@ -200,7 +204,9 @@
                 ]
             },
             "rule": {
-                "id": "75659"
+                "id": "75659",
+                "name": "Chrome Browser Is Not Up to Date",
+                "reference": "https://api.kolide.com/checks/75659"
             },
             "tags": [
                 "preserve_original_event"
@@ -237,11 +243,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.kolide.com/checks/32"
+                        "link": "https://api.kolide.com/checks/32"
                     },
                     "detected_at": "2026-06-15T00:13:38.131Z",
                     "device_information": {
-                        "location": "https://api.kolide.com/devices/2000002"
+                        "link": "https://api.kolide.com/devices/2000002"
                     },
                     "exempted": false,
                     "issue_key": "check_target",
@@ -264,7 +270,9 @@
             },
             "message": "Disk Is Not Encrypted",
             "rule": {
-                "id": "32"
+                "id": "32",
+                "name": "Disk Is Not Encrypted",
+                "reference": "https://api.kolide.com/checks/32"
             },
             "tags": [
                 "preserve_original_event"
@@ -301,11 +309,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.kolide.com/checks/3"
+                        "link": "https://api.kolide.com/checks/3"
                     },
                     "detected_at": "2026-06-15T00:13:43.909Z",
                     "device_information": {
-                        "location": "https://api.kolide.com/devices/2000002"
+                        "link": "https://api.kolide.com/devices/2000002"
                     },
                     "exempted": false,
                     "issue_key": "path",
@@ -339,7 +347,9 @@
                 ]
             },
             "rule": {
-                "id": "3"
+                "id": "3",
+                "name": "Unencrypted SSH Key Detected",
+                "reference": "https://api.kolide.com/checks/3"
             },
             "tags": [
                 "preserve_original_event"
@@ -376,11 +386,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.example.com/checks/32"
+                        "link": "https://api.example.com/checks/32"
                     },
                     "detected_at": "2024-03-11T09:00:00.000Z",
                     "device_information": {
-                        "location": "https://api.example.com/devices/1"
+                        "link": "https://api.example.com/devices/1"
                     },
                     "exempted": true,
                     "issue_key": "check_target",
@@ -402,7 +412,9 @@
             },
             "message": "Disk Is Not Encrypted",
             "rule": {
-                "id": "32"
+                "id": "32",
+                "name": "Disk Is Not Encrypted",
+                "reference": "https://api.example.com/checks/32"
             },
             "tags": [
                 "preserve_original_event"
@@ -432,11 +444,11 @@
             "kolide": {
                 "issues": {
                     "check_information": {
-                        "location": "https://api.example.com/checks/20"
+                        "link": "https://api.example.com/checks/20"
                     },
                     "detected_at": "2024-03-11T09:00:00.000Z",
                     "device_information": {
-                        "location": "https://api.example.com/devices/2"
+                        "link": "https://api.example.com/devices/2"
                     },
                     "exempted": false,
                     "last_rechecked_at": "2024-03-11T09:05:00.000Z",
@@ -452,7 +464,9 @@
             },
             "message": "Android Device OS Is Not Up to Date",
             "rule": {
-                "id": "20"
+                "id": "20",
+                "name": "Android Device OS Is Not Up to Date",
+                "reference": "https://api.example.com/checks/20"
             },
             "tags": [
                 "preserve_original_event"
