@@ -42,19 +42,6 @@ Monitoring device-trust posture, investigating SSO authentication outcomes along
 
 ## How do I deploy this integration?
 
-### Agentless deployment
-
-Agentless integrations allow you to collect data without having to manage Elastic Agent in your cloud. They make manual agent deployment unnecessary, so you can focus on your data instead of the agent that collects it. For more information, refer to [Agentless integrations](https://www.elastic.co/docs/manage-data/ingest/agentless/agentless-integrations) and the [Agentless integrations FAQ](https://www.elastic.co/docs/troubleshoot/security/agentless-integrations).
-
-Agentless deployments are only supported in Elastic Serverless and Elastic Cloud environments. This functionality is in beta and is subject to change. Beta features are not subject to the support SLA of official GA features.
-
-**NOTE:** When using an agentless deployment, the **webhook** data stream is not available. Webhooks require the HTTP Endpoint input, which is not supported in agentless mode. Use the REST API (CEL) input and/or the AWS S3 (Log Pipeline) input instead. The following data streams are available in agentless mode:
-
-- `auth`, `issues`, `device`, and `audit` via the REST API (CEL input)
-- `auth`, `audit`, and `device_check` via the AWS S3 Log Pipeline (`aws-s3` input)
-
-To collect webhook-delivered events in near real time, use an agent-based deployment.
-
 ### Agent-based deployment
 
 Elastic Agent must be installed. For more details, check the Elastic Agent [installation instructions](https://www.elastic.co/guide/en/fleet/current/elastic-agent-installation.html). You can install only one Elastic Agent per host.
