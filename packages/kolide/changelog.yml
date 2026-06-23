@@ -1,4 +1,10 @@
 # newer versions go on top
+- version: "0.3.2"
+  changes:
+    - description: >-
+        Improved cross-data-stream ECS consistency. The `device_check` data stream no longer writes the numeric Kolide device ID into `related.hosts` (which is reserved for host names); device correlation is carried by `host.id`, consistent with the `auth`, `device`, and `issues` data streams. The `device_check` stream now also derives a stable `event.id` (from device ID, check ID, and timestamp) used to deduplicate at-least-once S3 deliveries. The `issues` data stream now sets `event.outcome` (`failure` for open/detected issues, `success` for resolved issues) and correctly copies the issue ID into `kolide.issues.id` (previously stored the literal string `json.id`).
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/1 # FIXME Replace with the real PR link
 - version: "0.3.1"
   changes:
     - description: >-

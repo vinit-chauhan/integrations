@@ -143,13 +143,33 @@ processors:
       target_field: kolide.device_check.check_result_data
       ignore_missing: true
 
-  # Promote any device.id reference for correlation.
-  - append:
-      field: related.hosts
-      tag: append_related_hosts
-      value: '{{{host.id}}}'
-      allow_duplicates: false
-      if: ctx.host?.id != null
+  # Device correlation is carried by host.id (the Kolide numeric device ID),
+  # consistent with the auth, device, and issues data streams. related.hosts is
+  # intentionally left unset here because device check-run results do not carry a
+  # hostname, and ECS related.hosts is meant for host names (not numeric IDs).
+
+  # event.id / deduplication: check-run results have no native id, so derive a
+  # stable event.id from device_id + check_id + @timestamp. aws-s3 is
+  # at-least-once, so fingerprint it to _id to upsert re-delivered objects.
+  - set:
+      field: event.id
+      tag: set_event_id
+      value: '{{{kolide.device_check.device_id}}}-{{{kolide.device_check.check_id}}}-{{{json.timestamp}}}'
+      if: ctx.kolide?.device_check?.device_id != null && ctx.kolide?.device_check?.check_id != null && ctx.json?.timestamp != null
+  - fingerprint:
+      fields:
+        - event.id
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_id
+      if: ctx.event?.id != null && ctx.event.id != ''
+  - fingerprint:
+      fields:
+        - event.original
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_event_original
+      if: ctx.event?.id == null && ctx.event?.original != null
 
   # Cleanup working object.
   - remove:

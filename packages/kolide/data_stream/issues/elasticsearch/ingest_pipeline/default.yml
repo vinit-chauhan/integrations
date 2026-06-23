@@ -138,12 +138,13 @@ processors:
       value: issue
       if: ctx._tmp?.is_webhook == null && ctx.event?.action == null
   
-  # set kolide.issues.id from json.id for API path
+  # set kolide.issues.id for the API path. json.id was renamed to event.id above,
+  # and on the API path event.id is the Kolide issue id, so copy it from there.
   - set: 
       field: kolide.issues.id
       tag: set_kolide_issues_id
-      value: json.id
-      if: ctx._tmp?.is_webhook == null && ctx.kolide?.issues?.id == null && ctx.json?.id != null
+      copy_from: event.id
+      if: ctx._tmp?.is_webhook == null && ctx.kolide?.issues?.id == null && ctx.event?.id != null
 
   # event.start = detected_at; event.end = resolved_at (when present).
   - date:
@@ -303,6 +304,20 @@ processors:
       tag: set_message_from_title
       copy_from: kolide.issues.title
       if: ctx.kolide?.issues?.title != null
+
+  # event.outcome: a detected issue is a failure; a resolved issue is a success.
+  # Resolved is signalled by resolved_at (API path) or the issues.resolved action
+  # (webhook path); everything else is an open/failing issue.
+  - set:
+      field: event.outcome
+      tag: set_event_outcome_success
+      value: success
+      if: ctx.kolide?.issues?.resolved_at != null || ctx.event?.action == 'issues.resolved'
+  - set:
+      field: event.outcome
+      tag: set_event_outcome_failure
+      value: failure
+      if: ctx.event?.outcome == null
 
   # rule.category from kolide.issues.check.tags (webhook path).
   - set:

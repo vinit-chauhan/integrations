@@ -27,6 +27,7 @@
             "host"
         ],
         "dataset": "kolide.device_check",
+        "id": "7386319-10-2026-06-02T15:45:01.000Z",
         "ingested": "2026-06-17T18:40:00Z",
         "kind": "state",
         "module": "kolide",
@@ -56,11 +57,6 @@
             "device_id": 7386319,
             "status": "passing"
         }
-    },
-    "related": {
-        "hosts": [
-            "7386319"
-        ]
     },
     "rule": {
         "id": "10",

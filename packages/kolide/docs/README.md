@@ -454,6 +454,7 @@ The `issues` data stream provides Kolide posture-check failures and resolutions 
 | event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
 | event.module | Event module. | constant_keyword |
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.outcome | This is one of four ECS Categorization Fields, and indicates the lowest level in the ECS category hierarchy. `event.outcome` simply denotes whether the event represents a success or a failure from the perspective of the entity that produced the event. Note that when a single transaction is described in multiple events, each event may populate different values of `event.outcome`, according to their perspective. Also note that in the case of a compound event (a single event that contains multiple logical events), this field should be populated with the value that best captures the overall success or failure from the perspective of the event producer. Further note that not all events will have an associated outcome. For example, this field is generally not populated for metric events, events with `event.type:info`, or any events for which an outcome does not make logical sense. | keyword |
 | event.start | `event.start` contains the date when the event started or when the activity was first observed. | date |
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
 | file.device | Device that is the source of the file. | keyword |
@@ -468,10 +469,10 @@ The `issues` data stream provides Kolide posture-check failures and resolutions 
 | kolide.issues.blocks_device_at | Timestamp at which the issue will begin blocking the device (API only). | date |
 | kolide.issues.check.id | Identifier of the failing check (webhook `check_id`). | keyword |
 | kolide.issues.check.tags | Tags associated with the check (webhook only). | keyword |
-| kolide.issues.check_information.location | API URL of the check record. | keyword |
+| kolide.issues.check_information.link | API URL of the check record. | keyword |
 | kolide.issues.detected_at | Timestamp at which the issue was first detected (API only). | date |
 | kolide.issues.detected_version | Version of the software detected on the device (e.g. Chrome, OS). | keyword |
-| kolide.issues.device_information.location | API URL of the device record. | keyword |
+| kolide.issues.device_information.link | API URL of the device record. | keyword |
 | kolide.issues.exempted | Whether the issue has been exempted from blocking the device (API only). | boolean |
 | kolide.issues.expected_version | Minimum or newest version required for compliance. | keyword |
 | kolide.issues.id | Canonical identifier of the issue. From API `id` or webhook `issue_id`. | keyword |
@@ -918,6 +919,7 @@ The `device_check` data stream provides Kolide device check-run results delivere
 | event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
 | event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
 | event.dataset | Event dataset. | constant_keyword |
+| event.id | Unique ID to describe the event. | keyword |
 | event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
 | event.module | Event module. | constant_keyword |
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
@@ -970,6 +972,7 @@ An example event for `device_check` looks as following:
             "host"
         ],
         "dataset": "kolide.device_check",
+        "id": "7386319-10-2026-06-02T15:45:01.000Z",
         "ingested": "2026-06-17T18:40:00Z",
         "kind": "state",
         "module": "kolide",
@@ -999,11 +1002,6 @@ An example event for `device_check` looks as following:
             "device_id": 7386319,
             "status": "passing"
         }
-    },
-    "related": {
-        "hosts": [
-            "7386319"
-        ]
     },
     "rule": {
         "id": "10",
