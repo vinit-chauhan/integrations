@@ -12,18 +12,8 @@ processors:
       tag: convert_event_id
       ignore_missing: true
       
-  # Webhook deliveries are change events (event.kind=event, event.type=change).
-  - set:
-      field: event.kind
-      tag: set_event_kind_webhook
-      value: event
-
-  # ECS event.category host only permits access/change/end/info/start.
-  - append:
-      field: event.type
-      tag: append_event_type_change_webhook
-      value:
-        - change
+  # event.kind / event.category / event.type are assigned centrally by
+  # categorization.yml based on the resolved event.action.
 
   # --- event.action: Kolide webhook event name (json.event). ---
   - set:

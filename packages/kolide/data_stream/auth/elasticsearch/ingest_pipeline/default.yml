@@ -76,21 +76,6 @@ processors:
       tag: date_session_start
       if: ctx.json?.session_timestamp != null && ctx.json.session_timestamp != ''
 
-  - set:
-      field: event.kind
-      tag: set_event_kind
-      value: event
-  - append:
-      field: event.category
-      tag: append_event_category
-      value:
-        - authentication
-        - session
-  - append:
-      field: event.type
-      tag: append_event_type
-      value:
-        - info
   # event.id: `{id}:{sub_event_type}:{timestamp}` for CEL sub-events; json.id otherwise.
   - set:
       field: event.id
@@ -319,6 +304,12 @@ processors:
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
+      ignore_missing_pipeline: true
+
+  # ECS categorization from the resolved event.action.
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
       ignore_missing_pipeline: true
 
   # Dedup: CEL re-collects boundary records; fingerprint event.id as _id.

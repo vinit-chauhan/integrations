@@ -1,0 +1,63 @@
+---
+description: >-
+  Pipeline for categorizing ECS event fields for Kolide auth_log events. Maps
+  the resolved event.action to event.kind/category/type/outcome using an exact
+  lookup table. All auth events are event.kind: event under the authentication
+  category; sign-in events also carry session and use event.type start. The
+  table outcome is applied only when event.outcome was not already derived
+  upstream (from the API result / webhook action). Unknown actions fall back to
+  the authentication category with event.type info.
+processors:
+  - script:
+      lang: painless
+      tag: set_ecs_categorization
+      description: Map Kolide auth event.action to ECS categorization fields using exact lookups.
+      if: ctx.event?.action != null
+      params:
+        exact:
+          sign_in_attempt: { category: ['authentication', 'session'], type: ['start'] }
+          sign_in_success: { category: ['authentication', 'session'], type: ['start'], outcome: success }
+          auth_logs.success: { category: ['authentication', 'session'], type: ['start'], outcome: success }
+          auth_logs.failure: { category: ['authentication', 'session'], type: ['start'], outcome: failure }
+          auth_session_summary: { category: ['authentication', 'session'], type: ['info'], outcome: success }
+          agent_detection_success: { category: ['authentication', 'session'], type: ['info'], outcome: success }
+          agent_detection_failure: { category: ['authentication', 'session'], type: ['info'], outcome: failure }
+          mobile_agent_detection_success: { category: ['authentication', 'session'], type: ['info'], outcome: success }
+          agent_download_request: { category: ['authentication'], type: ['info'] }
+          device_registration_request: { category: ['authentication'], type: ['info'] }
+          device_registration_successful: { category: ['authentication'], type: ['info'], outcome: success }
+          device_registration_blocked: { category: ['authentication'], type: ['info'], outcome: failure }
+          device_blocked: { category: ['authentication'], type: ['info'], outcome: failure }
+          push_notification_sent: { category: ['authentication'], type: ['info'] }
+          auth_log: { category: ['authentication'], type: ['info'] }
+      source: |-
+        def action = ctx.event.action;
+        ctx.event.kind = 'event';
+
+        def m = params.exact.get(action);
+        if (m != null) {
+          ctx.event.category = new ArrayList(m.category);
+          ctx.event.type = new ArrayList(m.type);
+          if (m.containsKey('outcome') && ctx.event.outcome == null) {
+            ctx.event.outcome = m.outcome;
+          }
+        } else {
+          ctx.event.category = ['authentication'];
+          ctx.event.type = ['info'];
+        }
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

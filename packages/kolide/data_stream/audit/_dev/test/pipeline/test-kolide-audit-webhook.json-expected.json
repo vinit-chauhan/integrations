@@ -8,7 +8,6 @@
             "event": {
                 "action": "check_enabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "01JA67B1DYJCKJ1J73T0F5EWGR",

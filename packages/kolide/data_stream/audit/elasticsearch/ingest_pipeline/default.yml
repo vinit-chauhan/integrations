@@ -77,23 +77,6 @@ processors:
       tag: rename_event_id
       ignore_missing: true
 
-  # ECS categorization (all audit_log events are IAM/configuration changes).
-  - set:
-      field: event.kind
-      tag: set_event_kind
-      value: event
-  - append:
-      field: event.category
-      tag: append_event_category
-      value:
-        - iam
-        - configuration
-  - append:
-      field: event.type
-      tag: append_event_type
-      value:
-        - change
-
   # Webhook path: extract actor, source IP, and message via webhook.yml.
   - pipeline:
       name: '{{ IngestPipeline "webhook" }}'
@@ -199,6 +182,12 @@ processors:
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
+      ignore_missing_pipeline: true
+
+  # ECS categorization from the resolved event.action.
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
       ignore_missing_pipeline: true
 
   # Deduplication: CEL cursor uses an inclusive (>=) boundary and may re-fetch

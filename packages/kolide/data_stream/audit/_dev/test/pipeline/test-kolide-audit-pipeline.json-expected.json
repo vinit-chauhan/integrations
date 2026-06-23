@@ -15,7 +15,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000001\",\"timestamp\":\"2026-06-04T19:10:55.090Z\",\"actor_name\":\"Alice Johnson\",\"description\":\"user 'alice.johnson@example.com' accepted invitation to Kolide\",\"actor_info\":{\"actor_name\":\"Alice Johnson\",\"actor_email\":\"alice.johnson@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -56,7 +57,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000002\",\"timestamp\":\"2026-06-05T12:19:24.327Z\",\"actor_name\":\"Carol Admin\",\"description\":\"Invited 'bob.smith@example.com' to access kolide\",\"actor_info\":{\"actor_name\":\"Carol Admin\",\"actor_email\":\"carol.admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -98,7 +100,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000003\",\"timestamp\":\"2026-06-05T12:24:22.133Z\",\"actor_name\":\"Bob\",\"description\":\"user 'bob.smith@example.com' accepted invitation to Kolide\",\"actor_info\":{\"actor_name\":\"Bob\",\"actor_email\":\"bob.smith@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -139,7 +142,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000004\",\"timestamp\":\"2026-06-05T12:26:24.616Z\",\"actor_name\":\"Carol Admin\",\"description\":\"Invited 'dave.lee@example.com' to access kolide\",\"actor_info\":{\"actor_name\":\"Carol Admin\",\"actor_email\":\"carol.admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -181,7 +185,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000005\",\"timestamp\":\"2026-06-05T13:17:46.019Z\",\"actor_name\":\"Dave\",\"description\":\"user 'dave.lee@example.com' accepted invitation to Kolide\",\"actor_info\":{\"actor_name\":\"Dave\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -222,7 +227,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000006\",\"timestamp\":\"2026-06-08T13:00:28.585Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Created an API key\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -259,8 +264,9 @@
                 "id": "90000007",
                 "kind": "event",
                 "original": "{\"id\":\"90000007\",\"timestamp\":\"2026-06-08T13:00:55.513Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Revealed full API Key token example-api-key-1\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -294,7 +300,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000008",
@@ -343,8 +348,9 @@
                 "id": "90000009",
                 "kind": "event",
                 "original": "{\"id\":\"90000009\",\"timestamp\":\"2026-06-08T14:46:03.074Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Revealed full API Key token example-api-key-1\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -378,7 +384,6 @@
             "event": {
                 "action": "check_paused",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000010",
@@ -419,7 +424,6 @@
             "event": {
                 "action": "check_enabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000011",
@@ -460,7 +464,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000012",
@@ -503,7 +506,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000013",
@@ -546,7 +548,6 @@
             "event": {
                 "action": "privacy_center_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000014",
@@ -588,7 +589,6 @@
             "event": {
                 "action": "privacy_center_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000015",
@@ -630,7 +630,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000016",
@@ -673,7 +672,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000017",
@@ -716,7 +714,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000018",
@@ -759,7 +756,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000019",
@@ -802,7 +798,6 @@
             "event": {
                 "action": "osquery_blocklist_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000020",
@@ -844,7 +839,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000021",
@@ -887,7 +881,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000022",
@@ -930,7 +923,6 @@
             "event": {
                 "action": "end_user_remediation_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000023",
@@ -968,7 +960,6 @@
             "event": {
                 "action": "end_user_remediation_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000024",
@@ -1006,7 +997,6 @@
             "event": {
                 "action": "auto_snooze_policy_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000025",
@@ -1050,7 +1040,6 @@
             "event": {
                 "action": "auto_snooze_policy_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000026",
@@ -1094,7 +1083,6 @@
             "event": {
                 "action": "auto_snooze_policy_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000027",
@@ -1138,7 +1126,6 @@
             "event": {
                 "action": "device_display_name_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000028",
@@ -1180,7 +1167,6 @@
             "event": {
                 "action": "device_display_name_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000029",
@@ -1222,7 +1208,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000030",
@@ -1270,7 +1255,6 @@
             "event": {
                 "action": "canceled_device_removal",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000031",
@@ -1318,7 +1302,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000032",
@@ -1366,14 +1349,13 @@
             "event": {
                 "action": "device_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000033",
                 "kind": "event",
                 "original": "{\"id\":\"90000033\",\"timestamp\":\"2026-06-14T19:40:49.489Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Device 'Daves-MacBook-Pro' (SN000000000001) removed\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -1414,7 +1396,6 @@
             "event": {
                 "action": "osquery_blocklist_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000034",
@@ -1545,8 +1526,9 @@
                 "id": "90000037",
                 "kind": "event",
                 "original": "{\"id\":\"90000037\",\"timestamp\":\"2026-06-14T21:01:12.674Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Revealed full API Key token example-api-key-1\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -1662,14 +1644,13 @@
             "event": {
                 "action": "device_management_provider_added",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000040",
                 "kind": "event",
                 "original": "{\"id\":\"90000040\",\"timestamp\":\"2026-06-14T21:13:55.273Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Added a Device Management Provider: test\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -1703,7 +1684,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000041",
@@ -1751,14 +1731,13 @@
             "event": {
                 "action": "device_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000042",
                 "kind": "event",
                 "original": "{\"id\":\"90000042\",\"timestamp\":\"2026-06-14T22:41:20.310Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Device 'example-host-01' (SN000000000002) removed\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -1840,7 +1819,6 @@
             "event": {
                 "action": "auto_snooze_policy_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000044",
@@ -2023,7 +2001,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000048\",\"timestamp\":\"2026-06-14T23:33:36.119Z\",\"actor_name\":\"Dave Lee\",\"description\":\"SCIM provider bearer token generated for 'Example Org'\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -2139,14 +2117,13 @@
             "event": {
                 "action": "device_management_provider_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000051",
                 "kind": "event",
                 "original": "{\"id\":\"90000051\",\"timestamp\":\"2026-06-15T00:06:39.099Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Removed Device Management Provider: test\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -2235,6 +2212,7 @@
                 "id": "90000053",
                 "kind": "event",
                 "original": "{\"id\":\"90000053\",\"timestamp\":\"2026-06-15T14:04:17.166Z\",\"actor_name\":\"E U\",\"description\":\"Approved pending device registration for \\\"erin.user@example.org\\\" and device \\\"Example Phone\\\". Reason: \\\"\\\"\",\"actor_info\":{\"actor_name\":\"E U\",\"actor_email\":\"erin.user@example.org\",\"actor_type\":\"Person\"}}",
+                "outcome": "success",
                 "type": [
                     "change"
                 ]
@@ -2283,6 +2261,7 @@
                 "id": "90000054",
                 "kind": "event",
                 "original": "{\"id\":\"90000054\",\"timestamp\":\"2026-06-15T14:04:17.210Z\",\"actor_name\":\"E U\",\"description\":\"Device \\\"Example Phone\\\" (invalid serial) registration self-approved by erin.user@example.org from another trusted device\",\"actor_info\":{\"actor_name\":\"E U\",\"actor_email\":\"erin.user@example.org\",\"actor_type\":\"Person\"}}",
+                "outcome": "success",
                 "type": [
                     "change"
                 ]
@@ -2328,7 +2307,6 @@
             "event": {
                 "action": "check_paused",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000055",
@@ -2369,7 +2347,6 @@
             "event": {
                 "action": "check_paused",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000056",
@@ -2410,7 +2387,6 @@
             "event": {
                 "action": "issue_exempted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000057",
@@ -2455,7 +2431,6 @@
             "event": {
                 "action": "issue_exempted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000058",
@@ -2500,7 +2475,6 @@
             "event": {
                 "action": "check_marked_as_out_of_scope",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000059",
@@ -2557,7 +2531,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000060\",\"timestamp\":\"2026-06-15T14:37:34.317Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Removed device registration for \\\"Example Phone\\\" that was registered to \\\"erin.user@example.org\\\"\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -2599,7 +2573,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000061",
@@ -2647,14 +2620,13 @@
             "event": {
                 "action": "device_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000062",
                 "kind": "event",
                 "original": "{\"id\":\"90000062\",\"timestamp\":\"2026-06-15T14:41:57.815Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Device 'Example Phone' (invalid serial) removed\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -2701,6 +2673,7 @@
                 "id": "90000063",
                 "kind": "event",
                 "original": "{\"id\":\"90000063\",\"timestamp\":\"2026-06-15T14:45:40.938Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Denied pending device registration for \\\"erin.user@example.org\\\" and device \\\"Example Phone\\\". Reason: \\\"Example Reason\\\"\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "failure",
                 "type": [
                     "change"
                 ]
@@ -2803,6 +2776,7 @@
                 "id": "90000065",
                 "kind": "event",
                 "original": "{\"id\":\"90000065\",\"timestamp\":\"2026-06-15T14:47:24.051Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Approved pending device registration for \\\"erin.user@example.org\\\" and device \\\"Example Phone\\\". Reason: \\\"Example Reason\\\"\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
                     "change"
                 ]
@@ -2847,7 +2821,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000066",
@@ -2890,7 +2863,6 @@
             "event": {
                 "action": "updated_check_device_trust_settings",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000067",
@@ -2928,7 +2900,6 @@
             "event": {
                 "action": "check_enabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000068",
@@ -2976,7 +2947,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000069\",\"timestamp\":\"2026-06-17T19:51:51.038Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Created an API key\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -3014,7 +2985,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"90000070\",\"timestamp\":\"2026-06-17T19:52:03.051Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Removed an API key\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -3051,8 +3022,9 @@
                 "id": "90000071",
                 "kind": "event",
                 "original": "{\"id\":\"90000071\",\"timestamp\":\"2026-06-17T19:52:04.254Z\",\"actor_name\":\"Dave Lee\",\"description\":\"Revealed full API Key token example-api-key-2\",\"actor_info\":{\"actor_name\":\"Dave Lee\",\"actor_email\":\"dave.lee@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -3086,7 +3058,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000072",
@@ -3129,7 +3100,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "90000073",
@@ -3172,7 +3142,6 @@
             "event": {
                 "action": "audit_log",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-unknown-001",
@@ -3248,7 +3217,6 @@
             "event": {
                 "action": "logging_pipeline_enabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-logging-on",
@@ -3286,7 +3254,6 @@
             "event": {
                 "action": "logging_pipeline_disabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-logging-off",
@@ -3324,7 +3291,6 @@
             "event": {
                 "action": "updated_osquery_options",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-osquery-upd",
@@ -3362,7 +3328,6 @@
             "event": {
                 "action": "reset_osquery_options",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-osquery-reset",
@@ -3445,7 +3410,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-okta-verified\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Okta event hooks verified\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "info"
                 ]
             },
             "kolide": {
@@ -3476,14 +3441,13 @@
             "event": {
                 "action": "duplicate_device_found",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dup-device",
                 "kind": "event",
                 "original": "{\"id\":\"syn-dup-device\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Duplicate device found\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "info"
                 ]
             },
             "kolide": {
@@ -3514,14 +3478,13 @@
             "event": {
                 "action": "vanta_integration_created",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-vanta-create",
                 "kind": "event",
                 "original": "{\"id\":\"syn-vanta-create\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"created a Vanta integration\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -3552,14 +3515,13 @@
             "event": {
                 "action": "vanta_integration_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-vanta-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-vanta-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"removed Vanta integration\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -3590,7 +3552,6 @@
             "event": {
                 "action": "extended_device_compliance_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-ext-compliance",
@@ -3628,7 +3589,6 @@
             "event": {
                 "action": "end_user_remediation_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-eur-exact",
@@ -3666,14 +3626,13 @@
             "event": {
                 "action": "check_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-check-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted Check \\\"Example Check Name\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -3707,7 +3666,6 @@
             "event": {
                 "action": "check_reverted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-rev1",
@@ -3748,7 +3706,6 @@
             "event": {
                 "action": "check_reverted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-rev2",
@@ -3789,7 +3746,6 @@
             "event": {
                 "action": "check_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-upd",
@@ -3830,14 +3786,13 @@
             "event": {
                 "action": "check_published",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-pub",
                 "kind": "event",
                 "original": "{\"id\":\"syn-check-pub\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Published new Check \\\"Example Check Name\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -3871,7 +3826,6 @@
             "event": {
                 "action": "check_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-fix-text",
@@ -3912,7 +3866,6 @@
             "event": {
                 "action": "check_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-rat-text",
@@ -3953,7 +3906,6 @@
             "event": {
                 "action": "check_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-fix-strat",
@@ -3998,7 +3950,6 @@
             "event": {
                 "action": "check_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-rat-strat",
@@ -4043,7 +3994,6 @@
             "event": {
                 "action": "updated_check_device_trust_settings",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-check-run-targets",
@@ -4088,7 +4038,6 @@
             "event": {
                 "action": "canceled_device_removal",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-cancel-no-serial",
@@ -4133,14 +4082,13 @@
             "event": {
                 "action": "device_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-device-removed-no-serial",
                 "kind": "event",
                 "original": "{\"id\":\"syn-device-removed-no-serial\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Device 'example-host-03' removed\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -4178,7 +4126,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-device-triggered-del",
@@ -4455,7 +4402,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-reg-removed-unquoted\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Removed device registration for \\\"example-host-07\\\" that was registered to erin.user@example.org\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {
@@ -4503,6 +4450,7 @@
                 "id": "syn-exempt-approved",
                 "kind": "event",
                 "original": "{\"id\":\"syn-exempt-approved\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Approved exemption request for \\\"user@example.com\\\" for check: \\\"Example Check\\\". Reason: \\\"Approved reason\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
                     "change"
                 ]
@@ -4549,6 +4497,7 @@
                 "id": "syn-exempt-denied",
                 "kind": "event",
                 "original": "{\"id\":\"syn-exempt-denied\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Denied exemption request for \\\"user@example.com\\\" for check: \\\"Example Check\\\". Reason: \\\"Denied reason\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "failure",
                 "type": [
                     "change"
                 ]
@@ -4685,7 +4634,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-people-reset\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Reset factor enrollment for 'Jane Example'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -4727,7 +4677,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-people-verified\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Verified factor enrollment for 'Jane Example'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -4769,7 +4720,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-people-merged\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Merged the person, jane.old@example.com, with jane.new@example.com\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -4811,7 +4763,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-people-restored\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Restored the person, Jane Example, to it's original state\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -4846,14 +4799,13 @@
             "event": {
                 "action": "managed_app_created",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-created",
                 "kind": "event",
                 "original": "{\"id\":\"syn-app-created\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Created managed app \\\"Example App\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -4887,14 +4839,13 @@
             "event": {
                 "action": "managed_app_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-deleted",
                 "kind": "event",
                 "original": "{\"id\":\"syn-app-deleted\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted managed app \\\"Example App\\\" with #5 people\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -4929,7 +4880,6 @@
             "event": {
                 "action": "managed_app_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-updated",
@@ -4974,7 +4924,6 @@
             "event": {
                 "action": "managed_app_sign_on_settings_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-signon",
@@ -5019,7 +4968,6 @@
             "event": {
                 "action": "managed_app_direct_assigned_people_membership_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-people",
@@ -5064,7 +5012,6 @@
             "event": {
                 "action": "managed_app_person_groups_membership_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-app-groups",
@@ -5109,7 +5056,6 @@
             "event": {
                 "action": "device_group_memberships_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-group-mass-remove",
@@ -5153,14 +5099,13 @@
             "event": {
                 "action": "device_group_created",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-group-created",
                 "kind": "event",
                 "original": "{\"id\":\"syn-group-created\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Created device group \\\"Example Group\\\"\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -5194,14 +5139,13 @@
             "event": {
                 "action": "device_property_logger_added",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-logger-add",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lp-logger-add\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Added device property logger 'example-logger'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -5235,14 +5179,13 @@
             "event": {
                 "action": "device_property_logger_removed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-logger-rm",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lp-logger-rm\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Removed device property logger 'example-logger'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -5276,7 +5219,6 @@
             "event": {
                 "action": "enabled_log_pipeline_destination",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dest-en",
@@ -5317,7 +5259,6 @@
             "event": {
                 "action": "disabled_log_pipeline_destination",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dest-dis",
@@ -5358,14 +5299,13 @@
             "event": {
                 "action": "deleted_log_pipeline_destination",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dest-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lp-dest-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted the log pipeline destination 'example-dest'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -5399,7 +5339,6 @@
             "event": {
                 "action": "updated_log_pipeline_destination",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dest-upd",
@@ -5441,14 +5380,13 @@
             "event": {
                 "action": "created_log_pipeline_destination",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dest-create",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lp-dest-create\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Created a S3 log pipeline destination named 'example-dest'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -5483,7 +5421,6 @@
             "event": {
                 "action": "osquery_decorator_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dec-upd",
@@ -5524,7 +5461,6 @@
             "event": {
                 "action": "osquery_decorator_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dec-add",
@@ -5565,7 +5501,6 @@
             "event": {
                 "action": "osquery_decorator_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dec-en",
@@ -5606,7 +5541,6 @@
             "event": {
                 "action": "osquery_decorator_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-dec-del",
@@ -5647,7 +5581,6 @@
             "event": {
                 "action": "osquery_fim_category_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-fim-upd",
@@ -5688,7 +5621,6 @@
             "event": {
                 "action": "osquery_fim_category_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-fim-create",
@@ -5729,7 +5661,6 @@
             "event": {
                 "action": "osquery_fim_category_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-fim-en",
@@ -5770,7 +5701,6 @@
             "event": {
                 "action": "osquery_fim_category_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-fim-dis",
@@ -5811,7 +5741,6 @@
             "event": {
                 "action": "osquery_fim_category_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-fim-del",
@@ -5852,7 +5781,6 @@
             "event": {
                 "action": "discovery_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-disc-create",
@@ -5893,7 +5821,6 @@
             "event": {
                 "action": "discovery_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-disc-upd",
@@ -5934,7 +5861,6 @@
             "event": {
                 "action": "discovery_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-disc-del",
@@ -5975,7 +5901,6 @@
             "event": {
                 "action": "osquery_pack_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pq-create",
@@ -6016,7 +5941,6 @@
             "event": {
                 "action": "osquery_pack_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-query-upd",
@@ -6057,7 +5981,6 @@
             "event": {
                 "action": "osquery_pack_query_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pq-del",
@@ -6098,7 +6021,6 @@
             "event": {
                 "action": "osquery_pack_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pack-create",
@@ -6139,7 +6061,6 @@
             "event": {
                 "action": "osquery_pack_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pack-upd",
@@ -6180,7 +6101,6 @@
             "event": {
                 "action": "osquery_pack_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pack-en",
@@ -6221,7 +6141,6 @@
             "event": {
                 "action": "osquery_pack_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pack-dis",
@@ -6262,7 +6181,6 @@
             "event": {
                 "action": "osquery_pack_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lp-pack-del",
@@ -6303,14 +6221,13 @@
             "event": {
                 "action": "live_query_created_and_run",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-create-run",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lq-create-run\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Created and ran Live Query Campaign ID 12345 that targets all devices that uses table(s): processes\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -6345,7 +6262,6 @@
             "event": {
                 "action": "live_query_updated_and_run",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-upd-run",
@@ -6387,14 +6303,13 @@
             "event": {
                 "action": "live_query_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lq-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted Live Query Campaign ID 12345 : Example Campaign\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -6431,14 +6346,13 @@
             "event": {
                 "action": "live_query_single_result_csv_exported",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-csv-device",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lq-csv-device\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"CSV Downloaded For Device example-host-01 - Live Query Campaign ID 12345\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "host": {
@@ -6479,7 +6393,6 @@
             "event": {
                 "action": "live_query_unpublished",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-unpub",
@@ -6520,14 +6433,13 @@
             "event": {
                 "action": "live_query_csv_exported",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-csv",
                 "kind": "event",
                 "original": "{\"id\":\"syn-lq-csv\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"CSV Downloaded For Live Query Campaign ID 12345\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -6561,7 +6473,6 @@
             "event": {
                 "action": "live_query_published",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-lq-pub",
@@ -6602,7 +6513,6 @@
             "event": {
                 "action": "user.session.start",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-okta-hook",
@@ -6643,7 +6553,6 @@
             "event": {
                 "action": "billing_email_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-billing",
@@ -6685,7 +6594,6 @@
             "event": {
                 "action": "privacy_center_configuration_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-privacy-quoted",
@@ -6727,7 +6635,6 @@
             "event": {
                 "action": "feature_restriction_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-setting-unquoted",
@@ -6777,7 +6684,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-admin-removed\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Removed access for Kolide user 'Former Admin'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion",
+                    "user"
                 ]
             },
             "kolide": {
@@ -6819,7 +6727,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-admin-restriction\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Updated Live Query restriction on Jane Admin from 'none' to 'read_only'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -6868,7 +6777,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-admin-access\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Updated access for user 'user@example.com' from 'read_only' to 'admin'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -6914,7 +6824,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-admin-revoke-invites\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Revoked invitations created by 'former@example.com' because admin access was removed. Revoked invitations with email address(es): invite1@example.com, invite2@example.com\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "change",
+                    "user"
                 ]
             },
             "kolide": {
@@ -6959,7 +6870,8 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-admin-epm-add\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Added EPM user 'EPM User' to Kolide\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation",
+                    "user"
                 ]
             },
             "kolide": {
@@ -7001,7 +6913,7 @@
                 "kind": "event",
                 "original": "{\"id\":\"syn-sso-idp-proxy\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"IdP Proxy webhook token generated for 'Example Org'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -7076,14 +6988,13 @@
             "event": {
                 "action": "oauth_grant_importer_for_google_workspace_integration_created",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-int-google-create",
                 "kind": "event",
                 "original": "{\"id\":\"syn-int-google-create\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"created a OAuth grant importer for a Google Workspace integration with email admin@example.com\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -7117,14 +7028,13 @@
             "event": {
                 "action": "oauth_grant_importer_for_google_workspace_integration_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-int-google-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-int-google-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"removed a OAuth grant importer for a Google Workspace integration with email admin@example.com\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -7158,7 +7068,6 @@
             "event": {
                 "action": "device_management_provider_updated",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dmp-upd",
@@ -7248,14 +7157,13 @@
             "event": {
                 "action": "webhook_created",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-create",
                 "kind": "event",
                 "original": "{\"id\":\"syn-dev-wh-create\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Created webhook with url 'https://example.com/webhook'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "creation"
                 ]
             },
             "kolide": {
@@ -7289,14 +7197,13 @@
             "event": {
                 "action": "webhook_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-del",
                 "kind": "event",
                 "original": "{\"id\":\"syn-dev-wh-del\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted webhook with url 'https://example.com/webhook'\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {
@@ -7330,7 +7237,6 @@
             "event": {
                 "action": "webhook_enabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-en",
@@ -7371,7 +7277,6 @@
             "event": {
                 "action": "webhook_disabled",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-dis",
@@ -7418,8 +7323,9 @@
                 "id": "syn-dev-wh-secret-view",
                 "kind": "event",
                 "original": "{\"id\":\"syn-dev-wh-secret-view\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Revealed full webhook signing secret https://example.com/webhook\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
+                "outcome": "success",
                 "type": [
-                    "change"
+                    "access"
                 ]
             },
             "kolide": {
@@ -7453,7 +7359,6 @@
             "event": {
                 "action": "webhook_url_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-url",
@@ -7495,7 +7400,6 @@
             "event": {
                 "action": "webhook_event_subscriptions_changed",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-dev-wh-subs",
@@ -7581,14 +7485,13 @@
             "event": {
                 "action": "device_group_deleted",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "id": "syn-group-deleted",
                 "kind": "event",
                 "original": "{\"id\":\"syn-group-deleted\",\"timestamp\":\"2026-01-15T12:00:00.000Z\",\"actor_name\":\"Test Admin\",\"description\":\"Deleted device group \\\"Example Group\\\" with 3 members\",\"actor_info\":{\"actor_name\":\"Test Admin\",\"actor_email\":\"admin@example.com\",\"actor_type\":\"User\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "kolide": {

@@ -32,18 +32,8 @@ processors:
       if: ctx.json == null && ctx.event?.original != null
       description: Decode the Kolide check_result object into the working json object.
 
-  - set:
-      field: event.kind
-      tag: set_event_kind
-      value: state
-  - append:
-      field: event.category
-      tag: append_event_category_host
-      value: host
-  - append:
-      field: event.type
-      tag: append_event_type_info
-      value: info
+  # event.action is set here; ECS kind/category/type/outcome are assigned
+  # centrally by categorization.yml at the end of the pipeline.
   - set:
       field: event.action
       tag: set_event_action
@@ -106,22 +96,13 @@ processors:
       type: string
       ignore_missing: true
 
-  # Status: passing/failing/inapplicable/unknown.
+  # Status: passing/failing/inapplicable/unknown. event.outcome is derived from
+  # this in categorization.yml.
   - rename:
       field: json.data.status
       tag: rename_status
       target_field: kolide.device_check.status
       ignore_missing: true
-  - set:
-      field: event.outcome
-      tag: set_outcome_success
-      value: success
-      if: ctx.kolide?.device_check?.status == 'passing'
-  - set:
-      field: event.outcome
-      tag: set_outcome_failure
-      value: failure
-      if: ctx.kolide?.device_check?.status == 'failing'
 
   # The per-check result rows are highly variable (arbitrary keys per check), so
   # keep them as a single flattened field rather than mapping each key.
@@ -135,6 +116,12 @@ processors:
   # consistent with the auth, device, and issues data streams. related.hosts is
   # intentionally left unset here because device check-run results do not carry a
   # hostname, and ECS related.hosts is meant for host names (not numeric IDs).
+
+  # ECS categorization (kind/category/type/outcome) from the resolved status.
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
+      ignore_missing_pipeline: true
 
   # event.id / deduplication: check-run results have no native id, so derive a
   # stable event.id from device_id + check_id + @timestamp. aws-s3 is

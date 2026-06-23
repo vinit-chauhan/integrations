@@ -8,7 +8,6 @@
             "event": {
                 "action": "audit_log",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "kind": "event",
@@ -61,7 +60,6 @@
             "event": {
                 "action": "device_deletion_requested",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "kind": "event",
@@ -96,7 +94,6 @@
             "event": {
                 "action": "audit_log",
                 "category": [
-                    "iam",
                     "configuration"
                 ],
                 "kind": "event",
@@ -163,7 +160,7 @@
                 "kind": "event",
                 "original": "{\"type\":\"audit_log\",\"timestamp\":\"2026-06-18T16:17:10Z\",\"data\":{\"actor_name\":\"Cameron Lowe\",\"actor_type\":\"Person\",\"actor_email\":\"reese.santos@example.com\",\"ip_address\":\"203.0.113.41\",\"description\":\"Removed device registration for \\\"finley-surface-25 (FYASC87V6D)\\\" that was registered to \\\"reese.santos@example.com\\\"\"}}",
                 "type": [
-                    "change"
+                    "deletion"
                 ]
             },
             "host": {

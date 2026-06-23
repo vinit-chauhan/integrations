@@ -67,16 +67,6 @@ processors:
       tag: date_timestamp_api
       if: ctx.json?.timestamp == null && ctx.json?.detected_at != null
 
-  - set:
-      field: event.kind
-      tag: set_event_kind
-      value: event
-  - append:
-      field: event.category
-      tag: append_event_category
-      value:
-        - configuration
-
   # event.id: webhook delivery ULID (`json.id`) or API issue id (`json.id`).
   - rename:
       field: json.id
@@ -99,20 +89,6 @@ processors:
       if: ctx.json?.event != null
 
   # API (CEL) field extraction — skipped for webhook deliveries.
-  # event.type: unresolved issue -> [creation]; resolved_at set -> [change].
-  - append:
-      field: event.type
-      tag: append_event_type_open_api
-      value:
-        - creation
-      if: ctx._tmp?.is_webhook == null && ctx.json?.resolved_at == null
-  - append:
-      field: event.type
-      tag: append_event_type_resolved_api
-      value:
-        - change
-      if: ctx._tmp?.is_webhook == null && ctx.json?.resolved_at != null
-
   # event.action: constant `issue` on the API path.
   - set:
       field: event.action
@@ -327,6 +303,13 @@ processors:
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
+      ignore_missing_pipeline: true
+
+  # ECS categorization (kind/category/type) from the resolved event.action and
+  # issue lifecycle fields.
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
       ignore_missing_pipeline: true
 
   # Deduplication: CEL cursor uses an inclusive detected_at boundary, so the last

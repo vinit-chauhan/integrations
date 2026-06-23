@@ -66,12 +66,6 @@ processors:
       tag: set_timestamp_api_ingest
       if: ctx.json?.timestamp == null
 
-  - append:
-      field: event.category
-      tag: append_event_category
-      value:
-        - host
-
   # --- event.start from registered_at when present. ---
   - date:
       field: json.registered_at
@@ -88,22 +82,7 @@ processors:
       if: ctx.json?.event != null
 
   # --- API (CEL) field extraction. Skipped when json.event is set (webhook). ---
-  # Inventory snapshots are state documents, not change events.
-  - set:
-      field: event.kind
-      tag: set_event_kind_api
-      value: state
-      if: ctx.json?.event == null
-
-  # --- event.type: the API inventory snapshot is info. ---
-  - append:
-      field: event.type
-      tag: append_event_type_info_api
-      value:
-        - info
-      if: ctx.json?.event == null
-
-  # --- event.action: `device` for the API path. ---
+  # event.action: `device` for the API inventory snapshot path.
   - set:
       field: event.action
       tag: set_event_action_api
@@ -327,6 +306,12 @@ processors:
   - pipeline:
       name: '{{ IngestPipeline "extended-mappings" }}'
       tag: extended_mappings
+      ignore_missing_pipeline: true
+
+  # --- ECS categorization from the resolved event.action ---
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
       ignore_missing_pipeline: true
 
   # --- Deduplication ---

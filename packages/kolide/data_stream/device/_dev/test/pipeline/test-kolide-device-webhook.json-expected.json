@@ -58,6 +58,7 @@
                 ],
                 "id": "01HDVYMVM58H3RMBA3CR16M4PP",
                 "kind": "event",
+                "outcome": "success",
                 "type": [
                     "change"
                 ]

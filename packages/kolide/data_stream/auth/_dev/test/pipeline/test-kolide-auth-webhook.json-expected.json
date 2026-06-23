@@ -15,7 +15,7 @@
                 "kind": "event",
                 "outcome": "success",
                 "type": [
-                    "info"
+                    "start"
                 ]
             },
             "host": {
@@ -61,7 +61,7 @@
                 "kind": "event",
                 "outcome": "failure",
                 "type": [
-                    "info"
+                    "start"
                 ]
             },
             "host": {
@@ -107,7 +107,7 @@
                 "kind": "event",
                 "outcome": "success",
                 "type": [
-                    "info"
+                    "start"
                 ]
             },
             "host": {

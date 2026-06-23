@@ -5,19 +5,8 @@ description: >-
   categorization, related.* enrichment, extended-mappings, deduplication, and
   cleanup remain in default.yml. See https://www.kolide.com/docs/.
 processors:
-  # event.type: issues.new -> [creation]; issues.resolved -> [change].
-  - append:
-      field: event.type
-      tag: append_event_type_creation_webhook
-      value:
-        - creation
-      if: ctx.json?.event == 'issues.new'
-  - append:
-      field: event.type
-      tag: append_event_type_resolved_webhook
-      value:
-        - change
-      if: ctx.json?.event == 'issues.resolved'
+  # event.kind / event.category / event.type are assigned centrally by
+  # categorization.yml based on the resolved event.action and lifecycle fields.
 
   # event.action: webhook event name (issues.new / issues.resolved).
   - rename:
