@@ -3,7 +3,7 @@
         {
             "@timestamp": "2026-06-13T01:21:19.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "audit_log",
@@ -55,7 +55,7 @@
         {
             "@timestamp": "2026-06-15T06:00:46.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -89,7 +89,7 @@
         {
             "@timestamp": "2026-06-16T21:28:10.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "audit_log",
@@ -149,7 +149,7 @@
         {
             "@timestamp": "2026-06-18T16:17:10.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_removed",

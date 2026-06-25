@@ -8,7 +8,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # Webhook envelope: root `event` is a string (e.g. audit_log.recorded) and
   # collides with the ECS `event` object. Move envelope fields into `json` so

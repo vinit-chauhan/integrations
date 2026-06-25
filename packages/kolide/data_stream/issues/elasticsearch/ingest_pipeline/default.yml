@@ -7,7 +7,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # Webhook envelope: root-level `event` is a string (issues.new / issues.resolved)
   # and would collide with the ECS `event` object. Fold the envelope into `json`

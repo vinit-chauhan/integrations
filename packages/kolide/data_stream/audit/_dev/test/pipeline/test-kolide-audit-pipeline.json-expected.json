@@ -3,7 +3,7 @@
         {
             "@timestamp": "2026-06-04T19:10:55.090Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_created",
@@ -45,7 +45,7 @@
         {
             "@timestamp": "2026-06-05T12:19:24.327Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_invited",
@@ -88,7 +88,7 @@
         {
             "@timestamp": "2026-06-05T12:24:22.133Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_created",
@@ -130,7 +130,7 @@
         {
             "@timestamp": "2026-06-05T12:26:24.616Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_invited",
@@ -173,7 +173,7 @@
         {
             "@timestamp": "2026-06-05T13:17:46.019Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_created",
@@ -215,7 +215,7 @@
         {
             "@timestamp": "2026-06-08T13:00:28.585Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_created",
@@ -253,7 +253,7 @@
         {
             "@timestamp": "2026-06-08T13:00:55.513Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_secret_viewed",
@@ -295,7 +295,7 @@
         {
             "@timestamp": "2026-06-08T14:45:00.278Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -337,7 +337,7 @@
         {
             "@timestamp": "2026-06-08T14:46:03.074Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_secret_viewed",
@@ -379,7 +379,7 @@
         {
             "@timestamp": "2026-06-14T15:55:09.619Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_paused",
@@ -419,7 +419,7 @@
         {
             "@timestamp": "2026-06-14T15:55:19.824Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_enabled",
@@ -459,7 +459,7 @@
         {
             "@timestamp": "2026-06-14T16:44:43.217Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -501,7 +501,7 @@
         {
             "@timestamp": "2026-06-14T16:44:46.014Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -543,7 +543,7 @@
         {
             "@timestamp": "2026-06-14T16:44:49.009Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "privacy_center_configuration_changed",
@@ -584,7 +584,7 @@
         {
             "@timestamp": "2026-06-14T16:44:51.561Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "privacy_center_configuration_changed",
@@ -625,7 +625,7 @@
         {
             "@timestamp": "2026-06-14T16:44:53.614Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -667,7 +667,7 @@
         {
             "@timestamp": "2026-06-14T16:44:55.453Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -709,7 +709,7 @@
         {
             "@timestamp": "2026-06-14T16:46:08.484Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -751,7 +751,7 @@
         {
             "@timestamp": "2026-06-14T16:46:08.504Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -793,7 +793,7 @@
         {
             "@timestamp": "2026-06-14T16:46:17.686Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_blocklist_updated",
@@ -834,7 +834,7 @@
         {
             "@timestamp": "2026-06-14T16:46:18.532Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -876,7 +876,7 @@
         {
             "@timestamp": "2026-06-14T16:46:18.554Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -918,7 +918,7 @@
         {
             "@timestamp": "2026-06-14T16:46:22.430Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "end_user_remediation_configuration_changed",
@@ -955,7 +955,7 @@
         {
             "@timestamp": "2026-06-14T16:46:28.085Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "end_user_remediation_configuration_changed",
@@ -992,7 +992,7 @@
         {
             "@timestamp": "2026-06-14T16:47:09.522Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "auto_snooze_policy_changed",
@@ -1035,7 +1035,7 @@
         {
             "@timestamp": "2026-06-14T16:47:11.958Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "auto_snooze_policy_changed",
@@ -1078,7 +1078,7 @@
         {
             "@timestamp": "2026-06-14T16:47:13.970Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "auto_snooze_policy_changed",
@@ -1121,7 +1121,7 @@
         {
             "@timestamp": "2026-06-14T16:50:33.653Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_display_name_changed",
@@ -1162,7 +1162,7 @@
         {
             "@timestamp": "2026-06-14T16:50:37.997Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_display_name_changed",
@@ -1203,7 +1203,7 @@
         {
             "@timestamp": "2026-06-14T19:37:32.146Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -1250,7 +1250,7 @@
         {
             "@timestamp": "2026-06-14T19:38:02.814Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "canceled_device_removal",
@@ -1297,7 +1297,7 @@
         {
             "@timestamp": "2026-06-14T19:39:15.105Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -1344,7 +1344,7 @@
         {
             "@timestamp": "2026-06-14T19:40:49.489Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_removed",
@@ -1391,7 +1391,7 @@
         {
             "@timestamp": "2026-06-14T19:46:57.084Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_blocklist_updated",
@@ -1432,7 +1432,7 @@
         {
             "@timestamp": "2026-06-14T20:44:06.323Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -1474,7 +1474,7 @@
         {
             "@timestamp": "2026-06-14T20:44:06.345Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -1515,7 +1515,7 @@
         {
             "@timestamp": "2026-06-14T21:01:12.674Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_secret_viewed",
@@ -1557,7 +1557,7 @@
         {
             "@timestamp": "2026-06-14T21:13:10.932Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -1598,7 +1598,7 @@
         {
             "@timestamp": "2026-06-14T21:13:15.004Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -1639,7 +1639,7 @@
         {
             "@timestamp": "2026-06-14T21:13:55.273Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_management_provider_added",
@@ -1679,7 +1679,7 @@
         {
             "@timestamp": "2026-06-14T22:37:06.746Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -1726,7 +1726,7 @@
         {
             "@timestamp": "2026-06-14T22:41:20.310Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_removed",
@@ -1773,7 +1773,7 @@
         {
             "@timestamp": "2026-06-14T22:44:38.574Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -1814,7 +1814,7 @@
         {
             "@timestamp": "2026-06-14T22:47:06.402Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "auto_snooze_policy_changed",
@@ -1857,7 +1857,7 @@
         {
             "@timestamp": "2026-06-14T23:29:41.698Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_sso_configuration",
@@ -1901,7 +1901,7 @@
         {
             "@timestamp": "2026-06-14T23:29:59.534Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_sso_configuration",
@@ -1945,7 +1945,7 @@
         {
             "@timestamp": "2026-06-14T23:31:00.854Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_sso_configuration",
@@ -1989,7 +1989,7 @@
         {
             "@timestamp": "2026-06-14T23:33:36.119Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "scim_provider_bearer_token_generated",
@@ -2030,7 +2030,7 @@
         {
             "@timestamp": "2026-06-14T23:33:36.160Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "identity_provider_activated",
@@ -2074,7 +2074,7 @@
         {
             "@timestamp": "2026-06-14T23:41:18.794Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "idp_settings_changed",
@@ -2112,7 +2112,7 @@
         {
             "@timestamp": "2026-06-15T00:06:39.099Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_management_provider_deleted",
@@ -2152,7 +2152,7 @@
         {
             "@timestamp": "2026-06-15T00:14:15.746Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_auth_mode_changed",
@@ -2201,7 +2201,7 @@
         {
             "@timestamp": "2026-06-15T14:04:17.166Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_approved",
@@ -2250,7 +2250,7 @@
         {
             "@timestamp": "2026-06-15T14:04:17.210Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_self_approved",
@@ -2302,7 +2302,7 @@
         {
             "@timestamp": "2026-06-15T14:09:25.457Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_paused",
@@ -2342,7 +2342,7 @@
         {
             "@timestamp": "2026-06-15T14:09:25.970Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_paused",
@@ -2382,7 +2382,7 @@
         {
             "@timestamp": "2026-06-15T14:15:39.111Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue_exempted",
@@ -2426,7 +2426,7 @@
         {
             "@timestamp": "2026-06-15T14:16:02.441Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue_exempted",
@@ -2470,7 +2470,7 @@
         {
             "@timestamp": "2026-06-15T14:16:52.450Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_marked_as_out_of_scope",
@@ -2519,7 +2519,7 @@
         {
             "@timestamp": "2026-06-15T14:37:34.317Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_removed",
@@ -2568,7 +2568,7 @@
         {
             "@timestamp": "2026-06-15T14:38:51.512Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -2615,7 +2615,7 @@
         {
             "@timestamp": "2026-06-15T14:41:57.815Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_removed",
@@ -2662,7 +2662,7 @@
         {
             "@timestamp": "2026-06-15T14:45:40.938Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_denied",
@@ -2713,7 +2713,7 @@
         {
             "@timestamp": "2026-06-15T14:47:14.472Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_reopened",
@@ -2765,7 +2765,7 @@
         {
             "@timestamp": "2026-06-15T14:47:24.051Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_approved",
@@ -2816,7 +2816,7 @@
         {
             "@timestamp": "2026-06-15T14:51:23.247Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -2858,7 +2858,7 @@
         {
             "@timestamp": "2026-06-17T18:53:33.260Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_check_device_trust_settings",
@@ -2895,7 +2895,7 @@
         {
             "@timestamp": "2026-06-17T18:53:33.576Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_enabled",
@@ -2935,7 +2935,7 @@
         {
             "@timestamp": "2026-06-17T19:51:51.038Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_created",
@@ -2973,7 +2973,7 @@
         {
             "@timestamp": "2026-06-17T19:52:03.051Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_deleted",
@@ -3011,7 +3011,7 @@
         {
             "@timestamp": "2026-06-17T19:52:04.254Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_secret_viewed",
@@ -3053,7 +3053,7 @@
         {
             "@timestamp": "2026-06-17T19:52:32.437Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -3095,7 +3095,7 @@
         {
             "@timestamp": "2026-06-17T19:52:32.487Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -3137,7 +3137,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "audit_log",
@@ -3174,7 +3174,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "api_key_secret_rotated",
@@ -3212,7 +3212,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "logging_pipeline_enabled",
@@ -3249,7 +3249,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "logging_pipeline_disabled",
@@ -3286,7 +3286,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_osquery_options",
@@ -3323,7 +3323,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "reset_osquery_options",
@@ -3360,7 +3360,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_saml_configuration",
@@ -3398,7 +3398,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "saml_webhook_verification",
@@ -3436,7 +3436,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "duplicate_device_found",
@@ -3473,7 +3473,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "vanta_integration_created",
@@ -3510,7 +3510,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "vanta_integration_deleted",
@@ -3547,7 +3547,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "extended_device_compliance_configuration_changed",
@@ -3584,7 +3584,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "end_user_remediation_configuration_changed",
@@ -3621,7 +3621,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_deleted",
@@ -3661,7 +3661,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_reverted",
@@ -3701,7 +3701,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_reverted",
@@ -3741,7 +3741,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_updated",
@@ -3781,7 +3781,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_published",
@@ -3821,7 +3821,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_configuration_changed",
@@ -3861,7 +3861,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_configuration_changed",
@@ -3901,7 +3901,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_configuration_changed",
@@ -3945,7 +3945,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_configuration_changed",
@@ -3989,7 +3989,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_check_device_trust_settings",
@@ -4033,7 +4033,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "canceled_device_removal",
@@ -4077,7 +4077,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_removed",
@@ -4121,7 +4121,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_deletion_requested",
@@ -4165,7 +4165,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "tofu_device_registration_re_enabled",
@@ -4210,7 +4210,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_auth_mode_changed",
@@ -4261,7 +4261,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -4303,7 +4303,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -4348,7 +4348,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_configuration_changed",
@@ -4390,7 +4390,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_registration_removed",
@@ -4439,7 +4439,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "exemption_request_approved",
@@ -4486,7 +4486,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "exemption_request_denied",
@@ -4533,7 +4533,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "exemption_request_reopened",
@@ -4577,7 +4577,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "exemption_request_withdrawn",
@@ -4622,7 +4622,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "factor_enrollment_reset",
@@ -4665,7 +4665,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "factor_enrollment_verified",
@@ -4708,7 +4708,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "person_record_merged",
@@ -4751,7 +4751,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "person_record_unmerged",
@@ -4794,7 +4794,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_created",
@@ -4834,7 +4834,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_deleted",
@@ -4875,7 +4875,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_updated",
@@ -4919,7 +4919,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_sign_on_settings_updated",
@@ -4963,7 +4963,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_direct_assigned_people_membership_changed",
@@ -5007,7 +5007,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "managed_app_person_groups_membership_changed",
@@ -5051,7 +5051,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_group_memberships_removed",
@@ -5094,7 +5094,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_group_created",
@@ -5134,7 +5134,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_property_logger_added",
@@ -5174,7 +5174,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_property_logger_removed",
@@ -5214,7 +5214,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "enabled_log_pipeline_destination",
@@ -5254,7 +5254,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "disabled_log_pipeline_destination",
@@ -5294,7 +5294,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "deleted_log_pipeline_destination",
@@ -5334,7 +5334,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_log_pipeline_destination",
@@ -5375,7 +5375,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "created_log_pipeline_destination",
@@ -5416,7 +5416,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_decorator_changed",
@@ -5456,7 +5456,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_decorator_changed",
@@ -5496,7 +5496,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_decorator_changed",
@@ -5536,7 +5536,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_decorator_changed",
@@ -5576,7 +5576,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_fim_category_changed",
@@ -5616,7 +5616,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_fim_category_changed",
@@ -5656,7 +5656,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_fim_category_changed",
@@ -5696,7 +5696,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_fim_category_changed",
@@ -5736,7 +5736,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_fim_category_changed",
@@ -5776,7 +5776,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "discovery_query_changed",
@@ -5816,7 +5816,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "discovery_query_changed",
@@ -5856,7 +5856,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "discovery_query_changed",
@@ -5896,7 +5896,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_query_changed",
@@ -5936,7 +5936,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_query_changed",
@@ -5976,7 +5976,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_query_changed",
@@ -6016,7 +6016,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_changed",
@@ -6056,7 +6056,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_changed",
@@ -6096,7 +6096,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_changed",
@@ -6136,7 +6136,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_changed",
@@ -6176,7 +6176,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "osquery_pack_changed",
@@ -6216,7 +6216,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_created_and_run",
@@ -6257,7 +6257,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_updated_and_run",
@@ -6298,7 +6298,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_deleted",
@@ -6341,7 +6341,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_single_result_csv_exported",
@@ -6388,7 +6388,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_unpublished",
@@ -6428,7 +6428,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_csv_exported",
@@ -6468,7 +6468,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "live_query_published",
@@ -6508,7 +6508,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "user.session.start",
@@ -6548,7 +6548,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "billing_email_updated",
@@ -6589,7 +6589,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "privacy_center_configuration_changed",
@@ -6630,7 +6630,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "feature_restriction_changed",
@@ -6672,7 +6672,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "kolide_team_member_deleted",
@@ -6715,7 +6715,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "user_feature_restriction_changed",
@@ -6765,7 +6765,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "user_access_changed",
@@ -6812,7 +6812,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "invitations_revoked_because_inviter_access_changed",
@@ -6858,7 +6858,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "user_added",
@@ -6901,7 +6901,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_token_generated",
@@ -6942,7 +6942,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "factor_sequencing_changed",
@@ -6983,7 +6983,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "oauth_grant_importer_for_google_workspace_integration_created",
@@ -7023,7 +7023,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "oauth_grant_importer_for_google_workspace_integration_deleted",
@@ -7063,7 +7063,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_management_provider_updated",
@@ -7107,7 +7107,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "updated_api_key",
@@ -7152,7 +7152,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_created",
@@ -7192,7 +7192,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_deleted",
@@ -7232,7 +7232,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_enabled",
@@ -7272,7 +7272,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_disabled",
@@ -7312,7 +7312,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_signing_secret_viewed",
@@ -7354,7 +7354,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_url_changed",
@@ -7395,7 +7395,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_event_subscriptions_changed",
@@ -7439,7 +7439,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "webhook_signing_secret_rolled",
@@ -7480,7 +7480,7 @@
         {
             "@timestamp": "2026-01-15T12:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device_group_deleted",

@@ -3,7 +3,7 @@
         {
             "@timestamp": "2023-10-28T20:50:15.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issues.new",
@@ -57,7 +57,7 @@
         {
             "@timestamp": "2023-10-28T21:00:58.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issues.resolved",

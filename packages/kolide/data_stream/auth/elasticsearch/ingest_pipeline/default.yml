@@ -7,7 +7,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # Webhook envelope at document root: `event` is a string (auth_logs.*), not ECS.
   # Move envelope fields into `json` so API and webhook inputs share one path.

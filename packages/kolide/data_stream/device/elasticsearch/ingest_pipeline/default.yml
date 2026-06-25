@@ -7,7 +7,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # Webhook path: envelope fields arrive at document root. The string `event` key
   # would collide with the ECS event object, so move the envelope into json first.

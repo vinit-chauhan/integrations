@@ -9,7 +9,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # The aws-s3 input delivers the raw object in `message`. Keep a raw copy in
   # event.original, then decode it into the working `json` object below.

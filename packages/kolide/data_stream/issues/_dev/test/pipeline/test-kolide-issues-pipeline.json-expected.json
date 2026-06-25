@@ -3,7 +3,7 @@
         {
             "@timestamp": "2026-06-14T20:31:58.869Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -67,7 +67,7 @@
         {
             "@timestamp": "2026-06-14T20:32:04.261Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -149,7 +149,7 @@
         {
             "@timestamp": "2026-06-15T00:13:30.889Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -224,7 +224,7 @@
         {
             "@timestamp": "2026-06-15T00:13:38.131Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -289,7 +289,7 @@
         {
             "@timestamp": "2026-06-15T00:13:43.909Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -371,7 +371,7 @@
         {
             "@timestamp": "2024-03-11T09:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",
@@ -435,7 +435,7 @@
         {
             "@timestamp": "2024-03-11T09:00:00.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "issue",

@@ -6,7 +6,11 @@ description: >-
   category; sign-in events also carry session and use event.type start. The
   table outcome is applied only when event.outcome was not already derived
   upstream (from the API result / webhook action). Unknown actions fall back to
-  the authentication category with event.type info.
+  the authentication category with event.type info. For CEL deliveries, the full
+  session events[] array rides along on each expanded sub-event document, so
+  event.type is set positionally: the last sub-event (and a single-event session)
+  is end, the first sub-event that is not also the last is start, and the rest are
+  info. The S3 path is not expanded, so its lookup event.type stands.
 processors:
   - script:
       lang: painless
@@ -44,6 +48,38 @@ processors:
         } else {
           ctx.event.category = ['authentication'];
           ctx.event.type = ['info'];
+        }
+
+  # CEL path: each expanded sub-event document carries the full session events[]
+  # array, so event.type is set positionally within the session: the last
+  # sub-event (and a single-event session) is end, the first sub-event that is
+  # not also the last is start, and everything in between is info. This document's
+  # position is located by its sub-event timestamp (event_type is not unique
+  # within a session, but the per-event timestamp is). Setting (not appending)
+  # avoids a contradictory [start, end] and overrides the lookup type above for
+  # CEL sub-events. The S3 path is not expanded (one summary document per session)
+  # so json.events is absent and the lookup type stands.
+  - script:
+      lang: painless
+      tag: set_session_boundary_type
+      description: Set event.type start/end/info by this sub-event's position in the CEL session json.events array.
+      if: ctx.json?.events instanceof List && ctx.json.events.size() > 0 && ctx.json?.timestamp != null
+      source: |-
+        def evs = ctx.json.events;
+        def ts = ctx.json.timestamp;
+        int idx = -1;
+        for (int i = 0; i < evs.size(); i++) {
+          if (evs[i] instanceof Map && evs[i].timestamp == ts) { idx = i; break; }
+        }
+        if (idx != -1) {
+          if (ctx.event == null) { ctx.event = [:]; }
+          if (idx == evs.size() - 1) {
+            ctx.event.type = ['end'];
+          } else if (idx == 0) {
+            ctx.event.type = ['start'];
+          } else {
+            ctx.event.type = ['info'];
+          }
         }
 
 on_failure:

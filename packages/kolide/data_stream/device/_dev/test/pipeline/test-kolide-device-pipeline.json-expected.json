@@ -1,9 +1,9 @@
 {
     "expected": [
         {
-            "@timestamp": "2026-06-23T21:27:13.32822147Z",
+            "@timestamp": "2026-06-25T18:22:37.270529961Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -53,9 +53,9 @@
             ]
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.32823147Z",
+            "@timestamp": "2026-06-25T18:22:37.270544003Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -118,9 +118,9 @@
             }
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.32823247Z",
+            "@timestamp": "2026-06-25T18:22:37.270545169Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -182,9 +182,9 @@
             }
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.328233303Z",
+            "@timestamp": "2026-06-25T18:22:37.270545753Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -247,9 +247,9 @@
             }
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.328233928Z",
+            "@timestamp": "2026-06-25T18:22:37.270546253Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -312,9 +312,9 @@
             }
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.328234512Z",
+            "@timestamp": "2026-06-25T18:22:37.270546836Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",
@@ -377,9 +377,9 @@
             }
         },
         {
-            "@timestamp": "2026-06-23T21:27:13.328235095Z",
+            "@timestamp": "2026-06-25T18:22:37.270547294Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "device",

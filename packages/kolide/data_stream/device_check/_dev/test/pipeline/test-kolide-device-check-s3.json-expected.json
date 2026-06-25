@@ -3,7 +3,7 @@
         {
             "@timestamp": "2026-06-18T00:00:05.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -76,7 +76,7 @@
         {
             "@timestamp": "2026-06-18T04:43:59.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -122,7 +122,7 @@
         {
             "@timestamp": "2026-06-02T15:45:01.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -166,7 +166,7 @@
         {
             "@timestamp": "2026-05-15T19:38:46.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -209,7 +209,7 @@
         {
             "@timestamp": "2026-06-10T15:57:55.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -258,7 +258,7 @@
         {
             "@timestamp": "2026-06-02T15:28:49.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -318,7 +318,7 @@
         {
             "@timestamp": "2026-06-23T11:42:47.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -361,7 +361,7 @@
         {
             "@timestamp": "2026-06-23T11:42:46.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -404,7 +404,7 @@
         {
             "@timestamp": "2026-06-23T11:42:47.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -449,7 +449,7 @@
         {
             "@timestamp": "2026-06-23T14:27:37.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -568,7 +568,7 @@
         {
             "@timestamp": "2026-06-23T14:24:31.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -621,7 +621,7 @@
         {
             "@timestamp": "2026-06-23T14:15:08.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -665,7 +665,7 @@
         {
             "@timestamp": "2026-06-23T14:01:52.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -717,7 +717,7 @@
         {
             "@timestamp": "2026-06-23T13:53:48.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -765,7 +765,7 @@
         {
             "@timestamp": "2026-06-23T14:13:13.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",
@@ -820,7 +820,7 @@
         {
             "@timestamp": "2026-06-23T14:06:13.000Z",
             "ecs": {
-                "version": "9.3.0"
+                "version": "9.4.0"
             },
             "event": {
                 "action": "check_result",

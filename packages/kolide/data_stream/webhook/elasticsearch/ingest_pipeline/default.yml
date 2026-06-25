@@ -7,7 +7,7 @@ processors:
   - set:
       field: ecs.version
       tag: set_ecs_version
-      value: '9.3.0'
+      value: '9.4.0'
 
   # The webhook body arrives with a top-level `event` key that is a string
   # (e.g. "audit_log.recorded"). ECS reserves `event` as an object, so we
