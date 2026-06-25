@@ -74,6 +74,7 @@ processors:
       tag: rename_check_slug
       target_field: kolide.device_check.check_slug
       ignore_missing: true
+      if: ctx.kolide?.device_check?.check_slug == null
   - set:
       field: rule.name
       tag: set_rule_name
@@ -103,6 +104,7 @@ processors:
       tag: rename_status
       target_field: kolide.device_check.status
       ignore_missing: true
+      if: ctx.kolide?.device_check?.status == null
 
   # The per-check result rows are highly variable (arbitrary keys per check), so
   # keep them as a single flattened field rather than mapping each key.
@@ -111,6 +113,7 @@ processors:
       tag: rename_check_result_data
       target_field: kolide.device_check.check_result_data
       ignore_missing: true
+      if: ctx.kolide?.device_check?.check_result_data == null
 
   # Device correlation is carried by host.id (the Kolide numeric device ID),
   # consistent with the auth, device, and issues data streams. related.hosts is

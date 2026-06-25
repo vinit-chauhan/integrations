@@ -23,6 +23,7 @@ processors:
       target_field: json.sub_event_type
       tag: rename_auth_event_type
       ignore_missing: true
+      if: ctx.json?.sub_event_type == null
   # request_id identifies the auth session/event (used for event.id and dedup).
   - set:
       field: json.id

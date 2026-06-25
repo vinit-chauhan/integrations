@@ -76,6 +76,7 @@ processors:
       target_field: event.id
       tag: rename_event_id
       ignore_missing: true
+      if: ctx.event?.id == null
 
   # Webhook path: extract actor, source IP, and message via webhook.yml.
   - pipeline:
@@ -152,11 +153,13 @@ processors:
       target_field: source.as.number
       ignore_missing: true
       tag: rename_source_asn
+      if: ctx.source?.as?.number == null
   - rename:
       field: source.as.organization_name
       target_field: source.as.organization.name
       ignore_missing: true
       tag: rename_source_as_org
+      if: ctx.source?.as?.organization?.name == null
 
   # --- related.* enrichment ---
   - append:

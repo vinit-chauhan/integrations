@@ -143,16 +143,19 @@ processors:
       target_field: user.name
       tag: rename_user_name
       ignore_missing: true
+      if: ctx.user?.name == null
   - rename:
       field: json.person_email
       target_field: user.email
       tag: rename_user_email
       ignore_missing: true
+      if: ctx.user?.email == null
   - rename:
       field: json.person_info.identifier
       target_field: user.id
       tag: rename_user_id_api
       ignore_missing: true
+      if: ctx.user?.id == null
 
   # Host (device_info.identifier).
   - rename:
@@ -160,6 +163,7 @@ processors:
       target_field: host.id
       tag: rename_host_id_api
       ignore_missing: true
+      if: ctx.host?.id == null
 
   # Source IP, GeoIP/ASN enrichment, and vendor country/city fallback.
   - rename:
@@ -167,6 +171,7 @@ processors:
       target_field: source.ip
       tag: rename_source_ip
       ignore_missing: true
+      if: ctx.source?.ip == null
   - geoip:
       field: source.ip
       target_field: source.geo
@@ -188,11 +193,13 @@ processors:
       target_field: source.as.number
       ignore_missing: true
       tag: rename_source_asn
+      if: ctx.source?.as?.number == null
   - rename:
       field: source.as.organization_name
       target_field: source.as.organization.name
       ignore_missing: true
       tag: rename_source_as_org
+      if: ctx.source?.as?.organization?.name == null
   # Vendor country/city when GeoIP does not resolve source.ip.
   - rename:
       field: json.country
@@ -221,11 +228,13 @@ processors:
       target_field: user_agent.name
       tag: rename_ua_name_api
       ignore_missing: true
+      if: ctx.user_agent?.name == null
   - rename:
       field: json.browser_user_agent
       target_field: user_agent.original
       tag: rename_ua_original_api
       ignore_missing: true
+      if: ctx.user_agent?.original == null
   - user_agent:
       field: user_agent.original
       ignore_missing: true
@@ -238,34 +247,37 @@ processors:
       target_field: kolide.auth.agent_version
       tag: rename_agent_version_api
       ignore_missing: true
-      if: ctx.json?.agent_version != null
+      if: ctx.json?.agent_version != null && ctx.kolide?.auth?.agent_version == null
   - rename:
       field: json.result
       target_field: kolide.auth.result
       tag: rename_result
       ignore_missing: true
+      if: ctx.kolide?.auth?.result == null
   - rename:
       field: json.initial_status
       target_field: kolide.auth.initial_status
       tag: rename_initial_status
       ignore_missing: true
+      if: ctx.kolide?.auth?.initial_status == null
   - rename:
       field: json.okta_app_name
       target_field: kolide.auth.okta.app_name
       tag: rename_okta_app_name
       ignore_missing: true
-      if: ctx.json?.okta_app_name != null
+      if: ctx.json?.okta_app_name != null && ctx.kolide?.auth?.okta?.app_name == null
   - rename:
       field: json.okta_app_instance_id
       target_field: kolide.auth.okta.app_instance_id
       tag: rename_okta_app_instance_id
       ignore_missing: true
-      if: ctx.json?.okta_app_instance_id != null
+      if: ctx.json?.okta_app_instance_id != null && ctx.kolide?.auth?.okta?.app_instance_id == null
   - rename:
       field: json.issues_displayed
       target_field: kolide.auth.issues_displayed
       tag: rename_issues_displayed
       ignore_missing: true
+      if: ctx.kolide?.auth?.issues_displayed == null
 
   # host.hostname mirrors host.name (webhook sets host.name).
   - set:
