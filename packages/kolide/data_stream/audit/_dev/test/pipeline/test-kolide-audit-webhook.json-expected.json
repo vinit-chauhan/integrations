@@ -18,6 +18,7 @@
             },
             "kolide": {
                 "audit": {
+                    "actor_automated": false,
                     "actor_type": "User"
                 }
             },

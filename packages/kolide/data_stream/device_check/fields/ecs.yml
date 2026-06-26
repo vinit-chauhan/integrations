@@ -1,24 +1,28 @@
 - name: ecs.version
   external: ecs
-- name: event.kind
-  external: ecs
-- name: event.category
-  external: ecs
-- name: event.type
+- name: error.message
   external: ecs
 - name: event.action
   external: ecs
-- name: event.outcome
+- name: event.category
   external: ecs
 - name: event.id
   external: ecs
+- name: event.kind
+  external: ecs
 - name: event.original
   external: ecs
+- name: event.outcome
+  external: ecs
+- name: event.type
+  external: ecs
 - name: host.id
+  external: ecs
+- name: related.hosts
   external: ecs
 - name: rule.id
   external: ecs
 - name: rule.name
   external: ecs
-- name: related.hosts
+- name: tags
   external: ecs

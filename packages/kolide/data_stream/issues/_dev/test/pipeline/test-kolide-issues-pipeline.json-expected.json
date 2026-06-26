@@ -440,7 +440,8 @@
             "event": {
                 "action": "issue",
                 "category": [
-                    "configuration"
+                    "configuration",
+                    "malware"
                 ],
                 "id": "500000002",
                 "kind": "event",
@@ -481,6 +482,57 @@
                 "id": "20",
                 "name": "Android Device OS Is Not Up to Date",
                 "reference": "https://api.example.com/checks/20"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
+        },
+        {
+            "@timestamp": "2024-03-11T10:00:00.000Z",
+            "ecs": {
+                "version": "9.4.0"
+            },
+            "event": {
+                "action": "issue",
+                "category": [
+                    "configuration",
+                    "vulnerability"
+                ],
+                "id": "500000041",
+                "kind": "event",
+                "original": "{\"id\":\"500000041\",\"title\":\"Insecure Zoom Video Conference Server\",\"value\":{\"KOLIDE_CHECK_STATUS\":\"FAIL\"},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2024-03-11T10:00:00Z\",\"blocks_device_at\":null,\"last_rechecked_at\":\"2024-03-11T10:05:00Z\",\"device_information\":{\"identifier\":\"device-mac-41\",\"link\":\"https://api.example.com/devices/41\"},\"check_information\":{\"identifier\":\"41\",\"link\":\"https://api.example.com/checks/41\"}}",
+                "outcome": "failure",
+                "start": "2024-03-11T10:00:00.000Z",
+                "type": [
+                    "creation"
+                ]
+            },
+            "host": {
+                "id": "device-mac-41"
+            },
+            "kolide": {
+                "issues": {
+                    "check_information": {
+                        "link": "https://api.example.com/checks/41"
+                    },
+                    "detected_at": "2024-03-11T10:00:00.000Z",
+                    "device_information": {
+                        "link": "https://api.example.com/devices/41"
+                    },
+                    "exempted": false,
+                    "id": "500000041",
+                    "last_rechecked_at": "2024-03-11T10:05:00.000Z",
+                    "title": "Insecure Zoom Video Conference Server",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL"
+                    }
+                }
+            },
+            "message": "Insecure Zoom Video Conference Server",
+            "rule": {
+                "id": "41",
+                "name": "Insecure Zoom Video Conference Server",
+                "reference": "https://api.example.com/checks/41"
             },
             "tags": [
                 "preserve_original_event"

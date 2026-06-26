@@ -18,6 +18,7 @@
             },
             "kolide": {
                 "audit": {
+                    "actor_automated": true,
                     "actor_type": "ApiKey"
                 }
             },
@@ -70,6 +71,7 @@
             },
             "kolide": {
                 "audit": {
+                    "actor_automated": true,
                     "actor_type": "System"
                 }
             },
@@ -104,6 +106,7 @@
             },
             "kolide": {
                 "audit": {
+                    "actor_automated": false,
                     "actor_type": "User"
                 }
             },
@@ -169,6 +172,7 @@
             },
             "kolide": {
                 "audit": {
+                    "actor_automated": false,
                     "actor_type": "Person"
                 }
             },

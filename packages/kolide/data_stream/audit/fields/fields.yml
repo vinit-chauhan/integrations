@@ -5,6 +5,9 @@
     - name: actor_type
       type: keyword
       description: Type of actor that performed the audited action, one of `User`, `ApiKey`, or `System`.
+    - name: actor_automated
+      type: boolean
+      description: True when the action was performed by a non-human actor (`actor_type` is `ApiKey` or `System`); false for human actors. Useful for filtering automated activity.
     - name: target
       type: group
       description: Subject of the audited action where no ECS field covers the semantic.

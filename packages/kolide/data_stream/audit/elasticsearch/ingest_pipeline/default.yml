@@ -131,6 +131,18 @@ processors:
       ignore_missing: true
       if: ctx.message == null
 
+  # Flag non-human actors (ApiKey/System) so automated activity is easy to filter.
+  - set:
+      field: kolide.audit.actor_automated
+      tag: set_actor_automated_true
+      value: true
+      if: ctx.kolide?.audit?.actor_type == 'ApiKey' || ctx.kolide?.audit?.actor_type == 'System'
+  - set:
+      field: kolide.audit.actor_automated
+      tag: set_actor_automated_false
+      value: false
+      if: ctx.kolide?.audit?.actor_type != null && ctx.kolide?.audit?.actor_type != 'ApiKey' && ctx.kolide?.audit?.actor_type != 'System'
+
   # Source IP geo/ASN enrichment (source.ip is set by the webhook path).
   - geoip:
       field: source.ip

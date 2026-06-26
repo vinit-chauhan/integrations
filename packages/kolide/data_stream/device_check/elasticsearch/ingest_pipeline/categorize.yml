@@ -5,7 +5,7 @@ description: >-
   exact lookup table. Check-run results are point-in-time compliance/posture
   evaluations of a device, so they are event.kind: state with the host category
   and event.type info. event.outcome is derived from the check status (passing
-  -> success, failing -> failure); inapplicable/unknown leave outcome unset.
+  -> success, failing -> failure, inapplicable/unknown -> unknown).
 processors:
   - script:
       lang: painless
@@ -39,6 +39,11 @@ processors:
       tag: set_outcome_failure
       value: failure
       if: ctx.kolide?.device_check?.status == 'failing' && ctx.event?.outcome == null
+  - set:
+      field: event.outcome
+      tag: set_outcome_unknown
+      value: unknown
+      if: (ctx.kolide?.device_check?.status == 'inapplicable' || ctx.kolide?.device_check?.status == 'unknown') && ctx.event?.outcome == null
 
 on_failure:
   - append:

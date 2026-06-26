@@ -30,6 +30,8 @@ The Kolide integration collects the following data streams:
 
 The `auth` and `audit` data streams additionally support the Log Pipeline via an `aws-s3` input that reads the `kolide/auth_logs/` and `kolide/audit_logs/` prefixes.
 
+> **Note on `event.outcome` for posture data:** For the `device_check` and `issues` data streams, `event.outcome` reflects the device posture result, not the success of event processing. A check run with status `passing` (or a resolved issue) maps to `event.outcome: success`, `failing` (or an open issue) maps to `event.outcome: failure`, and `inapplicable` or `unknown` check statuses map to `event.outcome: unknown`. The raw posture state is also preserved in `kolide.device_check.status` for `device_check`.
+
 ### Supported use cases
 
 Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking device enrollment and blocking transitions, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
@@ -93,6 +95,17 @@ After setup, generate or wait for activity in Kolide (for example, sign in via S
 ## Performance and scaling
 
 For more information on architectures that can be used for scaling this integration, check the [Ingest Architectures](https://www.elastic.co/docs/manage-data/ingest/ingest-reference-architectures) documentation.
+
+### Choosing a transport per data stream
+
+Kolide's Log Pipeline writes one log per S3 object rather than batching, so the AWS S3/SQS input makes a separate fetch for every document. For high-volume streams this is fine, but for small, sparse streams it adds many network round-trips and can make large backlogs slow to drain. To keep latency low and avoid contention on a shared S3 queue, consider matching the transport to the stream:
+
+- **`audit` and `auth`**: prefer the REST API (CEL) or webhook inputs. These streams are typically small and sparse, and the API/webhook paths deliver them quickly without per-object S3 fetches.
+- **`device_check` (check runs)**: use the AWS S3 input. This stream is large, so S3 is the better fit, and keeping it on S3 keeps the small, important streams off the same queue.
+
+This split keeps the small streams responsive while still using S3 for the bulk data.
+
+If you do consume large streams over S3/SQS, you can increase throughput by running multiple Elastic Agents (or scaling out workers) so SQS messages are processed concurrently. Note the one-object-per-log behavior is a Kolide-side limitation; the guidance above is a workaround until it is addressed upstream.
 
 ## Reference
 

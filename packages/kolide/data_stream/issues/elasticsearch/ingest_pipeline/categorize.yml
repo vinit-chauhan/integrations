@@ -3,7 +3,10 @@ description: >-
   Pipeline for categorizing ECS event fields for Kolide issue events. Maps the
   resolved event.action to event.kind/category using an exact lookup table.
   Issues are security/compliance findings: event.kind: event with the
-  configuration category. event.type is creation for a newly detected/open issue
+  configuration category. Specific Kolide checks additionally carry a security
+  domain category (malware or vulnerability), keyed by check id (rule.id); the
+  base configuration category is always retained, and unlisted checks remain
+  configuration only. event.type is creation for a newly detected/open issue
   and change for a resolved or updated issue (resolved_at set, or the
   issues.resolved webhook action). event.outcome (open -> failure, resolved ->
   success) is assigned in default.yml and is left untouched here.
@@ -18,6 +21,17 @@ processors:
           issue: { kind: event, category: ['configuration'] }
           issues.new: { kind: event, category: ['configuration'] }
           issues.resolved: { kind: event, category: ['configuration'] }
+        # Additional ECS event.category for specific Kolide-provided checks,
+        # keyed by numeric check id (rule.id / check_information.identifier).
+        # The base 'configuration' category is always retained; unlisted checks
+        # stay configuration only. Derived from the Kolide check catalog topics
+        # (topic 'malware' -> malware, 'vulnerabilities' -> vulnerability).
+        check_category:
+          '17': malware
+          '18': malware
+          '20': malware
+          '75639': malware
+          '41': vulnerability
       source: |-
         def action = ctx.event.action;
         def m = params.exact.get(action);
@@ -27,6 +41,15 @@ processors:
         } else {
           ctx.event.kind = 'event';
           ctx.event.category = ['configuration'];
+        }
+
+        // Add a security-domain category (malware/vulnerability) for specific
+        // checks, keyed by check id; the base 'configuration' category is kept.
+        if (ctx.rule?.id != null) {
+          def domain = params.check_category.get(ctx.rule.id);
+          if (domain != null && !ctx.event.category.contains(domain)) {
+            ctx.event.category.add(domain);
+          }
         }
 
         // A resolved/updated issue is a change; a newly detected issue is a creation.
