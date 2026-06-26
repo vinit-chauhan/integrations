@@ -33,6 +33,8 @@ The `auth` and `audit` data streams additionally support the Log Pipeline via an
 
 > **Note on `event.outcome` for posture data:** For the `device_check` and `issues` data streams, `event.outcome` reflects the device posture result, not the success of event processing. A check run with status `passing` (or a resolved issue) maps to `event.outcome: success`, `failing` (or an open issue) maps to `event.outcome: failure`, and `inapplicable` or `unknown` check statuses map to `event.outcome: unknown`. The raw posture state is also preserved in `kolide.device_check.status` for `device_check`.
 
+> **Note on host correlation for `device_check`:** Check-run results identify the device only by its numeric Kolide device ID, mapped to `host.id`. The payload carries no hostname, so `host.name` is not set on this data stream. Correlate check runs with the `device`, `auth`, and `issues` data streams using the shared `host.id`. If you need `host.name` directly on check-run documents, enrich them at ingest time with an Elasticsearch [enrich policy](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/data-enrichment) that maps `host.id` to `host.name` from the `device` data stream. This requires the `device` data stream to be enabled and the enrich policy to be executed and periodically refreshed so new or renamed devices resolve.
+
 ### Supported use cases
 
 Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking device enrollment and blocking transitions, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
@@ -73,6 +75,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 #### Vendor resources
 - [Kolide Webhooks documentation](https://www.kolide.com/docs/developers/webhooks)
 - [Kolide REST API reference](https://kolideapi.readme.io/reference)
+- [Kolide Log Pipeline documentation](https://www.kolide.com/docs/admins/log-pipeline/overview)
 
 ### Set up steps in Kibana
 
@@ -201,6 +204,7 @@ These Kolide REST API endpoints are used by this integration:
 - [Kolide documentation](https://www.kolide.com/docs)
 - [Kolide Webhooks](https://www.kolide.com/docs/developers/webhooks)
 - [Kolide REST API reference](https://kolideapi.readme.io/reference)
+- [Kolide Log Pipeline](https://www.kolide.com/docs/admins/log-pipeline/overview)
 
 ### Data streams
 
