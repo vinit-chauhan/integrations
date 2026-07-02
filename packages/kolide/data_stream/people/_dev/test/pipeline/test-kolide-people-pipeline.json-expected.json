@@ -1,12 +1,11 @@
 {
     "expected": [
         {
-            "@timestamp": "2026-06-25T18:22:37.270529961Z",
+            "@timestamp": "2026-07-02T21:18:20.900343381Z",
             "ecs": {
                 "version": "9.4.0"
             },
             "event": {
-                "action": "person",
                 "category": [
                     "iam"
                 ],

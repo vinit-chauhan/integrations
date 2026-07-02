@@ -53,10 +53,6 @@ processors:
       tag: set_timestamp_api_ingest
 
   - set:
-      field: event.action
-      tag: set_event_action_api
-      value: person
-  - set:
       field: event.kind
       tag: set_event_kind
       value: state

@@ -4,9 +4,11 @@ description: >-
   resolved event.action to event.kind/category/type using an exact lookup table.
   Exemption and registration requests are approval-workflow records: event.kind:
   event with the configuration and iam categories and event.type creation.
-  event.action is set upstream (default.yml for the API path, webhook.yml for
-  webhook deliveries). event.outcome is derived from request state in
-  extended-mappings.yml and is left untouched here.
+  event.action is set upstream: default.yml sets the `request` placeholder for the
+  API path, extended-mappings.yml then refines it to `<type>_request_<state>`
+  (e.g. exemption_request_approved) once type/state are known, and webhook.yml sets
+  the Kolide webhook event name for webhook deliveries. event.outcome is derived
+  from request state in extended-mappings.yml and is left untouched here.
 processors:
   - script:
       lang: painless
@@ -20,6 +22,13 @@ processors:
           requests.registration: { kind: event, category: ['configuration', 'iam'], type: ['creation'] }
           request.issue_exemption: { kind: event, category: ['configuration', 'iam'], type: ['creation'] }
           request.registration: { kind: event, category: ['configuration', 'iam'], type: ['creation'] }
+          exemption_request_open: { kind: event, category: ['configuration', 'iam'], type: ['creation'] }
+          exemption_request_withdrawn: { kind: event, category: ['configuration', 'iam'], type: ['change'] }
+          exemption_request_approved: { kind: event, category: ['configuration', 'iam'], type: ['change'] }
+          exemption_request_denied: { kind: event, category: ['configuration', 'iam'], type: ['change'] }
+          registration_request_pending: { kind: event, category: ['configuration', 'iam'], type: ['creation'] }
+          registration_request_approved: { kind: event, category: ['configuration', 'iam'], type: ['change'] }
+          registration_request_denied: { kind: event, category: ['configuration', 'iam'], type: ['change'] }
       source: |-
         def action = ctx.event.action;
         def m = params.exact.get(action);

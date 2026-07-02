@@ -623,20 +623,21 @@ The `request` data stream provides Kolide approval-workflow records for issue ex
 | event.module | Event module. | constant_keyword |
 | event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
 | event.outcome | This is one of four ECS Categorization Fields, and indicates the lowest level in the ECS category hierarchy. `event.outcome` simply denotes whether the event represents a success or a failure from the perspective of the entity that produced the event. Note that when a single transaction is described in multiple events, each event may populate different values of `event.outcome`, according to their perspective. Also note that in the case of a compound event (a single event that contains multiple logical events), this field should be populated with the value that best captures the overall success or failure from the perspective of the event producer. Further note that not all events will have an associated outcome. For example, this field is generally not populated for metric events, events with `event.type:info`, or any events for which an outcome does not make logical sense. | keyword |
+| event.reason | Reason why this event happened, according to the source. This describes the why of a particular action or outcome captured in the event. Where `event.action` captures the action from the event, `event.reason` describes why that action was taken. For example, a web proxy with an `event.action` which denied the request may also populate `event.reason` with the reason why (e.g. `blocked site`). | keyword |
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
 | host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
 | host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
 | host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
 | input.type | Type of filebeat input. | keyword |
-| kolide.request.created_at | Timestamp at which the request was created. | date |
-| kolide.request.device.url | API URL of the referenced device. | keyword |
+| kolide.request.created_at | Timestamp at which the request was created. From API `requested_at`. | date |
+| kolide.request.device.url | API URL of the referenced device. From API `device_information.link` or webhook `data.device.url`. | keyword |
 | kolide.request.id | Kolide request identifier. | keyword |
-| kolide.request.issues | Issues referenced by an exemption request. | flattened |
-| kolide.request.message | Human-entered request message or reason. | match_only_text |
-| kolide.request.requester.url | API URL of the referenced requester. | keyword |
+| kolide.request.internal_message | Admin-internal note explaining the approval/denial decision, not shown to the requester. From API `internal_explanation` (exemption) or `internal_denial_note` / `internal_approval_note` (registration). | match_only_text |
+| kolide.request.issues | Issues referenced by an exemption request. From API `issues` (array of `identifier`/`link` link-objects) or webhook `data.issues` (array of `issue_id`/`issue_url` objects); the shape varies by source. | flattened |
+| kolide.request.message | Human-entered request message or reason. From API `requester_message` or webhook `data.message`. | match_only_text |
+| kolide.request.requester.url | API URL of the referenced requester. From API `requester_information.link` or webhook `data.requester.url`. | keyword |
 | kolide.request.state | Normalized request state, for example `pending`, `approved`, or `denied`. | keyword |
 | kolide.request.type | Type of request, either `exemption` or `registration`. | keyword |
-| kolide.request.updated_at | Timestamp at which the request was last updated. | date |
 | log.offset | Log offset. | long |
 | message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
 | related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
@@ -664,24 +665,23 @@ An example event for `request` looks as following:
         "version": "9.4.0"
     },
     "event": {
-        "action": "request",
+        "action": "exemption_request_denied",
         "category": [
             "configuration",
             "iam"
         ],
         "dataset": "kolide.request",
-        "id": "exemption-request-001",
+        "id": "exemption-request-1001",
         "kind": "event",
-        "original": "{\"_kolide_request_type\":\"exemption\",\"id\":\"exemption-request-001\",\"state\":\"pending\",\"message\":\"Need temporary access for incident response\",\"created_at\":\"2024-03-11T21:28:17Z\",\"updated_at\":\"2024-03-11T21:30:00Z\",\"device\":{\"id\":\"200001\",\"name\":\"example-macbook\",\"url\":\"https://api.example.com/devices/200001\"},\"requester\":{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"url\":\"https://api.example.com/people/100001\"},\"issues\":[{\"id\":\"9999\",\"title\":\"macOS Firewall is Disabled\"}]}",
-        "outcome": "unknown",
+        "original": "{\"_kolide_request_type\":\"exemption\",\"id\":\"exemption-request-1001\",\"status\":\"denied\",\"requester_message\":\"Need temporary access for incident response\",\"requested_at\":\"2024-03-11T21:28:17Z\",\"internal_explanation\":\"Denied per security policy; device must remain compliant.\",\"denial_explanation\":\"This exemption cannot be granted because macOS Firewall is a required control.\",\"device_information\":{\"identifier\":\"200001\",\"link\":\"https://api.kolide.com/devices/200001\"},\"requester_information\":{\"identifier\":\"100001\",\"link\":\"https://api.kolide.com/people/100001\"},\"issues\":[{\"identifier\":\"9999\",\"link\":\"https://api.kolide.com/issues/9999\"}]}",
+        "outcome": "failure",
+        "reason": "This exemption cannot be granted because macOS Firewall is a required control.",
         "type": [
             "creation"
         ]
     },
     "host": {
-        "hostname": "example-macbook",
-        "id": "200001",
-        "name": "example-macbook"
+        "id": "200001"
     },
     "input": {
         "type": "cel"
@@ -690,33 +690,30 @@ An example event for `request` looks as following:
         "request": {
             "created_at": "2024-03-11T21:28:17.000Z",
             "device": {
-                "url": "https://api.example.com/devices/200001"
+                "url": "https://api.kolide.com/devices/200001"
             },
-            "id": "exemption-request-001",
+            "id": "exemption-request-1001",
+            "internal_message": "Denied per security policy; device must remain compliant.",
             "issues": [
                 {
-                    "id": "9999",
-                    "title": "macOS Firewall is Disabled"
+                    "identifier": "9999",
+                    "link": "https://api.kolide.com/issues/9999"
                 }
             ],
             "message": "Need temporary access for incident response",
             "requester": {
-                "url": "https://api.example.com/people/100001"
+                "url": "https://api.kolide.com/people/100001"
             },
-            "state": "pending",
-            "type": "exemption",
-            "updated_at": "2024-03-11T21:30:00.000Z"
+            "state": "denied",
+            "type": "exemption"
         }
     },
     "message": "Need temporary access for incident response",
     "related": {
         "hosts": [
-            "example-macbook",
             "200001"
         ],
         "user": [
-            "alice.johnson@example.com",
-            "Alice Johnson",
             "100001"
         ]
     },
@@ -726,9 +723,7 @@ An example event for `request` looks as following:
         "kolide-request"
     ],
     "user": {
-        "email": "alice.johnson@example.com",
-        "id": "100001",
-        "name": "Alice Johnson"
+        "id": "100001"
     }
 }
 ```

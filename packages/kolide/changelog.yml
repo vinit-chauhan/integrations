@@ -1,6 +1,21 @@
 # later versions go on top
 - version: "0.2.0"
   changes:
+    - description: Expand the request data stream's REST API pipeline test fixture to cover both request types and every documented status (exemption open/withdrawn/approved/denied, registration pending/approved/denied).
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/99999
+    - description: Split the request data stream's REST API field extraction into two dedicated sub-pipelines, exemption.yml and registration.yml, mirroring the GET /exemption_requests and GET /registration_requests API reference pages respectively, instead of one combined block in default.yml.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/99999
+    - description: Fix the request data stream's REST API link-object field name from `location` to `link` (confirmed against a live API response), keeping `location` as a defensive fallback, and extend the deduplication fingerprint to include state and decision notes so Kolide's "reopen" action (which lets a request cycle through the same status more than once) is more likely to produce a distinct document per decision instead of being dropped as a duplicate.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/99999
+    - description: Refine the request data stream's API-path event.action from the generic `request` placeholder to `<type>_request_<state>` (for example `exemption_request_approved`), now that both the request type and normalized state are known.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/99999
+    - description: Fix the request data stream's REST API field mapping to match the documented exemption_request/registration_request schema (status, requester_message, requested_at, device_information/requester_information link-objects), and add event.reason and kolide.request.internal_message for admin decision notes.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/99999
     - description: Add request data stream for Kolide REST API and webhook approval-workflow records.
       type: enhancement
       link: https://github.com/elastic/integrations/pull/99999

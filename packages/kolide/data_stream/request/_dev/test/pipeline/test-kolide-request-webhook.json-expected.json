@@ -28,8 +28,8 @@
                     "id": "webhook-exemption-001",
                     "issues": [
                         {
-                            "id": "8888",
-                            "title": "Disk Encryption is Disabled"
+                            "issue_id": "8888",
+                            "issue_url": "https://api.example.com/issues/8888"
                         }
                     ],
                     "message": "Travel exception requested",

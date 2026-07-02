@@ -11,8 +11,8 @@
                 "message": "Travel exception requested",
                 "issues": [
                     {
-                        "id": "8888",
-                        "title": "Disk Encryption is Disabled"
+                        "issue_id": "8888",
+                        "issue_url": "https://api.example.com/issues/8888"
                     }
                 ]
             }
@@ -29,7 +29,6 @@
                 },
                 "requester": {
                     "id": "100004",
-                    "name": "Dana Lee",
                     "email": "dana.lee@example.com",
                     "url": "https://api.example.com/people/100004"
                 },

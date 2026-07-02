@@ -9,24 +9,23 @@
         "version": "9.4.0"
     },
     "event": {
-        "action": "request",
+        "action": "exemption_request_denied",
         "category": [
             "configuration",
             "iam"
         ],
         "dataset": "kolide.request",
-        "id": "exemption-request-001",
+        "id": "exemption-request-1001",
         "kind": "event",
-        "original": "{\"_kolide_request_type\":\"exemption\",\"id\":\"exemption-request-001\",\"state\":\"pending\",\"message\":\"Need temporary access for incident response\",\"created_at\":\"2024-03-11T21:28:17Z\",\"updated_at\":\"2024-03-11T21:30:00Z\",\"device\":{\"id\":\"200001\",\"name\":\"example-macbook\",\"url\":\"https://api.example.com/devices/200001\"},\"requester\":{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"url\":\"https://api.example.com/people/100001\"},\"issues\":[{\"id\":\"9999\",\"title\":\"macOS Firewall is Disabled\"}]}",
-        "outcome": "unknown",
+        "original": "{\"_kolide_request_type\":\"exemption\",\"id\":\"exemption-request-1001\",\"status\":\"denied\",\"requester_message\":\"Need temporary access for incident response\",\"requested_at\":\"2024-03-11T21:28:17Z\",\"internal_explanation\":\"Denied per security policy; device must remain compliant.\",\"denial_explanation\":\"This exemption cannot be granted because macOS Firewall is a required control.\",\"device_information\":{\"identifier\":\"200001\",\"link\":\"https://api.kolide.com/devices/200001\"},\"requester_information\":{\"identifier\":\"100001\",\"link\":\"https://api.kolide.com/people/100001\"},\"issues\":[{\"identifier\":\"9999\",\"link\":\"https://api.kolide.com/issues/9999\"}]}",
+        "outcome": "failure",
+        "reason": "This exemption cannot be granted because macOS Firewall is a required control.",
         "type": [
             "creation"
         ]
     },
     "host": {
-        "hostname": "example-macbook",
-        "id": "200001",
-        "name": "example-macbook"
+        "id": "200001"
     },
     "input": {
         "type": "cel"
@@ -35,33 +34,30 @@
         "request": {
             "created_at": "2024-03-11T21:28:17.000Z",
             "device": {
-                "url": "https://api.example.com/devices/200001"
+                "url": "https://api.kolide.com/devices/200001"
             },
-            "id": "exemption-request-001",
+            "id": "exemption-request-1001",
+            "internal_message": "Denied per security policy; device must remain compliant.",
             "issues": [
                 {
-                    "id": "9999",
-                    "title": "macOS Firewall is Disabled"
+                    "identifier": "9999",
+                    "link": "https://api.kolide.com/issues/9999"
                 }
             ],
             "message": "Need temporary access for incident response",
             "requester": {
-                "url": "https://api.example.com/people/100001"
+                "url": "https://api.kolide.com/people/100001"
             },
-            "state": "pending",
-            "type": "exemption",
-            "updated_at": "2024-03-11T21:30:00.000Z"
+            "state": "denied",
+            "type": "exemption"
         }
     },
     "message": "Need temporary access for incident response",
     "related": {
         "hosts": [
-            "example-macbook",
             "200001"
         ],
         "user": [
-            "alice.johnson@example.com",
-            "Alice Johnson",
             "100001"
         ]
     },
@@ -71,8 +67,6 @@
         "kolide-request"
     ],
     "user": {
-        "email": "alice.johnson@example.com",
-        "id": "100001",
-        "name": "Alice Johnson"
+        "id": "100001"
     }
 }

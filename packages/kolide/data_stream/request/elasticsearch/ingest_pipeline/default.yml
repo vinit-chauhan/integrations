@@ -2,7 +2,11 @@
 description: >-
   Parse Kolide request records from GET /exemption_requests and
   GET /registration_requests (CEL), plus request webhook deliveries
-  (requests.issue_exemption / requests.registration).
+  (requests.issue_exemption / requests.registration). API-side field
+  extraction is delegated to per-endpoint sub-pipelines (exemption.yml /
+  registration.yml) since the two REST resources use different field names for
+  their admin decision notes; webhook field extraction is delegated to
+  webhook.yml.
 processors:
   - set:
       field: ecs.version
@@ -114,7 +118,10 @@ processors:
       value: request
       if: ctx.event?.action == null
 
-  # Request identifiers.
+  # Request identifiers. For the API path, json.id is the exemption/registration
+  # request's own canonical id. For the webhook path, neither requests.issue_exemption
+  # nor requests.registration carries the underlying request's id in `data`; json.id
+  # here is the webhook delivery's id (a ULID), used as the best available identifier.
   - set:
       field: kolide.request.id
       tag: set_request_id_from_json
@@ -128,148 +135,47 @@ processors:
       ignore_missing: true
       if: ctx.event?.id == null
 
-  # Human message/reason (API).
-  - set:
-      field: message
-      tag: set_message_from_api
-      copy_from: json.message
-      ignore_empty_value: true
-      if: ctx.message == null && ctx.json?.message instanceof String
+  # --- API: delegate field extraction to the per-endpoint sub-pipeline. The two
+  # REST resources share the same top-level shape (status, requester_message,
+  # requested_at, device_information/requester_information link-objects) but use
+  # different field names for their admin decision notes, so each gets its own
+  # pipeline mirroring its own API reference page. ---
+  - pipeline:
+      name: '{{ IngestPipeline "exemption" }}'
+      tag: dispatch_exemption
+      if: ctx.json?._kolide_request_type == 'exemption'
+  - pipeline:
+      name: '{{ IngestPipeline "registration" }}'
+      tag: dispatch_registration
+      if: ctx.json?._kolide_request_type == 'registration'
+
+  # kolide.request.message mirrors the resolved ECS `message` (both paths: set from
+  # requester_message/message in exemption.yml/registration.yml for the API path,
+  # or from json.data.message in webhook.yml for the webhook path).
   - set:
       field: kolide.request.message
       tag: set_kolide_request_message
       copy_from: message
       ignore_empty_value: true
-      if: ctx.message instanceof String
+      if: ctx.kolide?.request?.message == null && ctx.message instanceof String
 
-  # Request state (API). Normalization to lowercase and event.outcome derivation
-  # happen in extended-mappings.yml.
-  - set:
-      field: kolide.request.state
-      tag: set_state_from_state
-      copy_from: json.state
-      ignore_empty_value: true
-      if: ctx.json?.state instanceof String
-  - set:
-      field: kolide.request.state
-      tag: set_state_from_status
-      copy_from: json.status
-      ignore_empty_value: true
-      if: ctx.kolide?.request?.state == null && ctx.json?.status instanceof String
-
-  # Device / host (API).
-  - convert:
-      field: json.device_id
-      target_field: host.id
-      type: string
-      tag: convert_host_id_api_flat
-      ignore_missing: true
-      if: ctx.host?.id == null
-  - convert:
-      field: json.device.id
-      target_field: host.id
-      type: string
-      tag: convert_host_id_api_nested
-      ignore_missing: true
-      if: ctx.host?.id == null
-  - set:
-      field: host.name
-      tag: set_host_name_api_flat
-      copy_from: json.device_name
-      ignore_empty_value: true
-      if: ctx.host?.name == null && ctx.json?.device_name instanceof String
-  - set:
-      field: host.name
-      tag: set_host_name_api_nested
-      copy_from: json.device.name
-      ignore_empty_value: true
-      if: ctx.host?.name == null && ctx.json?.device?.name instanceof String
-  - set:
-      field: host.hostname
-      tag: set_host_hostname
-      copy_from: host.name
-      if: ctx.host?.name != null
-  - set:
-      field: kolide.request.device.url
-      tag: set_device_url_api_nested
-      copy_from: json.device.url
-      ignore_empty_value: true
-      if: ctx.json?.device?.url instanceof String
-
-  # Requester/person (API).
-  - convert:
-      field: json.person_id
-      target_field: user.id
-      type: string
-      tag: convert_user_id_api_person
-      ignore_missing: true
-      if: ctx.user?.id == null
-  - convert:
-      field: json.requester.id
-      target_field: user.id
-      type: string
-      tag: convert_user_id_api_requester
-      ignore_missing: true
-      if: ctx.user?.id == null
-  - set:
-      field: user.email
-      tag: set_user_email_api_person
-      copy_from: json.person_email
-      ignore_empty_value: true
-      if: ctx.user?.email == null && ctx.json?.person_email instanceof String
-  - set:
-      field: user.email
-      tag: set_user_email_api_requester
-      copy_from: json.requester.email
-      ignore_empty_value: true
-      if: ctx.user?.email == null && ctx.json?.requester?.email instanceof String
-  - set:
-      field: user.name
-      tag: set_user_name_api_person
-      copy_from: json.person_name
-      ignore_empty_value: true
-      if: ctx.user?.name == null && ctx.json?.person_name instanceof String
-  - set:
-      field: user.name
-      tag: set_user_name_api_requester
-      copy_from: json.requester.name
-      ignore_empty_value: true
-      if: ctx.user?.name == null && ctx.json?.requester?.name instanceof String
+  # user.name fallback (both paths): if only an email is known (API path never has a
+  # name; the webhook `issue_exemption` event only carries person_email), use it as
+  # user.name too so the field is never left empty when an identity is known at all.
   - set:
       field: user.name
       tag: set_user_name_from_email
       copy_from: user.email
       ignore_empty_value: true
       if: ctx.user?.name == null && ctx.user?.email instanceof String
+
+  # host.hostname mirrors host.name when set (webhook path sets host.name; the API
+  # path does not, since device_information carries no name — see above).
   - set:
-      field: kolide.request.requester.url
-      tag: set_requester_url_api
-      copy_from: json.requester.url
-      ignore_empty_value: true
-      if: ctx.json?.requester?.url instanceof String
-
-  # Issues attached to exemption requests (API).
-  - rename:
-      field: json.issues
-      target_field: kolide.request.issues
-      tag: rename_issues_api
-      ignore_missing: true
-
-  # Preserve API timestamps under vendor fields when present.
-  - date:
-      field: json.created_at
-      target_field: kolide.request.created_at
-      formats:
-        - ISO8601
-      tag: date_kolide_created_at
-      if: ctx.json?.created_at != null
-  - date:
-      field: json.updated_at
-      target_field: kolide.request.updated_at
-      formats:
-        - ISO8601
-      tag: date_kolide_updated_at
-      if: ctx.json?.updated_at != null
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
 
   # related.* enrichment.
   - append:
@@ -304,10 +210,36 @@ processors:
       if: ctx.user?.id != null
 
   # --- Extended field extraction (state normalization + event.outcome) ---
-  - pipeline:
-      name: '{{ IngestPipeline "extended-mappings" }}'
-      tag: extended_mappings
-      ignore_missing_pipeline: true
+  - lowercase:
+      field: kolide.request.state
+      tag: lowercase_state
+      ignore_missing: true
+  - set:
+      field: event.action
+      tag: set_event_action_from_type_and_state
+      value: '{{{kolide.request.type}}}_request_{{{kolide.request.state}}}'
+      if: >-
+        ctx.event?.action == 'request' &&
+        ctx.kolide?.request?.type != null &&
+        ctx.kolide?.request?.state != null
+  - set:
+      field: event.outcome
+      tag: set_outcome_success
+      value: success
+      if: ctx.kolide?.request?.state == 'approved'
+  - set:
+      field: event.outcome
+      tag: set_outcome_failure
+      value: failure
+      if: ctx.kolide?.request?.state == 'denied' || ctx.kolide?.request?.state == 'rejected'
+  - set:
+      field: event.outcome
+      tag: set_outcome_unknown
+      value: unknown
+      if: >-
+        ctx.kolide?.request?.state == 'pending' ||
+        ctx.kolide?.request?.state == 'open' ||
+        ctx.kolide?.request?.state == 'withdrawn'
 
   # --- ECS categorization from the resolved event.action ---
   - pipeline:
@@ -321,9 +253,12 @@ processors:
         - kolide.request.id
         - kolide.request.type
         - kolide.request.state
+        - kolide.request.internal_message
+        - event.reason
       target_field: _id
       method: SHA-256
       tag: fingerprint_request_identity
+      ignore_missing: true
       if: ctx.kolide?.request?.id != null && ctx.kolide.request.id != ''
 
   # Cleanup.
