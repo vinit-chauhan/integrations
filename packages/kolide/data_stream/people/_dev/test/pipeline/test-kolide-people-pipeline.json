@@ -1,7 +1,10 @@
 {
     "events": [
         {
-            "message": "{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"username\":\"alice.johnson\",\"status\":\"Active\",\"role\":\"admin\",\"groups\":[{\"id\":\"grp-1\",\"name\":\"Engineering\"},{\"id\":\"grp-2\",\"name\":\"Security\"}],\"idp_id\":\"idp-001\",\"idp_identifier\":\"00u1examplealice\",\"idp_name\":\"Okta\",\"scim_id\":\"scim-100001\",\"mdm_user_id\":\"mdm-100001\",\"created_at\":\"2024-01-10T08:00:00Z\",\"updated_at\":\"2024-06-15T12:00:00Z\",\"department\":\"Security Engineering\"}"
+            "message": "{\"id\":\"861637\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"created_at\":\"2024-01-10T08:00:00Z\",\"last_authenticated_at\":\"2024-06-15T12:00:00Z\",\"has_registered_device\":true,\"usernames\":[\"alice.johnson@example.com\"]}"
+        },
+        {
+            "message": "{\"id\":\"864140\",\"name\":\"Bob Smith\",\"email\":\"bob.smith@example.com\",\"created_at\":\"2024-02-05T09:30:00Z\",\"last_authenticated_at\":null,\"has_registered_device\":false,\"usernames\":[]}"
         }
     ]
 }

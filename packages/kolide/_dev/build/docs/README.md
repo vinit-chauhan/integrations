@@ -36,6 +36,10 @@ The `auth` and `audit` data streams additionally support the Log Pipeline via an
 
 > **Note on host correlation for `device_check`:** Check-run results identify the device only by its numeric Kolide device ID, mapped to `host.id`. The payload carries no hostname, so `host.name` is not set on this data stream. Correlate check runs with the `device`, `auth`, and `issues` data streams using the shared `host.id`. If you need `host.name` directly on check-run documents, enrich them at ingest time with an Elasticsearch [enrich policy](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/data-enrichment) that maps `host.id` to `host.name` from the `device` data stream. This requires the `device` data stream to be enabled and the enrich policy to be executed and periodically refreshed so new or renamed devices resolve.
 
+> **Note on document identity for `request`:** The REST API (`GET /exemption_requests`, `GET /registration_requests`) has no modified-since filter, so the CEL input re-fetches every request on every poll. To avoid re-indexing an unchanged request as a duplicate on every poll, documents are deduplicated on the request's identity (`kolide.request.id` + `kolide.request.type`) plus its current status and decision notes, rather than a full-content hash. This means `request` reflects each request's *latest known status* — normally one document per request, continuously superseded as its status changes — not a full history of every transition. Kolide supports reopening a previously-approved or previously-denied request, so a request can cycle through the same status more than once; if it is re-decided with the exact same status and decision note text as a previous decision, that occurrence is indistinguishable from the earlier one and is deduplicated away. For the full timeline of who approved, denied, or reopened a request and when, use the `audit` data stream (`audit_log.recorded`), correlating on `user.target.email` and `rule.name` (the audit log entries for these actions do not carry the request's own id).
+
+> **Note on document identity for `people`:** `GET /people` is a full-table snapshot with no modified-since filter, so the CEL input re-fetches every person on every poll. Documents are deduplicated on a fingerprint of the entire raw record, excluding `last_authenticated_at` (which changes on every login and would otherwise produce a new document every time an active person authenticates). This means a change to any other field — name, email, registered-device status, or SCIM usernames — produces a new document, while an unchanged record (aside from `last_authenticated_at`) is safely deduplicated across polls.
+
 ### Supported use cases
 
 Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking approval workflows, tracking device enrollment and blocking transitions, correlating device activity with people identity records, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
@@ -194,7 +198,7 @@ The `device` data stream provides Kolide device inventory records and device-tru
 
 #### people
 
-The `people` data stream provides Kolide identity records for people, including ECS user fields and Kolide-specific status, role, group, IdP, SCIM, and MDM linkage.
+The `people` data stream provides Kolide identity records for people (`GET /people`): ECS user fields plus the SCIM-imported usernames, last-authentication time, and device-registration flag Kolide exposes on this resource. Group, IdP, SCIM, and deprovisioning details live on separate Kolide API resources (`person_groups`, `deprovisioned_people`) that this data stream does not currently call.
 
 ##### people fields
 

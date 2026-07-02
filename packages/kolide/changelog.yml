@@ -1,6 +1,12 @@
 # later versions go on top
 - version: "0.2.0"
   changes:
+    - description: Remove the people data stream's kolide.people.extra catch-all field and the raw-attribute passthrough that fed it, since the documented and live-verified GET /people schema has exactly 7 properties and all of them are already mapped to first-class fields.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/99999
+    - description: Fix the people data stream's REST API field mapping to match the documented person schema (id, name, email, created_at, last_authenticated_at, has_registered_device, usernames), remove the status/role/groups/person_groups/idp/scim/mdm/updated_at/deprovisioned fields that never populate from GET /people (they either don't exist or live on separate API resources), add kolide.people.usernames/last_authenticated_at/has_registered_device, and set event.action.
+      type: bugfix
+      link: https://github.com/elastic/integrations/pull/99999
     - description: Expand the request data stream's REST API pipeline test fixture to cover both request types and every documented status (exemption open/withdrawn/approved/denied, registration pending/approved/denied).
       type: enhancement
       link: https://github.com/elastic/integrations/pull/99999

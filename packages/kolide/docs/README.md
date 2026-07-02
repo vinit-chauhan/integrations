@@ -37,6 +37,10 @@ The `auth` and `audit` data streams additionally support the Log Pipeline via an
 
 > **Note on host correlation for `device_check`:** Check-run results identify the device only by its numeric Kolide device ID, mapped to `host.id`. The payload carries no hostname, so `host.name` is not set on this data stream. Correlate check runs with the `device`, `auth`, and `issues` data streams using the shared `host.id`. If you need `host.name` directly on check-run documents, enrich them at ingest time with an Elasticsearch [enrich policy](https://www.elastic.co/docs/manage-data/ingest/transform-enrich/data-enrichment) that maps `host.id` to `host.name` from the `device` data stream. This requires the `device` data stream to be enabled and the enrich policy to be executed and periodically refreshed so new or renamed devices resolve.
 
+> **Note on document identity for `request`:** The REST API (`GET /exemption_requests`, `GET /registration_requests`) has no modified-since filter, so the CEL input re-fetches every request on every poll. To avoid re-indexing an unchanged request as a duplicate on every poll, documents are deduplicated on the request's identity (`kolide.request.id` + `kolide.request.type`) plus its current status and decision notes, rather than a full-content hash. This means `request` reflects each request's *latest known status* — normally one document per request, continuously superseded as its status changes — not a full history of every transition. Kolide supports reopening a previously-approved or previously-denied request, so a request can cycle through the same status more than once; if it is re-decided with the exact same status and decision note text as a previous decision, that occurrence is indistinguishable from the earlier one and is deduplicated away. For the full timeline of who approved, denied, or reopened a request and when, use the `audit` data stream (`audit_log.recorded`), correlating on `user.target.email` and `rule.name` (the audit log entries for these actions do not carry the request's own id).
+
+> **Note on document identity for `people`:** `GET /people` is a full-table snapshot with no modified-since filter, so the CEL input re-fetches every person on every poll. Documents are deduplicated on a fingerprint of the entire raw record, excluding `last_authenticated_at` (which changes on every login and would otherwise produce a new document every time an active person authenticates). This means a change to any other field — name, email, registered-device status, or SCIM usernames — produces a new document, while an unchanged record (aside from `last_authenticated_at`) is safely deduplicated across polls.
+
 ### Supported use cases
 
 Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking approval workflows, tracking device enrollment and blocking transitions, correlating device activity with people identity records, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
@@ -896,7 +900,7 @@ An example event for `device` looks as following:
 
 #### people
 
-The `people` data stream provides Kolide identity records for people, including ECS user fields and Kolide-specific status, role, group, IdP, SCIM, and MDM linkage.
+The `people` data stream provides Kolide identity records for people (`GET /people`): ECS user fields plus the SCIM-imported usernames, last-authentication time, and device-registration flag Kolide exposes on this resource. Group, IdP, SCIM, and deprovisioning details live on separate Kolide API resources (`person_groups`, `deprovisioned_people`) that this data stream does not currently call.
 
 ##### people fields
 
@@ -919,19 +923,10 @@ The `people` data stream provides Kolide identity records for people, including 
 | event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
 | input.type | Type of filebeat input. | keyword |
 | kolide.people.created_at | Timestamp at which the person record was created. | date |
-| kolide.people.deprovisioned | Whether the person is deprovisioned. | boolean |
-| kolide.people.extra | Additional Kolide person attributes not mapped to ECS or first-class Kolide fields. | flattened |
-| kolide.people.groups | Groups associated with the person. | flattened |
+| kolide.people.has_registered_device | Whether the person has at least one registered device. | boolean |
 | kolide.people.id | Kolide person identifier. | keyword |
-| kolide.people.idp.id | Identity provider identifier. | keyword |
-| kolide.people.idp.identifier | Person identifier from the identity provider. | keyword |
-| kolide.people.idp.name | Identity provider name. | keyword |
-| kolide.people.mdm.user_id | MDM user identifier for the person. | keyword |
-| kolide.people.person_groups | Person groups associated with the person. | flattened |
-| kolide.people.role | Kolide role assigned to the person. | keyword |
-| kolide.people.scim.id | SCIM identifier for the person. | keyword |
-| kolide.people.status | Normalized person status. | keyword |
-| kolide.people.updated_at | Timestamp at which the person record was last updated. | date |
+| kolide.people.last_authenticated_at | When the person last authenticated with Kolide. | date |
+| kolide.people.usernames | Usernames imported from the SCIM provider associated with this person. | keyword |
 | log.offset | Log offset. | long |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
 | tags | List of keywords used to tag each event. | keyword |
@@ -965,7 +960,7 @@ An example event for `people` looks as following:
         ],
         "dataset": "kolide.people",
         "kind": "state",
-        "original": "{\"created_at\":\"2024-01-10T08:00:00Z\",\"email\":\"alice.johnson@example.com\",\"groups\":[{\"id\":\"grp-1\",\"name\":\"Engineering\"}],\"id\":\"100001\",\"idp_identifier\":\"00u1examplealice\",\"name\":\"Alice Johnson\",\"role\":\"admin\",\"status\":\"Active\",\"updated_at\":\"2024-06-15T12:00:00Z\",\"username\":\"alice.johnson\"}",
+        "original": "{\"id\":\"861637\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"created_at\":\"2024-01-10T08:00:00Z\",\"last_authenticated_at\":\"2024-06-15T12:00:00Z\",\"has_registered_device\":true,\"usernames\":[\"alice.johnson@example.com\"]}",
         "type": [
             "user",
             "info"
@@ -977,26 +972,18 @@ An example event for `people` looks as following:
     "kolide": {
         "people": {
             "created_at": "2024-01-10T08:00:00.000Z",
-            "groups": [
-                {
-                    "id": "grp-1",
-                    "name": "Engineering"
-                }
-            ],
-            "id": "100001",
-            "idp": {
-                "identifier": "00u1examplealice"
-            },
-            "role": "admin",
-            "status": "active",
-            "updated_at": "2024-06-15T12:00:00.000Z"
+            "has_registered_device": true,
+            "id": "861637",
+            "last_authenticated_at": "2024-06-15T12:00:00.000Z",
+            "usernames": [
+                "alice.johnson@example.com"
+            ]
         }
     },
     "related": {
         "user": [
             "alice.johnson@example.com",
-            "alice.johnson",
-            "100001"
+            "861637"
         ]
     },
     "tags": [
@@ -1007,8 +994,8 @@ An example event for `people` looks as following:
     "user": {
         "email": "alice.johnson@example.com",
         "full_name": "Alice Johnson",
-        "id": "100001",
-        "name": "alice.johnson"
+        "id": "861637",
+        "name": "alice.johnson@example.com"
     }
 }
 ```

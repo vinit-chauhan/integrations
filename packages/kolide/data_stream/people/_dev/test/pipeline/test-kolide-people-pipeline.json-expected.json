@@ -1,7 +1,7 @@
 {
     "expected": [
         {
-            "@timestamp": "2026-07-02T21:18:20.900343381Z",
+            "@timestamp": "2026-07-02T21:35:53.381101257Z",
             "ecs": {
                 "version": "9.4.0"
             },
@@ -10,7 +10,7 @@
                     "iam"
                 ],
                 "kind": "state",
-                "original": "{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"username\":\"alice.johnson\",\"status\":\"Active\",\"role\":\"admin\",\"groups\":[{\"id\":\"grp-1\",\"name\":\"Engineering\"},{\"id\":\"grp-2\",\"name\":\"Security\"}],\"idp_id\":\"idp-001\",\"idp_identifier\":\"00u1examplealice\",\"idp_name\":\"Okta\",\"scim_id\":\"scim-100001\",\"mdm_user_id\":\"mdm-100001\",\"created_at\":\"2024-01-10T08:00:00Z\",\"updated_at\":\"2024-06-15T12:00:00Z\",\"department\":\"Security Engineering\"}",
+                "original": "{\"id\":\"861637\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"created_at\":\"2024-01-10T08:00:00Z\",\"last_authenticated_at\":\"2024-06-15T12:00:00Z\",\"has_registered_device\":true,\"usernames\":[\"alice.johnson@example.com\"]}",
                 "type": [
                     "user",
                     "info"
@@ -19,41 +19,18 @@
             "kolide": {
                 "people": {
                     "created_at": "2024-01-10T08:00:00.000Z",
-                    "extra": {
-                        "department": "Security Engineering"
-                    },
-                    "groups": [
-                        {
-                            "id": "grp-1",
-                            "name": "Engineering"
-                        },
-                        {
-                            "id": "grp-2",
-                            "name": "Security"
-                        }
-                    ],
-                    "id": "100001",
-                    "idp": {
-                        "id": "idp-001",
-                        "identifier": "00u1examplealice",
-                        "name": "Okta"
-                    },
-                    "mdm": {
-                        "user_id": "mdm-100001"
-                    },
-                    "role": "admin",
-                    "scim": {
-                        "id": "scim-100001"
-                    },
-                    "status": "active",
-                    "updated_at": "2024-06-15T12:00:00.000Z"
+                    "has_registered_device": true,
+                    "id": "861637",
+                    "last_authenticated_at": "2024-06-15T12:00:00.000Z",
+                    "usernames": [
+                        "alice.johnson@example.com"
+                    ]
                 }
             },
             "related": {
                 "user": [
                     "alice.johnson@example.com",
-                    "alice.johnson",
-                    "100001"
+                    "861637"
                 ]
             },
             "tags": [
@@ -62,8 +39,47 @@
             "user": {
                 "email": "alice.johnson@example.com",
                 "full_name": "Alice Johnson",
-                "id": "100001",
-                "name": "alice.johnson"
+                "id": "861637",
+                "name": "alice.johnson@example.com"
+            }
+        },
+        {
+            "@timestamp": "2026-07-02T21:35:53.381109299Z",
+            "ecs": {
+                "version": "9.4.0"
+            },
+            "event": {
+                "category": [
+                    "iam"
+                ],
+                "kind": "state",
+                "original": "{\"id\":\"864140\",\"name\":\"Bob Smith\",\"email\":\"bob.smith@example.com\",\"created_at\":\"2024-02-05T09:30:00Z\",\"last_authenticated_at\":null,\"has_registered_device\":false,\"usernames\":[]}",
+                "type": [
+                    "user",
+                    "info"
+                ]
+            },
+            "kolide": {
+                "people": {
+                    "created_at": "2024-02-05T09:30:00.000Z",
+                    "has_registered_device": false,
+                    "id": "864140"
+                }
+            },
+            "related": {
+                "user": [
+                    "bob.smith@example.com",
+                    "864140"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "email": "bob.smith@example.com",
+                "full_name": "Bob Smith",
+                "id": "864140",
+                "name": "bob.smith@example.com"
             }
         }
     ]
