@@ -4,7 +4,7 @@
 
 ## Overview
 
-The Kolide integration for Elastic collects device-trust and endpoint-compliance logs from [Kolide](https://www.kolide.com/) (by 1Password). It ingests authentication sessions, posture issues, device inventory and trust-status changes, and administrative audit events, normalizes them to the Elastic Common Schema (ECS), and makes them available for search, visualization, and detection in Elastic.
+The Kolide integration for Elastic collects device-trust and endpoint-compliance logs from [Kolide](https://www.kolide.com/) (by 1Password). It ingests authentication sessions, posture issues, approval-workflow requests, device inventory and trust-status changes, people identity records, and administrative audit events, normalizes them to the Elastic Common Schema (ECS), and makes them available for search, visualization, and detection in Elastic.
 
 ### Compatibility
 
@@ -15,7 +15,7 @@ This integration works with the current Kolide Device Trust platform ("Kolide K2
 The integration supports three collection methods that you can choose between (and combine) when configuring it:
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
-- REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects new records using cursor-based pagination and a timestamp filter. This is useful for backfill and for fuller resource records.
+- REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects records using cursor-based pagination and timestamp filters where supported. This is useful for backfill and for fuller resource records.
 - AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `kolide/check_runs/`. S3 is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
 
 ## What data does this integration collect?
@@ -25,7 +25,9 @@ The Kolide integration collects the following data streams:
 * `webhook`: single webhook ingress that receives all Kolide webhook event types on one endpoint and routes each event to the correct data stream automatically.
 * `auth`: SSO authentication sessions (`auth_logs.success`, `auth_logs.failure`; API `GET /auth_logs`).
 * `issues`: device posture-check failures and resolutions (`issues.new`, `issues.resolved`; API `GET /issues`).
+* `request`: approval-workflow requests (`requests.issue_exemption`, `requests.registration`; API `GET /exemption_requests` and `GET /registration_requests`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
+* `people`: identity records for people known to Kolide (API `GET /people`).
 * `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3 `kolide/audit_logs/`).
 * `device_check`: device check-run results from the Log Pipeline (S3 `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
 
@@ -37,7 +39,7 @@ The `auth` and `audit` data streams additionally support the Log Pipeline via an
 
 ### Supported use cases
 
-Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking device enrollment and blocking transitions, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
+Monitoring device-trust posture, investigating SSO authentication outcomes alongside device compliance state, tracking approval workflows, tracking device enrollment and blocking transitions, correlating device activity with people identity records, and auditing administrative changes in Kolide — all correlated with the rest of your security data in Elastic via ECS.
 
 ## What do I need to use this integration?
 
@@ -82,7 +84,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 1. In Kibana, go to Management → Integrations and search for Kolide.
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
-4. For the REST API: enable whichever data streams you want to poll (auth, issues, device, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
 5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, or `device_check`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
 
 ### Validation
@@ -197,7 +199,10 @@ To collect logs via HTTP Endpoint, select **Collect logs via HTTP Endpoint** and
 These Kolide REST API endpoints are used by this integration:
 * `GET /auth_logs`
 * `GET /issues`
+* `GET /exemption_requests`
+* `GET /registration_requests`
 * `GET /devices`
+* `GET /people`
 * `GET /audit_logs`
 
 ### Vendor documentation links
@@ -594,6 +599,140 @@ An example event for `issues` looks as following:
 }
 ```
 
+#### request
+
+The `request` data stream provides Kolide approval-workflow records for issue exemptions and device registrations from the REST API and request webhooks.
+
+##### request fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| error.message | Error message. | match_only_text |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.id | Unique ID to describe the event. | keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.outcome | This is one of four ECS Categorization Fields, and indicates the lowest level in the ECS category hierarchy. `event.outcome` simply denotes whether the event represents a success or a failure from the perspective of the entity that produced the event. Note that when a single transaction is described in multiple events, each event may populate different values of `event.outcome`, according to their perspective. Also note that in the case of a compound event (a single event that contains multiple logical events), this field should be populated with the value that best captures the overall success or failure from the perspective of the event producer. Further note that not all events will have an associated outcome. For example, this field is generally not populated for metric events, events with `event.type:info`, or any events for which an outcome does not make logical sense. | keyword |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
+| host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
+| host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.request.created_at | Timestamp at which the request was created. | date |
+| kolide.request.device.url | API URL of the referenced device. | keyword |
+| kolide.request.id | Kolide request identifier. | keyword |
+| kolide.request.issues | Issues referenced by an exemption request. | flattened |
+| kolide.request.message | Human-entered request message or reason. | match_only_text |
+| kolide.request.requester.url | API URL of the referenced requester. | keyword |
+| kolide.request.state | Normalized request state, for example `pending`, `approved`, or `denied`. | keyword |
+| kolide.request.type | Type of request, either `exemption` or `registration`. | keyword |
+| kolide.request.updated_at | Timestamp at which the request was last updated. | date |
+| log.offset | Log offset. | long |
+| message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
+| related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
+| related.user | All the user names or other user identifiers seen on the event. | keyword |
+| tags | List of keywords used to tag each event. | keyword |
+| user.email | User email address. | keyword |
+| user.id | Unique identifier of the user. | keyword |
+| user.name | Short name or login of the user. | keyword |
+| user.name.text | Multi-field of `user.name`. | match_only_text |
+
+
+##### request sample event
+
+An example event for `request` looks as following:
+
+```json
+{
+    "@timestamp": "2024-03-11T21:28:17.000Z",
+    "data_stream": {
+        "dataset": "kolide.request",
+        "namespace": "default",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "event": {
+        "action": "request",
+        "category": [
+            "configuration",
+            "iam"
+        ],
+        "dataset": "kolide.request",
+        "id": "exemption-request-001",
+        "kind": "event",
+        "original": "{\"_kolide_request_type\":\"exemption\",\"id\":\"exemption-request-001\",\"state\":\"pending\",\"message\":\"Need temporary access for incident response\",\"created_at\":\"2024-03-11T21:28:17Z\",\"updated_at\":\"2024-03-11T21:30:00Z\",\"device\":{\"id\":\"200001\",\"name\":\"example-macbook\",\"url\":\"https://api.example.com/devices/200001\"},\"requester\":{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"url\":\"https://api.example.com/people/100001\"},\"issues\":[{\"id\":\"9999\",\"title\":\"macOS Firewall is Disabled\"}]}",
+        "outcome": "unknown",
+        "type": [
+            "creation"
+        ]
+    },
+    "host": {
+        "hostname": "example-macbook",
+        "id": "200001",
+        "name": "example-macbook"
+    },
+    "input": {
+        "type": "cel"
+    },
+    "kolide": {
+        "request": {
+            "created_at": "2024-03-11T21:28:17.000Z",
+            "device": {
+                "url": "https://api.example.com/devices/200001"
+            },
+            "id": "exemption-request-001",
+            "issues": [
+                {
+                    "id": "9999",
+                    "title": "macOS Firewall is Disabled"
+                }
+            ],
+            "message": "Need temporary access for incident response",
+            "requester": {
+                "url": "https://api.example.com/people/100001"
+            },
+            "state": "pending",
+            "type": "exemption",
+            "updated_at": "2024-03-11T21:30:00.000Z"
+        }
+    },
+    "message": "Need temporary access for incident response",
+    "related": {
+        "hosts": [
+            "example-macbook",
+            "200001"
+        ],
+        "user": [
+            "alice.johnson@example.com",
+            "Alice Johnson",
+            "100001"
+        ]
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-request"
+    ],
+    "user": {
+        "email": "alice.johnson@example.com",
+        "id": "100001",
+        "name": "Alice Johnson"
+    }
+}
+```
+
 #### device
 
 The `device` data stream provides Kolide device inventory records and device-trust status changes.
@@ -756,6 +895,125 @@ An example event for `device` looks as following:
     ],
     "user": {
         "id": "1"
+    }
+}
+```
+
+#### people
+
+The `people` data stream provides Kolide identity records for people, including ECS user fields and Kolide-specific status, role, group, IdP, SCIM, and MDM linkage.
+
+##### people fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| error.message | Error message. | match_only_text |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.people.created_at | Timestamp at which the person record was created. | date |
+| kolide.people.deprovisioned | Whether the person is deprovisioned. | boolean |
+| kolide.people.extra | Additional Kolide person attributes not mapped to ECS or first-class Kolide fields. | flattened |
+| kolide.people.groups | Groups associated with the person. | flattened |
+| kolide.people.id | Kolide person identifier. | keyword |
+| kolide.people.idp.id | Identity provider identifier. | keyword |
+| kolide.people.idp.identifier | Person identifier from the identity provider. | keyword |
+| kolide.people.idp.name | Identity provider name. | keyword |
+| kolide.people.mdm.user_id | MDM user identifier for the person. | keyword |
+| kolide.people.person_groups | Person groups associated with the person. | flattened |
+| kolide.people.role | Kolide role assigned to the person. | keyword |
+| kolide.people.scim.id | SCIM identifier for the person. | keyword |
+| kolide.people.status | Normalized person status. | keyword |
+| kolide.people.updated_at | Timestamp at which the person record was last updated. | date |
+| log.offset | Log offset. | long |
+| related.user | All the user names or other user identifiers seen on the event. | keyword |
+| tags | List of keywords used to tag each event. | keyword |
+| user.email | User email address. | keyword |
+| user.full_name | User's full name, if available. | keyword |
+| user.full_name.text | Multi-field of `user.full_name`. | match_only_text |
+| user.id | Unique identifier of the user. | keyword |
+| user.name | Short name or login of the user. | keyword |
+| user.name.text | Multi-field of `user.name`. | match_only_text |
+
+
+##### people sample event
+
+An example event for `people` looks as following:
+
+```json
+{
+    "@timestamp": "2026-06-26T19:45:06.028069753Z",
+    "data_stream": {
+        "dataset": "kolide.people",
+        "namespace": "default",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "event": {
+        "action": "person",
+        "category": [
+            "iam"
+        ],
+        "dataset": "kolide.people",
+        "kind": "state",
+        "original": "{\"created_at\":\"2024-01-10T08:00:00Z\",\"email\":\"alice.johnson@example.com\",\"groups\":[{\"id\":\"grp-1\",\"name\":\"Engineering\"}],\"id\":\"100001\",\"idp_identifier\":\"00u1examplealice\",\"name\":\"Alice Johnson\",\"role\":\"admin\",\"status\":\"Active\",\"updated_at\":\"2024-06-15T12:00:00Z\",\"username\":\"alice.johnson\"}",
+        "type": [
+            "user",
+            "info"
+        ]
+    },
+    "input": {
+        "type": "cel"
+    },
+    "kolide": {
+        "people": {
+            "created_at": "2024-01-10T08:00:00.000Z",
+            "groups": [
+                {
+                    "id": "grp-1",
+                    "name": "Engineering"
+                }
+            ],
+            "id": "100001",
+            "idp": {
+                "identifier": "00u1examplealice"
+            },
+            "role": "admin",
+            "status": "active",
+            "updated_at": "2024-06-15T12:00:00.000Z"
+        }
+    },
+    "related": {
+        "user": [
+            "alice.johnson@example.com",
+            "alice.johnson",
+            "100001"
+        ]
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-people"
+    ],
+    "user": {
+        "email": "alice.johnson@example.com",
+        "full_name": "Alice Johnson",
+        "id": "100001",
+        "name": "alice.johnson"
     }
 }
 ```

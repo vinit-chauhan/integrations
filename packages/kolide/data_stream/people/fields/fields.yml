@@ -1,0 +1,58 @@
+- name: kolide.people
+  type: group
+  description: Custom fields for Kolide people, collected from the REST API (GET /people).
+  fields:
+    - name: id
+      type: keyword
+      description: Kolide person identifier.
+    - name: status
+      type: keyword
+      description: Normalized person status.
+    - name: role
+      type: keyword
+      description: Kolide role assigned to the person.
+    - name: groups
+      type: flattened
+      description: Groups associated with the person.
+    - name: person_groups
+      type: flattened
+      description: Person groups associated with the person.
+    - name: idp
+      type: group
+      description: Identity provider linkage for the person.
+      fields:
+        - name: id
+          type: keyword
+          description: Identity provider identifier.
+        - name: identifier
+          type: keyword
+          description: Person identifier from the identity provider.
+        - name: name
+          type: keyword
+          description: Identity provider name.
+    - name: scim
+      type: group
+      description: SCIM linkage for the person.
+      fields:
+        - name: id
+          type: keyword
+          description: SCIM identifier for the person.
+    - name: mdm
+      type: group
+      description: Mobile device management linkage for the person.
+      fields:
+        - name: user_id
+          type: keyword
+          description: MDM user identifier for the person.
+    - name: created_at
+      type: date
+      description: Timestamp at which the person record was created.
+    - name: updated_at
+      type: date
+      description: Timestamp at which the person record was last updated.
+    - name: deprovisioned
+      type: boolean
+      description: Whether the person is deprovisioned.
+    - name: extra
+      type: flattened
+      description: Additional Kolide person attributes not mapped to ECS or first-class Kolide fields.

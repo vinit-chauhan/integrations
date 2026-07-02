@@ -1,0 +1,375 @@
+---
+description: >-
+  Parse Kolide request records from GET /exemption_requests and
+  GET /registration_requests (CEL), plus request webhook deliveries
+  (requests.issue_exemption / requests.registration).
+processors:
+  - set:
+      field: ecs.version
+      tag: set_ecs_version
+      value: '9.4.0'
+
+  # --- CEL input only (Agentless metadata + collector error placeholders) ---
+  - remove:
+      field:
+        - organization
+        - division
+        - team
+      ignore_missing: true
+      if: ctx.organization instanceof String && ctx.division instanceof String && ctx.team instanceof String
+      tag: remove_agentless_tags
+      description: >-
+        Removes the fields added by Agentless as metadata,
+        as they can collide with ECS fields.
+  - terminate:
+      tag: data_collection_error
+      if: ctx.error?.message != null && ctx.message == null && ctx.event?.original == null
+      description: error message set and no data to process.
+  # --- end CEL-only ---
+
+  # Webhook envelope: root-level `event` is a string (requests.*), not ECS.
+  - rename:
+      field: event
+      tag: rename_webhook_event_envelope
+      target_field: json.event
+      ignore_missing: true
+      if: ctx.event instanceof String
+      description: Move the webhook envelope `event` string out of the way of the ECS `event` object.
+  - script:
+      lang: painless
+      tag: move_webhook_envelope_to_json
+      if: ctx.json?.event != null && ctx.data != null
+      description: Move webhook envelope id, timestamp, and data into json.
+      source: |-
+        if (ctx.containsKey('id')) { ctx.json.id = ctx.remove('id'); }
+        if (ctx.containsKey('timestamp')) { ctx.json.timestamp = ctx.remove('timestamp'); }
+        if (ctx.containsKey('data')) { ctx.json.data = ctx.remove('data'); }
+
+  # CEL path: message is JSON for one request object.
+  - rename:
+      field: message
+      tag: rename_message_to_event_original
+      target_field: event.original
+      ignore_missing: true
+      description: Renames the original `message` field to `event.original` to store a copy of the original message. The `event.original` field is not touched if the document already has one; it may happen when Logstash sends the document.
+      if: ctx.event?.original == null
+  - remove:
+      field: message
+      tag: remove_message
+      ignore_missing: true
+      description: The `message` field is no longer required if the document has an `event.original` field.
+      if: ctx.event?.original != null
+  - json:
+      field: event.original
+      target_field: json
+      tag: parse_json_cel
+      if: ctx.json == null && ctx.event?.original != null
+      description: Decode the CEL message JSON into json.
+
+  # Timestamps: webhook envelope timestamp, then common API timestamp names, else ingest time.
+  - date:
+      field: json.timestamp
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_timestamp_webhook
+      if: ctx.json?.timestamp != null
+  - date:
+      field: json.created_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_created_at_api
+      if: ctx['@timestamp'] == null && ctx.json?.created_at != null
+  - date:
+      field: json.requested_at
+      target_field: '@timestamp'
+      formats:
+        - ISO8601
+      tag: date_requested_at_api
+      if: ctx['@timestamp'] == null && ctx.json?.requested_at != null
+  - set:
+      field: '@timestamp'
+      copy_from: _ingest.timestamp
+      tag: set_timestamp_ingest_fallback
+      if: ctx['@timestamp'] == null
+
+  # --- Webhook: delegate field extraction to webhook.yml. ---
+  - pipeline:
+      name: '{{ IngestPipeline "webhook" }}'
+      tag: dispatch_webhook
+      if: ctx.json?.event != null
+
+  # --- API (CEL) field extraction. Webhook-set fields are skipped via null guards. ---
+  # Request type from the API source marker emitted by the CEL program.
+  - set:
+      field: kolide.request.type
+      tag: set_type_from_api_marker
+      copy_from: json._kolide_request_type
+      if: ctx.json?._kolide_request_type != null
+  # event.action: `request` for the API path (when not set by the webhook path).
+  - set:
+      field: event.action
+      tag: set_event_action_api
+      value: request
+      if: ctx.event?.action == null
+
+  # Request identifiers.
+  - set:
+      field: kolide.request.id
+      tag: set_request_id_from_json
+      copy_from: json.id
+      ignore_empty_value: true
+      if: ctx.json?.id != null
+  - rename:
+      field: json.id
+      target_field: event.id
+      tag: rename_event_id
+      ignore_missing: true
+      if: ctx.event?.id == null
+
+  # Human message/reason (API).
+  - set:
+      field: message
+      tag: set_message_from_api
+      copy_from: json.message
+      ignore_empty_value: true
+      if: ctx.message == null && ctx.json?.message instanceof String
+  - set:
+      field: kolide.request.message
+      tag: set_kolide_request_message
+      copy_from: message
+      ignore_empty_value: true
+      if: ctx.message instanceof String
+
+  # Request state (API). Normalization to lowercase and event.outcome derivation
+  # happen in extended-mappings.yml.
+  - set:
+      field: kolide.request.state
+      tag: set_state_from_state
+      copy_from: json.state
+      ignore_empty_value: true
+      if: ctx.json?.state instanceof String
+  - set:
+      field: kolide.request.state
+      tag: set_state_from_status
+      copy_from: json.status
+      ignore_empty_value: true
+      if: ctx.kolide?.request?.state == null && ctx.json?.status instanceof String
+
+  # Device / host (API).
+  - convert:
+      field: json.device_id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_api_flat
+      ignore_missing: true
+      if: ctx.host?.id == null
+  - convert:
+      field: json.device.id
+      target_field: host.id
+      type: string
+      tag: convert_host_id_api_nested
+      ignore_missing: true
+      if: ctx.host?.id == null
+  - set:
+      field: host.name
+      tag: set_host_name_api_flat
+      copy_from: json.device_name
+      ignore_empty_value: true
+      if: ctx.host?.name == null && ctx.json?.device_name instanceof String
+  - set:
+      field: host.name
+      tag: set_host_name_api_nested
+      copy_from: json.device.name
+      ignore_empty_value: true
+      if: ctx.host?.name == null && ctx.json?.device?.name instanceof String
+  - set:
+      field: host.hostname
+      tag: set_host_hostname
+      copy_from: host.name
+      if: ctx.host?.name != null
+  - set:
+      field: kolide.request.device.url
+      tag: set_device_url_api_nested
+      copy_from: json.device.url
+      ignore_empty_value: true
+      if: ctx.json?.device?.url instanceof String
+
+  # Requester/person (API).
+  - convert:
+      field: json.person_id
+      target_field: user.id
+      type: string
+      tag: convert_user_id_api_person
+      ignore_missing: true
+      if: ctx.user?.id == null
+  - convert:
+      field: json.requester.id
+      target_field: user.id
+      type: string
+      tag: convert_user_id_api_requester
+      ignore_missing: true
+      if: ctx.user?.id == null
+  - set:
+      field: user.email
+      tag: set_user_email_api_person
+      copy_from: json.person_email
+      ignore_empty_value: true
+      if: ctx.user?.email == null && ctx.json?.person_email instanceof String
+  - set:
+      field: user.email
+      tag: set_user_email_api_requester
+      copy_from: json.requester.email
+      ignore_empty_value: true
+      if: ctx.user?.email == null && ctx.json?.requester?.email instanceof String
+  - set:
+      field: user.name
+      tag: set_user_name_api_person
+      copy_from: json.person_name
+      ignore_empty_value: true
+      if: ctx.user?.name == null && ctx.json?.person_name instanceof String
+  - set:
+      field: user.name
+      tag: set_user_name_api_requester
+      copy_from: json.requester.name
+      ignore_empty_value: true
+      if: ctx.user?.name == null && ctx.json?.requester?.name instanceof String
+  - set:
+      field: user.name
+      tag: set_user_name_from_email
+      copy_from: user.email
+      ignore_empty_value: true
+      if: ctx.user?.name == null && ctx.user?.email instanceof String
+  - set:
+      field: kolide.request.requester.url
+      tag: set_requester_url_api
+      copy_from: json.requester.url
+      ignore_empty_value: true
+      if: ctx.json?.requester?.url instanceof String
+
+  # Issues attached to exemption requests (API).
+  - rename:
+      field: json.issues
+      target_field: kolide.request.issues
+      tag: rename_issues_api
+      ignore_missing: true
+
+  # Preserve API timestamps under vendor fields when present.
+  - date:
+      field: json.created_at
+      target_field: kolide.request.created_at
+      formats:
+        - ISO8601
+      tag: date_kolide_created_at
+      if: ctx.json?.created_at != null
+  - date:
+      field: json.updated_at
+      target_field: kolide.request.updated_at
+      formats:
+        - ISO8601
+      tag: date_kolide_updated_at
+      if: ctx.json?.updated_at != null
+
+  # related.* enrichment.
+  - append:
+      field: related.hosts
+      tag: append_related_hosts_name
+      value: '{{{host.name}}}'
+      allow_duplicates: false
+      if: ctx.host?.name != null
+  - append:
+      field: related.hosts
+      tag: append_related_hosts_id
+      value: '{{{host.id}}}'
+      allow_duplicates: false
+      if: ctx.host?.id != null
+  - append:
+      field: related.user
+      tag: append_related_user_email
+      value: '{{{user.email}}}'
+      allow_duplicates: false
+      if: ctx.user?.email != null
+  - append:
+      field: related.user
+      tag: append_related_user_name
+      value: '{{{user.name}}}'
+      allow_duplicates: false
+      if: ctx.user?.name != null
+  - append:
+      field: related.user
+      tag: append_related_user_id
+      value: '{{{user.id}}}'
+      allow_duplicates: false
+      if: ctx.user?.id != null
+
+  # --- Extended field extraction (state normalization + event.outcome) ---
+  - pipeline:
+      name: '{{ IngestPipeline "extended-mappings" }}'
+      tag: extended_mappings
+      ignore_missing_pipeline: true
+
+  # --- ECS categorization from the resolved event.action ---
+  - pipeline:
+      name: '{{ IngestPipeline "categorize" }}'
+      tag: categorize
+      ignore_missing_pipeline: true
+
+  # Snapshot/API dedup and webhook de-duplication.
+  - fingerprint:
+      fields:
+        - kolide.request.id
+        - kolide.request.type
+        - kolide.request.state
+      target_field: _id
+      method: SHA-256
+      tag: fingerprint_request_identity
+      if: ctx.kolide?.request?.id != null && ctx.kolide.request.id != ''
+
+  # Cleanup.
+  - remove:
+      field:
+        - json
+        - data
+      tag: remove_temp_fields
+      ignore_missing: true
+  - append:
+      field: tags
+      tag: append_preserve_original_event
+      value: preserve_original_event
+      allow_duplicates: false
+      if: ctx.error?.message != null
+  - script:
+      description: Drops null/empty values recursively.
+      tag: script_to_drop_null_values
+      lang: painless
+      source: |-
+        boolean drop(Object object) {
+          if (object == null || object == '') {
+            return true;
+          } else if (object instanceof Map) {
+            ((Map) object).values().removeIf(v -> drop(v));
+            return (((Map) object).size() == 0);
+          } else if (object instanceof List) {
+            ((List) object).removeIf(v -> drop(v));
+            return (((List) object).length == 0);
+          }
+          return false;
+        }
+        drop(ctx);
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false

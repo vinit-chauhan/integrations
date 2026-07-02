@@ -152,7 +152,7 @@
                 "version": "9.4.0"
             },
             "event": {
-                "action": "issue",
+                "action": "resolved",
                 "category": [
                     "configuration"
                 ],

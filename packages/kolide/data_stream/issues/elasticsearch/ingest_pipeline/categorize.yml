@@ -52,9 +52,21 @@ processors:
           }
         }
 
+        // blocked issues are a change; a newly detected issue is a creation.
+        // if the device is blocked, set the event.action to 'blocked'
+        boolean blocked = (ctx.kolide?.issues?.blocks_device_at != null);
+        ctx.event.type = blocked ? ['change'] : ['creation'];
+        if (action == 'issue' && blocked) {
+          ctx.event.action = 'blocked';
+        }
+
         // A resolved/updated issue is a change; a newly detected issue is a creation.
+        // and change the event.action to 'resolved'
         boolean resolved = (ctx.kolide?.issues?.resolved_at != null) || (action == 'issues.resolved');
         ctx.event.type = resolved ? ['change'] : ['creation'];
+        if (action == 'issue' && resolved) {
+          ctx.event.action = 'resolved';
+        }
 
 on_failure:
   - append:

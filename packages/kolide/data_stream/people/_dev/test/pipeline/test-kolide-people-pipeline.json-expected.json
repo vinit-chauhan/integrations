@@ -1,0 +1,71 @@
+{
+    "expected": [
+        {
+            "@timestamp": "2026-06-25T18:22:37.270529961Z",
+            "ecs": {
+                "version": "9.4.0"
+            },
+            "event": {
+                "action": "person",
+                "category": [
+                    "iam"
+                ],
+                "kind": "state",
+                "original": "{\"id\":\"100001\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"username\":\"alice.johnson\",\"status\":\"Active\",\"role\":\"admin\",\"groups\":[{\"id\":\"grp-1\",\"name\":\"Engineering\"},{\"id\":\"grp-2\",\"name\":\"Security\"}],\"idp_id\":\"idp-001\",\"idp_identifier\":\"00u1examplealice\",\"idp_name\":\"Okta\",\"scim_id\":\"scim-100001\",\"mdm_user_id\":\"mdm-100001\",\"created_at\":\"2024-01-10T08:00:00Z\",\"updated_at\":\"2024-06-15T12:00:00Z\",\"department\":\"Security Engineering\"}",
+                "type": [
+                    "user",
+                    "info"
+                ]
+            },
+            "kolide": {
+                "people": {
+                    "created_at": "2024-01-10T08:00:00.000Z",
+                    "extra": {
+                        "department": "Security Engineering"
+                    },
+                    "groups": [
+                        {
+                            "id": "grp-1",
+                            "name": "Engineering"
+                        },
+                        {
+                            "id": "grp-2",
+                            "name": "Security"
+                        }
+                    ],
+                    "id": "100001",
+                    "idp": {
+                        "id": "idp-001",
+                        "identifier": "00u1examplealice",
+                        "name": "Okta"
+                    },
+                    "mdm": {
+                        "user_id": "mdm-100001"
+                    },
+                    "role": "admin",
+                    "scim": {
+                        "id": "scim-100001"
+                    },
+                    "status": "active",
+                    "updated_at": "2024-06-15T12:00:00.000Z"
+                }
+            },
+            "related": {
+                "user": [
+                    "alice.johnson@example.com",
+                    "alice.johnson",
+                    "100001"
+                ]
+            },
+            "tags": [
+                "preserve_original_event"
+            ],
+            "user": {
+                "email": "alice.johnson@example.com",
+                "full_name": "Alice Johnson",
+                "id": "100001",
+                "name": "alice.johnson"
+            }
+        }
+    ]
+}
