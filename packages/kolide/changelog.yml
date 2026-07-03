@@ -1,6 +1,9 @@
 # later versions go on top
 - version: "0.2.0"
   changes:
+    - description: Add Google Cloud Storage (Log Pipeline) collection for the audit, auth, and device_check data streams.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/99999
     - description: Remove the people data stream's kolide.people.extra catch-all field and the raw-attribute passthrough that fed it, since the documented and live-verified GET /people schema has exactly 7 properties and all of them are already mapped to first-class fields.
       type: bugfix
       link: https://github.com/elastic/integrations/pull/99999

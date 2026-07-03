@@ -1,0 +1,5 @@
+buckets:
+  kolide-check:
+    files:
+      - path: /data/kolide-check.log
+        content-type: application/x-ndjson
