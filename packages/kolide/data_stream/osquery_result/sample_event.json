@@ -1,0 +1,112 @@
+{
+    "@timestamp": "2026-07-07T17:16:14.000Z",
+    "agent": {
+        "ephemeral_id": "b2c4d6e8-f0a1-4b3c-8d7e-9f0a1b2c3d4e",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "name": "elastic-agent-12345",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.osquery_result",
+        "namespace": "48291",
+        "type": "logs"
+    },
+    "device": {
+        "manufacturer": "Apple Inc.",
+        "model": {
+            "name": "Mac16,8"
+        }
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "elastic_agent": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
+    "event": {
+        "action": "differential",
+        "agent_id_status": "verified",
+        "category": [
+            "host"
+        ],
+        "dataset": "kolide.osquery_result",
+        "id": "01KWYS9MCMRREHQ2J5MQ0EZSYZ",
+        "ingested": "2026-07-07T18:05:00Z",
+        "kind": "event",
+        "module": "kolide",
+        "original": "{\"diffResults\":{\"removed\":[{\"allowlisted\":\"\",\"authorized\":\"1\",\"bundle_identifier\":\"com.apple.weather\",\"executable_path\":\"/System/Applications/Weather.app/Contents/MacOS/Weather\",\"hidden\":\"\",\"location_desired_accuracy\":\"1000\",\"location_distance_filter\":\"500\",\"location_time_started_cocoa\":\"805128044.573314\",\"location_time_stopped_cocoa\":\"\",\"receiving_loc_info_time_stopped_cocoa\":\"805128046.76677\",\"registered_path\":\"true\",\"requirement\":\"identifier \\\"com.apple.weather\\\" and anchor apple\",\"significant_time_stopped_cocoa\":\"\"}],\"added\":[{\"allowlisted\":\"\",\"authorized\":\"1\",\"bundle_identifier\":\"com.apple.weather\",\"executable_path\":\"/System/Applications/Weather.app/Contents/MacOS/Weather\",\"hidden\":\"\",\"location_desired_accuracy\":\"1000\",\"location_distance_filter\":\"500\",\"location_time_started_cocoa\":\"805136738.539299\",\"location_time_stopped_cocoa\":\"\",\"receiving_loc_info_time_stopped_cocoa\":\"805136740.723714\",\"registered_path\":\"true\",\"requirement\":\"identifier \\\"com.apple.weather\\\" and anchor apple\",\"significant_time_stopped_cocoa\":\"\"}]},\"name\":\"pack:kolide_log_pipeline:inventory:mac_location_services_authorized_apps_diff\",\"hostIdentifier\":\"00000000-0000-0000-0000-000000000001\",\"calendarTime\":\"Tue Jul  7 17:16:14 2026 UTC\",\"unixTime\":1783444574,\"epoch\":1781800669,\"counter\":40,\"numerics\":false,\"decorations\":{\"computer_name\":\"Test User's MacBook Pro\",\"hardware_model\":\"Mac16,8\",\"hardware_serial\":\"TESTSERIAL0001\",\"hardware_vendor\":\"Apple Inc.\",\"hardware_version\":\"\",\"hostname\":\"test-macbook-pro\",\"local_hostname\":\"test-macbook-pro\",\"uuid\":\"00000000-0000-0000-0000-000000000001\"},\"kolide_decorations\":{\"device_id\":9000000,\"device_display_name\":\"test-macbook-pro\",\"remote_ip\":\"203.0.113.5\",\"serial_number\":\"TESTSERIAL0001\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000001\",\"enrolled_at\":\"2026-06-18T16:37:49.943Z\",\"device_registered_owner_id\":9100000,\"device_registered_owner_name\":\"Test User\",\"device_registered_owner_email\":\"test.user@example.com\",\"device_registered_at\":\"2026-07-02T14:39:42.576Z\"},\"request_id\":\"01KWYS9MCMRREHQ2J5MQ0EZSYZ\",\"type\":\"results_log\"}",
+        "sequence": 40,
+        "type": [
+            "change"
+        ]
+    },
+    "host": {
+        "hostname": "test-macbook-pro",
+        "id": "9000000",
+        "ip": [
+            "203.0.113.5"
+        ],
+        "name": "test-macbook-pro"
+    },
+    "input": {
+        "type": "gcs"
+    },
+    "kolide": {
+        "osquery_result": {
+            "added": [
+                {
+                    "authorized": "1",
+                    "bundle_identifier": "com.apple.weather",
+                    "executable_path": "/System/Applications/Weather.app/Contents/MacOS/Weather",
+                    "location_desired_accuracy": "1000",
+                    "location_distance_filter": "500",
+                    "location_time_started_cocoa": "805136738.539299",
+                    "receiving_loc_info_time_stopped_cocoa": "805136740.723714",
+                    "registered_path": "true",
+                    "requirement": "identifier \"com.apple.weather\" and anchor apple"
+                }
+            ],
+            "calendar_time": "Tue Jul  7 17:16:14 2026 UTC",
+            "counter": 40,
+            "device_registered_at": "2026-07-02T14:39:42.576Z",
+            "device_serial": "TESTSERIAL0001",
+            "enrolled_at": "2026-06-18T16:37:49.943Z",
+            "epoch": 1781800669,
+            "hardware_uuid": "00000000-0000-0000-0000-000000000001",
+            "host_identifier": "00000000-0000-0000-0000-000000000001",
+            "numerics": false,
+            "pack_name": "inventory",
+            "query_name": "mac_location_services_authorized_apps_diff",
+            "removed": [
+                {
+                    "authorized": "1",
+                    "bundle_identifier": "com.apple.weather",
+                    "executable_path": "/System/Applications/Weather.app/Contents/MacOS/Weather",
+                    "location_desired_accuracy": "1000",
+                    "location_distance_filter": "500",
+                    "location_time_started_cocoa": "805128044.573314",
+                    "receiving_loc_info_time_stopped_cocoa": "805128046.76677",
+                    "registered_path": "true",
+                    "requirement": "identifier \"com.apple.weather\" and anchor apple"
+                }
+            ],
+            "request_id": "01KWYS9MCMRREHQ2J5MQ0EZSYZ"
+        }
+    },
+    "rule": {
+        "name": "mac_location_services_authorized_apps_diff"
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-osquery-result-gcs"
+    ],
+    "user": {
+        "email": "test.user@example.com",
+        "full_name": "Test User",
+        "id": "9100000"
+    }
+}

@@ -15,8 +15,8 @@ The integration supports four collection methods that you can choose between (an
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
 - REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects records using cursor-based pagination and timestamp filters where supported. This is useful for backfill and for fuller resource records.
-- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `kolide/check_runs/`. The Log Pipeline is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
-- Google Cloud Storage (Kolide Log Pipeline): the same Log Pipeline data, written to a customer-owned GCS bucket under the same per-type key prefixes and read with a `gcs` input (bucket polling). The object payloads are identical to the S3 delivery, so the same `auth`, `audit`, and `device_check` data streams apply — choose S3 or GCS based on which cloud your Kolide log destination targets.
+- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, the dedicated `device_check` data stream reads `kolide/check_runs/`, and the dedicated `osquery_result`/`osquery_status` data streams read `kolide/results/` and `kolide/status/` — the raw osquery Result and Status logs. The Log Pipeline is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures.
+- Google Cloud Storage (Kolide Log Pipeline): the same Log Pipeline data, written to a customer-owned GCS bucket under the same per-type key prefixes and read with a `gcs` input (bucket polling). The object payloads are identical to the S3 delivery, so the same `auth`, `audit`, `device_check`, `osquery_result`, and `osquery_status` data streams apply — choose S3 or GCS based on which cloud your Kolide log destination targets.
 
 ## What data does this integration collect?
 
@@ -30,8 +30,12 @@ The Kolide integration collects the following data streams:
 * `people`: identity records for people known to Kolide (API `GET /people`).
 * `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3/GCS `kolide/audit_logs/`).
 * `device_check`: device check-run results from the Log Pipeline (S3/GCS `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
+* `osquery_result`: raw osquery Result Logs from the Log Pipeline (S3/GCS `kolide/results/`), covering both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data is stored as a flattened field rather than mapped per column, since it is arbitrary and depends on the target osquery table or custom SQL.
+* `osquery_status`: raw osquery Status Logs from the Log Pipeline (S3/GCS `kolide/status/`) — GLOG-style telemetry about the osquery daemon itself (not host inventory state).
 
 The `auth` and `audit` data streams additionally support the Log Pipeline via `aws-s3` and `gcs` inputs that read the `kolide/auth_logs/` and `kolide/audit_logs/` prefixes.
+
+> **Note on `osquery_result` and `osquery_status`:** these two data streams ingest **raw** osquery agent logs, unlike every other Log Pipeline stream in this integration (`auth`, `audit`, `device_check`), which are Kolide's own structured logs. `host.id`/`host.name` are populated from Kolide's `kolide_decorations` block, which is only present when the device is enrolled with Kolide's own launcher — a bare open-source osquery deployment shipping logs through the Log Pipeline would only carry osquery's own `hostIdentifier` (kept at `kolide.osquery_result.host_identifier` / `kolide.osquery_status.host_identifier`), and `host.id`/`host.name` would not populate. Per-query row data (`kolide.osquery_result.columns`/`.snapshot`) is a `flattened` field rather than a per-column mapping, since the columns are arbitrary and depend on the target osquery table or custom SQL — this keeps the mapping bounded but means individual columns don't get native Kibana Lens numeric/date typing or exact-match aggregations out of the box.
 
 > **Note on `event.outcome` for posture data:** For the `device_check` and `issues` data streams, `event.outcome` reflects the device posture result, not the success of event processing. A check run with status `passing` (or a resolved issue) maps to `event.outcome: success`, `failing` (or an open issue) maps to `event.outcome: failure`, and `inapplicable` or `unknown` check statuses map to `event.outcome: unknown`. The raw posture state is also preserved in `kolide.device_check.status` for `device_check`.
 
@@ -73,13 +77,13 @@ For the REST API:
 For the AWS S3 Log Pipeline:
 1. In Kolide, go to Log Destinations and add a new Amazon S3 Bucket destination.
 2. Choose STS (recommended): create an IAM role in your own AWS account whose trust policy allows Kolide's AWS account (`516897320088`) to assume it, gated by the External ID that Kolide displays. Grant the role `s3:GetBucketLocation`, `s3:GetObject`, and `s3:PutObject` on the bucket so Kolide can write logs.
-3. Select the log types to deliver (authentication logs, audit logs, and check results) and, optionally, customize the object key template.
+3. Select the log types to deliver (authentication logs, audit logs, check results, and osquery Result/Status logs) and, optionally, customize the object key template.
 4. On the read side, the Elastic Agent uses your own AWS credentials (not Kolide's role). For SQS mode, configure an S3 event notification (`s3:ObjectCreated:*`) to an SQS queue and grant the reader `s3:GetObject` plus `sqs:ReceiveMessage`, `sqs:DeleteMessage`, and `sqs:GetQueueAttributes`. For direct polling, grant `s3:GetObject` and `s3:ListBucket`. Add `kms:Decrypt` if the bucket uses SSE-KMS.
 
 For the Google Cloud Storage Log Pipeline:
 1. In your GCP project, create a GCS bucket and a service account that can enumerate, read, and write objects in it (the `Storage Object Admin` role on the bucket), and generate a JSON key for that service account. Kolide requires all three capabilities on the write side.
 2. In Kolide, go to Log Destinations and add a new GCP Storage Bucket destination. Provide a display name and the bucket name, and paste the JSON key file contents.
-3. Toggle on the log types to deliver — Administrator Audit Logs, User Authentication Logs, and Device Check Run Logs are the types this integration ingests. Each type has an editable object path template; the defaults (`kolide/audit_logs/<timestamp>.json`, `kolide/auth_logs/<request_id>/<auth_event_type>-<timestamp>.json`, `kolide/check_runs/check-<check_id>/<timestamp>.json`) match the integration's default file selectors, so only change them if you also adjust the file selector regex on the Elastic side. The osquery Result and Status log types are not ingested by this integration.
+3. Toggle on the log types to deliver — Administrator Audit Logs, User Authentication Logs, Device Check Run Logs, and osquery Result/Status Logs are the types this integration ingests. Each type has an editable object path template; the defaults (`kolide/audit_logs/<timestamp>.json`, `kolide/auth_logs/<request_id>/<auth_event_type>-<timestamp>.json`, `kolide/check_runs/check-<check_id>/<timestamp>.json`, `kolide/results/...`, `kolide/status/...`) match the integration's default file selectors, so only change them if you also adjust the file selector regex on the Elastic side.
 4. On the read side, create a **separate** service account with read-only access to the bucket (the `Storage Object Viewer` role) and generate a JSON key for it — the Elastic Agent uses this one, not the writer key. Alternatively, when the Agent runs on GCE/GKE with an attached service account, leave the credentials empty to use Application Default Credentials.
 
 Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow-listing is not a reliable control — rely on the HMAC signature instead.
@@ -96,8 +100,8 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
 4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
-5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, or `device_check`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
-6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, or `device_check`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); adjust the regex if your Kolide destination uses a custom key template.
+5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
+6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); adjust the regex if your Kolide destination uses a custom key template.
 
 ### Validation
 
@@ -108,8 +112,9 @@ After setup, generate or wait for activity in Kolide (for example, sign in via S
 - No data via webhooks: Confirm the Kolide endpoint URL matches the Agent's listen address, port, and path, that the endpoint is publicly reachable over HTTPS, and that the HMAC signing secret matches.
 - Webhook signature failures: Ensure the configured HMAC key equals the Kolide endpoint signing secret; Kolide signs the raw request body with HMAC-SHA256 and sends the lowercase hex digest in the `Authorization` header with no prefix.
 - No data via the REST API: Verify the API key is valid (a 401 indicates a turned-off feature or bad token, and a 403 indicates the key lacks permission) and that the host can reach `https://api.kolide.com`.
-- No data via AWS S3: Confirm the Elastic Agent credentials can `s3:ListBucket` and `s3:GetObject` on the bucket (and `sqs:ReceiveMessage` in SQS mode), that the bucket list prefix matches your Kolide object key template, and that SQS notifications are filtered to the correct prefix. Kolide writes to `kolide/auth_logs/`, `kolide/audit_logs/`, and `kolide/check_runs/` by default; osquery `results/` objects are not ingested.
-- No data via Google Cloud Storage: Confirm the project ID and bucket name are correct, that the reader service account has the `Storage Object Viewer` role on the bucket, and that each stream's file selector regex matches your Kolide object key template (the defaults expect the `kolide/auth_logs/`, `kolide/audit_logs/`, and `kolide/check_runs/` prefixes).
+- No data via AWS S3: Confirm the Elastic Agent credentials can `s3:ListBucket` and `s3:GetObject` on the bucket (and `sqs:ReceiveMessage` in SQS mode), that the bucket list prefix matches your Kolide object key template, and that SQS notifications are filtered to the correct prefix. Kolide writes to `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, and `kolide/status/` by default.
+- No data via Google Cloud Storage: Confirm the project ID and bucket name are correct, that the reader service account has the `Storage Object Viewer` role on the bucket, and that each stream's file selector regex matches your Kolide object key template (the defaults expect the `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, and `kolide/status/` prefixes).
+- No `host.id`/`host.name` on `osquery_result`/`osquery_status` documents: these fields are populated from Kolide's `kolide_decorations` block, which requires the device to be enrolled with Kolide's own launcher. A bare open-source osquery deployment shipping logs through the Log Pipeline only carries `kolide.osquery_result.host_identifier` / `kolide.osquery_status.host_identifier` (osquery's own `hostIdentifier`), not the Kolide-decorated host fields.
 
 ## Performance and scaling
 
@@ -120,7 +125,7 @@ For more information on architectures that can be used for scaling this integrat
 Kolide's Log Pipeline writes one log per object rather than batching, so the AWS S3/SQS and GCS inputs make a separate fetch for every document. For high-volume streams this is fine, but for small, sparse streams it adds many network round-trips and can make large backlogs slow to drain. To keep latency low and avoid contention on a shared S3 queue, consider matching the transport to the stream:
 
 - **`audit` and `auth`**: prefer the REST API (CEL) or webhook inputs. These streams are typically small and sparse, and the API/webhook paths deliver them quickly without per-object fetches.
-- **`device_check` (check runs)**: use the AWS S3 or GCS input. This stream is large, so object storage is the better fit, and keeping it there keeps the small, important streams off the same queue.
+- **`device_check` (check runs), `osquery_result`, and `osquery_status`**: use the AWS S3 or GCS input — these are the only collection methods available for them. These streams are typically large and/or high-volume (`osquery_result` especially, since every scheduled query execution can produce a log line), so object storage is the appropriate fit; keeping them there also keeps the small, important streams off the same queue.
 
 This split keeps the small streams responsive while still using object storage for the bulk data.
 
@@ -241,6 +246,30 @@ The `device_check` data stream provides Kolide device check-run results delivere
 ##### device_check sample event
 
 {{ event "device_check" }}
+
+#### osquery_result
+
+The `osquery_result` data stream provides raw osquery Result Logs delivered through the Log Pipeline (S3/GCS `kolide/results/`) — both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data (`kolide.osquery_result.columns`/`.snapshot`) is arbitrary depending on the target osquery table or custom SQL, so it is stored as a flattened field rather than mapped per column.
+
+##### osquery_result fields
+
+{{ fields "osquery_result" }}
+
+##### osquery_result sample event
+
+{{ event "osquery_result" }}
+
+#### osquery_status
+
+The `osquery_status` data stream provides raw osquery Status Logs (GLOG-style telemetry about the osquery daemon itself) delivered through the Log Pipeline (S3/GCS `kolide/status/`).
+
+##### osquery_status fields
+
+{{ fields "osquery_status" }}
+
+##### osquery_status sample event
+
+{{ event "osquery_status" }}
 
 {{ ilm }}
 

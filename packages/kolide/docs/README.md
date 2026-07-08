@@ -16,8 +16,8 @@ The integration supports four collection methods that you can choose between (an
 
 - Webhooks (HTTP endpoint): Kolide pushes events in near real time to an HTTP endpoint exposed by the Elastic Agent. This is the recommended method for low-latency device-compliance data. Each delivery is signed with an HMAC-SHA256 signature for verification.
 - REST API (polling): the Elastic Agent periodically polls the Kolide REST API and collects records using cursor-based pagination and timestamp filters where supported. This is useful for backfill and for fuller resource records.
-- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, and the dedicated `device_check` data stream reads `kolide/check_runs/`. The Log Pipeline is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures. Raw osquery `results` objects are not ingested.
-- Google Cloud Storage (Kolide Log Pipeline): the same Log Pipeline data, written to a customer-owned GCS bucket under the same per-type key prefixes and read with a `gcs` input (bucket polling). The object payloads are identical to the S3 delivery, so the same `auth`, `audit`, and `device_check` data streams apply — choose S3 or GCS based on which cloud your Kolide log destination targets.
+- AWS S3 (Kolide Log Pipeline): Kolide's Log Pipeline writes objects to a customer-owned S3 bucket under per-type key prefixes (defaults: `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); the Elastic Agent reads each prefix with an `aws-s3` input (SQS notifications or direct bucket polling). The `auth` and `audit` data streams can read their respective prefixes, the dedicated `device_check` data stream reads `kolide/check_runs/`, and the dedicated `osquery_result`/`osquery_status` data streams read `kolide/results/` and `kolide/status/` — the raw osquery Result and Status logs. The Log Pipeline is the most complete source for check-run history — it includes passing, inapplicable, and unknown check results in addition to failures.
+- Google Cloud Storage (Kolide Log Pipeline): the same Log Pipeline data, written to a customer-owned GCS bucket under the same per-type key prefixes and read with a `gcs` input (bucket polling). The object payloads are identical to the S3 delivery, so the same `auth`, `audit`, `device_check`, `osquery_result`, and `osquery_status` data streams apply — choose S3 or GCS based on which cloud your Kolide log destination targets.
 
 ## What data does this integration collect?
 
@@ -31,8 +31,12 @@ The Kolide integration collects the following data streams:
 * `people`: identity records for people known to Kolide (API `GET /people`).
 * `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3/GCS `kolide/audit_logs/`).
 * `device_check`: device check-run results from the Log Pipeline (S3/GCS `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
+* `osquery_result`: raw osquery Result Logs from the Log Pipeline (S3/GCS `kolide/results/`), covering both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data is stored as a flattened field rather than mapped per column, since it is arbitrary and depends on the target osquery table or custom SQL.
+* `osquery_status`: raw osquery Status Logs from the Log Pipeline (S3/GCS `kolide/status/`) — GLOG-style telemetry about the osquery daemon itself (not host inventory state).
 
 The `auth` and `audit` data streams additionally support the Log Pipeline via `aws-s3` and `gcs` inputs that read the `kolide/auth_logs/` and `kolide/audit_logs/` prefixes.
+
+> **Note on `osquery_result` and `osquery_status`:** these two data streams ingest **raw** osquery agent logs, unlike every other Log Pipeline stream in this integration (`auth`, `audit`, `device_check`), which are Kolide's own structured logs. `host.id`/`host.name` are populated from Kolide's `kolide_decorations` block, which is only present when the device is enrolled with Kolide's own launcher — a bare open-source osquery deployment shipping logs through the Log Pipeline would only carry osquery's own `hostIdentifier` (kept at `kolide.osquery_result.host_identifier` / `kolide.osquery_status.host_identifier`), and `host.id`/`host.name` would not populate. Per-query row data (`kolide.osquery_result.columns`/`.snapshot`) is a `flattened` field rather than a per-column mapping, since the columns are arbitrary and depend on the target osquery table or custom SQL — this keeps the mapping bounded but means individual columns don't get native Kibana Lens numeric/date typing or exact-match aggregations out of the box.
 
 > **Note on `event.outcome` for posture data:** For the `device_check` and `issues` data streams, `event.outcome` reflects the device posture result, not the success of event processing. A check run with status `passing` (or a resolved issue) maps to `event.outcome: success`, `failing` (or an open issue) maps to `event.outcome: failure`, and `inapplicable` or `unknown` check statuses map to `event.outcome: unknown`. The raw posture state is also preserved in `kolide.device_check.status` for `device_check`.
 
@@ -74,13 +78,13 @@ For the REST API:
 For the AWS S3 Log Pipeline:
 1. In Kolide, go to Log Destinations and add a new Amazon S3 Bucket destination.
 2. Choose STS (recommended): create an IAM role in your own AWS account whose trust policy allows Kolide's AWS account (`516897320088`) to assume it, gated by the External ID that Kolide displays. Grant the role `s3:GetBucketLocation`, `s3:GetObject`, and `s3:PutObject` on the bucket so Kolide can write logs.
-3. Select the log types to deliver (authentication logs, audit logs, and check results) and, optionally, customize the object key template.
+3. Select the log types to deliver (authentication logs, audit logs, check results, and osquery Result/Status logs) and, optionally, customize the object key template.
 4. On the read side, the Elastic Agent uses your own AWS credentials (not Kolide's role). For SQS mode, configure an S3 event notification (`s3:ObjectCreated:*`) to an SQS queue and grant the reader `s3:GetObject` plus `sqs:ReceiveMessage`, `sqs:DeleteMessage`, and `sqs:GetQueueAttributes`. For direct polling, grant `s3:GetObject` and `s3:ListBucket`. Add `kms:Decrypt` if the bucket uses SSE-KMS.
 
 For the Google Cloud Storage Log Pipeline:
 1. In your GCP project, create a GCS bucket and a service account that can enumerate, read, and write objects in it (the `Storage Object Admin` role on the bucket), and generate a JSON key for that service account. Kolide requires all three capabilities on the write side.
 2. In Kolide, go to Log Destinations and add a new GCP Storage Bucket destination. Provide a display name and the bucket name, and paste the JSON key file contents.
-3. Toggle on the log types to deliver — Administrator Audit Logs, User Authentication Logs, and Device Check Run Logs are the types this integration ingests. Each type has an editable object path template; the defaults (`kolide/audit_logs/<timestamp>.json`, `kolide/auth_logs/<request_id>/<auth_event_type>-<timestamp>.json`, `kolide/check_runs/check-<check_id>/<timestamp>.json`) match the integration's default file selectors, so only change them if you also adjust the file selector regex on the Elastic side. The osquery Result and Status log types are not ingested by this integration.
+3. Toggle on the log types to deliver — Administrator Audit Logs, User Authentication Logs, Device Check Run Logs, and osquery Result/Status Logs are the types this integration ingests. Each type has an editable object path template; the defaults (`kolide/audit_logs/<timestamp>.json`, `kolide/auth_logs/<request_id>/<auth_event_type>-<timestamp>.json`, `kolide/check_runs/check-<check_id>/<timestamp>.json`, `kolide/results/...`, `kolide/status/...`) match the integration's default file selectors, so only change them if you also adjust the file selector regex on the Elastic side.
 4. On the read side, create a **separate** service account with read-only access to the bucket (the `Storage Object Viewer` role) and generate a JSON key for it — the Elastic Agent uses this one, not the writer key. Alternatively, when the Agent runs on GCE/GKE with an attached service account, leave the credentials empty to use Application Default Credentials.
 
 Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow-listing is not a reliable control — rely on the HMAC signature instead.
@@ -97,8 +101,8 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
 4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
-5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, or `device_check`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
-6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, or `device_check`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`); adjust the regex if your Kolide destination uses a custom key template.
+5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
+6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); adjust the regex if your Kolide destination uses a custom key template.
 
 ### Validation
 
@@ -109,8 +113,9 @@ After setup, generate or wait for activity in Kolide (for example, sign in via S
 - No data via webhooks: Confirm the Kolide endpoint URL matches the Agent's listen address, port, and path, that the endpoint is publicly reachable over HTTPS, and that the HMAC signing secret matches.
 - Webhook signature failures: Ensure the configured HMAC key equals the Kolide endpoint signing secret; Kolide signs the raw request body with HMAC-SHA256 and sends the lowercase hex digest in the `Authorization` header with no prefix.
 - No data via the REST API: Verify the API key is valid (a 401 indicates a turned-off feature or bad token, and a 403 indicates the key lacks permission) and that the host can reach `https://api.kolide.com`.
-- No data via AWS S3: Confirm the Elastic Agent credentials can `s3:ListBucket` and `s3:GetObject` on the bucket (and `sqs:ReceiveMessage` in SQS mode), that the bucket list prefix matches your Kolide object key template, and that SQS notifications are filtered to the correct prefix. Kolide writes to `kolide/auth_logs/`, `kolide/audit_logs/`, and `kolide/check_runs/` by default; osquery `results/` objects are not ingested.
-- No data via Google Cloud Storage: Confirm the project ID and bucket name are correct, that the reader service account has the `Storage Object Viewer` role on the bucket, and that each stream's file selector regex matches your Kolide object key template (the defaults expect the `kolide/auth_logs/`, `kolide/audit_logs/`, and `kolide/check_runs/` prefixes).
+- No data via AWS S3: Confirm the Elastic Agent credentials can `s3:ListBucket` and `s3:GetObject` on the bucket (and `sqs:ReceiveMessage` in SQS mode), that the bucket list prefix matches your Kolide object key template, and that SQS notifications are filtered to the correct prefix. Kolide writes to `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, and `kolide/status/` by default.
+- No data via Google Cloud Storage: Confirm the project ID and bucket name are correct, that the reader service account has the `Storage Object Viewer` role on the bucket, and that each stream's file selector regex matches your Kolide object key template (the defaults expect the `kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, and `kolide/status/` prefixes).
+- No `host.id`/`host.name` on `osquery_result`/`osquery_status` documents: these fields are populated from Kolide's `kolide_decorations` block, which requires the device to be enrolled with Kolide's own launcher. A bare open-source osquery deployment shipping logs through the Log Pipeline only carries `kolide.osquery_result.host_identifier` / `kolide.osquery_status.host_identifier` (osquery's own `hostIdentifier`), not the Kolide-decorated host fields.
 
 ## Performance and scaling
 
@@ -121,7 +126,7 @@ For more information on architectures that can be used for scaling this integrat
 Kolide's Log Pipeline writes one log per object rather than batching, so the AWS S3/SQS and GCS inputs make a separate fetch for every document. For high-volume streams this is fine, but for small, sparse streams it adds many network round-trips and can make large backlogs slow to drain. To keep latency low and avoid contention on a shared S3 queue, consider matching the transport to the stream:
 
 - **`audit` and `auth`**: prefer the REST API (CEL) or webhook inputs. These streams are typically small and sparse, and the API/webhook paths deliver them quickly without per-object fetches.
-- **`device_check` (check runs)**: use the AWS S3 or GCS input. This stream is large, so object storage is the better fit, and keeping it there keeps the small, important streams off the same queue.
+- **`device_check` (check runs), `osquery_result`, and `osquery_status`**: use the AWS S3 or GCS input — these are the only collection methods available for them. These streams are typically large and/or high-volume (`osquery_result` especially, since every scheduled query execution can produce a log line), so object storage is the appropriate fit; keeping them there also keeps the small, important streams off the same queue.
 
 This split keeps the small streams responsive while still using object storage for the bulk data.
 
@@ -1317,6 +1322,334 @@ An example event for `device_check` looks as following:
         "forwarded",
         "kolide-device-check-s3"
     ]
+}
+```
+
+#### osquery_result
+
+The `osquery_result` data stream provides raw osquery Result Logs delivered through the Log Pipeline (S3/GCS `kolide/results/`) — both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data (`kolide.osquery_result.columns`/`.snapshot`) is arbitrary depending on the target osquery table or custom SQL, so it is stored as a flattened field rather than mapped per column.
+
+##### osquery_result fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| aws.s3.bucket.arn | The AWS S3 bucket ARN. | keyword |
+| aws.s3.bucket.name | The AWS S3 bucket name. | keyword |
+| aws.s3.object.key | The AWS S3 object key. | keyword |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| device.manufacturer | The vendor name of the device manufacturer. | keyword |
+| device.model.name | The human readable marketing name of the device model. | keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| error.message | Error message. | match_only_text |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.id | Unique ID to describe the event. | keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.sequence | Sequence number of the event. The sequence number is a value published by some event sources, to make the exact ordering of events unambiguous, regardless of the timestamp precision. | long |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| gcs.storage.bucket.name | The GCS bucket name. | keyword |
+| gcs.storage.object.content_type | The content type of the GCS object. | keyword |
+| gcs.storage.object.name | The GCS object name. | keyword |
+| host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
+| host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
+| host.ip | Host ip addresses. | ip |
+| host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.osquery_result.added | Rows added since the last differential run (`diffResults.added`). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key. See research_results/kolide/reporting-tables-ecs-field-mapping.md for known-table column-name references if per-column mapping is added in a future version. | flattened |
+| kolide.osquery_result.calendar_time | Osquery's human-readable, locale-dependent timestamp string. `@timestamp` (derived from `unixTime`) is authoritative; this is kept only for reference. | keyword |
+| kolide.osquery_result.counter | Osquery's per-epoch row counter, also copied to `event.sequence`. | long |
+| kolide.osquery_result.device_registered_at | When the reporting device was registered to its owner in Kolide (`kolide_decorations.device_registered_at`). | date |
+| kolide.osquery_result.device_serial | Serial number of the reporting device, from Kolide's device decoration (`kolide_decorations.serial_number`, falling back to `decorations.hardware_serial`). No ECS host-serial field exists, so this stays custom. | keyword |
+| kolide.osquery_result.enrolled_at | When the reporting device enrolled with Kolide (`kolide_decorations.enrolled_at`). | date |
+| kolide.osquery_result.epoch | Osquery's log-rotation epoch for this query. | long |
+| kolide.osquery_result.hardware_uuid | Hardware UUID of the reporting device, from Kolide's device decoration (`kolide_decorations.hardware_uuid`, falling back to `decorations.uuid`). | keyword |
+| kolide.osquery_result.hardware_version | Hardware version string from osquery's own decorator block (`decorations.hardware_version`). No ECS equivalent. | keyword |
+| kolide.osquery_result.host_identifier | Osquery's own host identifier string (typically a UUID or hostname, depending on the host's `--host_identifier` configuration). Kept for correlation/debugging alongside the more reliable `host.id`/`host.name` sourced from Kolide's device decoration. | keyword |
+| kolide.osquery_result.numerics | Whether osquery is configured to emit numeric-typed columns as native JSON numbers rather than strings (`numerics` envelope field). | boolean |
+| kolide.osquery_result.pack_name | Name of the osquery pack (parsed from the `name` envelope field, e.g. `pack:kolide_log_pipeline:\<pack_name\>:\<query_name\>`). | keyword |
+| kolide.osquery_result.query_name | Name of the osquery query within the pack. Also mirrored to `rule.name`. | keyword |
+| kolide.osquery_result.removed | Rows removed since the last differential run (`diffResults.removed`). Same arbitrary-shape rationale as `added`. | flattened |
+| kolide.osquery_result.request_id | Kolide Log Pipeline request ID (a ULID) for this delivery. Unique per object, used as the deduplication key for `event.id`. | keyword |
+| kolide.osquery_result.snapshot | The snapshot query's row values (an array of column-value objects). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key. | flattened |
+| log.offset | Log offset. | long |
+| related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
+| related.ip | All of the IPs seen on your event. | ip |
+| rule.name | The name of the rule or signature generating the event. | keyword |
+| tags | List of keywords used to tag each event. | keyword |
+| user.email | User email address. | keyword |
+| user.full_name | User's full name, if available. | keyword |
+| user.full_name.text | Multi-field of `user.full_name`. | match_only_text |
+| user.id | Unique identifier of the user. | keyword |
+
+
+##### osquery_result sample event
+
+An example event for `osquery_result` looks as following:
+
+```json
+{
+    "@timestamp": "2026-07-07T17:16:14.000Z",
+    "agent": {
+        "ephemeral_id": "b2c4d6e8-f0a1-4b3c-8d7e-9f0a1b2c3d4e",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "name": "elastic-agent-12345",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.osquery_result",
+        "namespace": "48291",
+        "type": "logs"
+    },
+    "device": {
+        "manufacturer": "Apple Inc.",
+        "model": {
+            "name": "Mac16,8"
+        }
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "elastic_agent": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
+    "event": {
+        "action": "differential",
+        "agent_id_status": "verified",
+        "category": [
+            "host"
+        ],
+        "dataset": "kolide.osquery_result",
+        "id": "01KWYS9MCMRREHQ2J5MQ0EZSYZ",
+        "ingested": "2026-07-07T18:05:00Z",
+        "kind": "event",
+        "module": "kolide",
+        "original": "{\"diffResults\":{\"removed\":[{\"allowlisted\":\"\",\"authorized\":\"1\",\"bundle_identifier\":\"com.apple.weather\",\"executable_path\":\"/System/Applications/Weather.app/Contents/MacOS/Weather\",\"hidden\":\"\",\"location_desired_accuracy\":\"1000\",\"location_distance_filter\":\"500\",\"location_time_started_cocoa\":\"805128044.573314\",\"location_time_stopped_cocoa\":\"\",\"receiving_loc_info_time_stopped_cocoa\":\"805128046.76677\",\"registered_path\":\"true\",\"requirement\":\"identifier \\\"com.apple.weather\\\" and anchor apple\",\"significant_time_stopped_cocoa\":\"\"}],\"added\":[{\"allowlisted\":\"\",\"authorized\":\"1\",\"bundle_identifier\":\"com.apple.weather\",\"executable_path\":\"/System/Applications/Weather.app/Contents/MacOS/Weather\",\"hidden\":\"\",\"location_desired_accuracy\":\"1000\",\"location_distance_filter\":\"500\",\"location_time_started_cocoa\":\"805136738.539299\",\"location_time_stopped_cocoa\":\"\",\"receiving_loc_info_time_stopped_cocoa\":\"805136740.723714\",\"registered_path\":\"true\",\"requirement\":\"identifier \\\"com.apple.weather\\\" and anchor apple\",\"significant_time_stopped_cocoa\":\"\"}]},\"name\":\"pack:kolide_log_pipeline:inventory:mac_location_services_authorized_apps_diff\",\"hostIdentifier\":\"00000000-0000-0000-0000-000000000001\",\"calendarTime\":\"Tue Jul  7 17:16:14 2026 UTC\",\"unixTime\":1783444574,\"epoch\":1781800669,\"counter\":40,\"numerics\":false,\"decorations\":{\"computer_name\":\"Test User's MacBook Pro\",\"hardware_model\":\"Mac16,8\",\"hardware_serial\":\"TESTSERIAL0001\",\"hardware_vendor\":\"Apple Inc.\",\"hardware_version\":\"\",\"hostname\":\"test-macbook-pro\",\"local_hostname\":\"test-macbook-pro\",\"uuid\":\"00000000-0000-0000-0000-000000000001\"},\"kolide_decorations\":{\"device_id\":9000000,\"device_display_name\":\"test-macbook-pro\",\"remote_ip\":\"203.0.113.5\",\"serial_number\":\"TESTSERIAL0001\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000001\",\"enrolled_at\":\"2026-06-18T16:37:49.943Z\",\"device_registered_owner_id\":9100000,\"device_registered_owner_name\":\"Test User\",\"device_registered_owner_email\":\"test.user@example.com\",\"device_registered_at\":\"2026-07-02T14:39:42.576Z\"},\"request_id\":\"01KWYS9MCMRREHQ2J5MQ0EZSYZ\",\"type\":\"results_log\"}",
+        "sequence": 40,
+        "type": [
+            "change"
+        ]
+    },
+    "host": {
+        "hostname": "test-macbook-pro",
+        "id": "9000000",
+        "ip": [
+            "203.0.113.5"
+        ],
+        "name": "test-macbook-pro"
+    },
+    "input": {
+        "type": "gcs"
+    },
+    "kolide": {
+        "osquery_result": {
+            "added": [
+                {
+                    "authorized": "1",
+                    "bundle_identifier": "com.apple.weather",
+                    "executable_path": "/System/Applications/Weather.app/Contents/MacOS/Weather",
+                    "location_desired_accuracy": "1000",
+                    "location_distance_filter": "500",
+                    "location_time_started_cocoa": "805136738.539299",
+                    "receiving_loc_info_time_stopped_cocoa": "805136740.723714",
+                    "registered_path": "true",
+                    "requirement": "identifier \"com.apple.weather\" and anchor apple"
+                }
+            ],
+            "calendar_time": "Tue Jul  7 17:16:14 2026 UTC",
+            "counter": 40,
+            "device_registered_at": "2026-07-02T14:39:42.576Z",
+            "device_serial": "TESTSERIAL0001",
+            "enrolled_at": "2026-06-18T16:37:49.943Z",
+            "epoch": 1781800669,
+            "hardware_uuid": "00000000-0000-0000-0000-000000000001",
+            "host_identifier": "00000000-0000-0000-0000-000000000001",
+            "numerics": false,
+            "pack_name": "inventory",
+            "query_name": "mac_location_services_authorized_apps_diff",
+            "removed": [
+                {
+                    "authorized": "1",
+                    "bundle_identifier": "com.apple.weather",
+                    "executable_path": "/System/Applications/Weather.app/Contents/MacOS/Weather",
+                    "location_desired_accuracy": "1000",
+                    "location_distance_filter": "500",
+                    "location_time_started_cocoa": "805128044.573314",
+                    "receiving_loc_info_time_stopped_cocoa": "805128046.76677",
+                    "registered_path": "true",
+                    "requirement": "identifier \"com.apple.weather\" and anchor apple"
+                }
+            ],
+            "request_id": "01KWYS9MCMRREHQ2J5MQ0EZSYZ"
+        }
+    },
+    "rule": {
+        "name": "mac_location_services_authorized_apps_diff"
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-osquery-result-gcs"
+    ],
+    "user": {
+        "email": "test.user@example.com",
+        "full_name": "Test User",
+        "id": "9100000"
+    }
+}
+```
+
+#### osquery_status
+
+The `osquery_status` data stream provides raw osquery Status Logs (GLOG-style telemetry about the osquery daemon itself) delivered through the Log Pipeline (S3/GCS `kolide/status/`).
+
+##### osquery_status fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| aws.s3.bucket.arn | The AWS S3 bucket ARN. | keyword |
+| aws.s3.bucket.name | The AWS S3 bucket name. | keyword |
+| aws.s3.object.key | The AWS S3 object key. | keyword |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| error.message | Error message. | match_only_text |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.id | Unique ID to describe the event. | keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| gcs.storage.bucket.name | The GCS bucket name. | keyword |
+| gcs.storage.object.content_type | The content type of the GCS object. | keyword |
+| gcs.storage.object.name | The GCS object name. | keyword |
+| host.hostname | Hostname of the host. It normally contains what the `hostname` command returns on the host machine. | keyword |
+| host.id | Unique host id. As hostname is not always unique, use values that are meaningful in your environment. Example: The current usage of `beat.name`. | keyword |
+| host.ip | Host ip addresses. | ip |
+| host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.osquery_status.device_registered_at | When the reporting device was registered to its owner in Kolide (`kolide_decorations.device_registered_at`). | date |
+| kolide.osquery_status.device_serial | Serial number of the reporting device, from Kolide's device decoration (`kolide_decorations.serial_number`). No ECS host-serial field exists, so this stays custom. | keyword |
+| kolide.osquery_status.enrolled_at | When the reporting device enrolled with Kolide (`kolide_decorations.enrolled_at`). | date |
+| kolide.osquery_status.hardware_uuid | Hardware UUID of the reporting device, from Kolide's device decoration (`kolide_decorations.hardware_uuid`). | keyword |
+| kolide.osquery_status.host_identifier | Osquery's own host identifier string (typically a UUID or hostname, depending on the host's `--host_identifier` configuration). Kept for correlation/debugging alongside the more reliable `host.id`/`host.name` sourced from Kolide's device decoration. | keyword |
+| kolide.osquery_status.request_id | Kolide Log Pipeline request ID (a ULID) for this delivery. Unique per object, used as the deduplication key for `event.id`. | keyword |
+| kolide.osquery_status.severity | Raw GLOG severity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL), alongside the derived `log.level`. | long |
+| log.level | Original log level of the log event. If the source of the event provides a log level or textual severity, this is the one that goes in `log.level`. If your source doesn't specify one, you may put your event transport's severity here (e.g. Syslog severity). Some examples are `warn`, `err`, `i`, `informational`. | keyword |
+| log.offset | Log offset. | long |
+| log.origin.file.line | The line number of the file containing the source code which originated the log event. | long |
+| log.origin.file.name | The name of the file containing the source code which originated the log event. Note that this field is not meant to capture the log file. The correct field to capture the log file is `log.file.path`. | keyword |
+| message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
+| related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
+| related.ip | All of the IPs seen on your event. | ip |
+| tags | List of keywords used to tag each event. | keyword |
+| user.email | User email address. | keyword |
+| user.full_name | User's full name, if available. | keyword |
+| user.full_name.text | Multi-field of `user.full_name`. | match_only_text |
+| user.id | Unique identifier of the user. | keyword |
+
+
+##### osquery_status sample event
+
+An example event for `osquery_status` looks as following:
+
+```json
+{
+    "@timestamp": "2026-06-18T19:00:26.000Z",
+    "agent": {
+        "ephemeral_id": "b2c4d6e8-f0a1-4b3c-8d7e-9f0a1b2c3d4e",
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "name": "elastic-agent-12345",
+        "type": "filebeat",
+        "version": "9.4.1"
+    },
+    "data_stream": {
+        "dataset": "kolide.osquery_status",
+        "namespace": "48291",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "elastic_agent": {
+        "id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+        "snapshot": false,
+        "version": "9.4.1"
+    },
+    "event": {
+        "action": "osquery_status",
+        "agent_id_status": "verified",
+        "category": [
+            "process"
+        ],
+        "dataset": "kolide.osquery_status",
+        "id": "01KVE1Q4W257B537D5PJD6DN7F",
+        "ingested": "2026-07-07T18:05:00Z",
+        "kind": "event",
+        "module": "kolide",
+        "original": "{\"s\":0,\"f\":\"preferences.cpp\",\"i\":318,\"m\":\"Cannot find/read defaults plist from path: /Library/Preferences/com.apple.TimeMachine.plist\",\"h\":\"00000000-0000-0000-0000-000000000001\",\"c\":\"Thu Jun 18 19:00:26 2026 UTC\",\"u\":1781809226,\"kolide_decorations\":{\"device_id\":9000000,\"device_display_name\":\"test-macbook-pro\",\"remote_ip\":\"203.0.113.5\",\"serial_number\":\"TESTSERIAL0001\",\"hardware_uuid\":\"00000000-0000-0000-0000-000000000001\",\"enrolled_at\":\"2026-06-18T16:37:49.943Z\",\"device_registered_owner_id\":9100000,\"device_registered_owner_name\":\"Test User\",\"device_registered_owner_email\":\"test.user@example.com\",\"device_registered_at\":\"2026-06-18T16:38:12.195Z\"},\"request_id\":\"01KVE1Q4W257B537D5PJD6DN7F\",\"type\":\"status_log\"}",
+        "type": [
+            "info"
+        ]
+    },
+    "host": {
+        "hostname": "test-macbook-pro",
+        "id": "9000000",
+        "ip": [
+            "203.0.113.5"
+        ],
+        "name": "test-macbook-pro"
+    },
+    "input": {
+        "type": "gcs"
+    },
+    "kolide": {
+        "osquery_status": {
+            "device_registered_at": "2026-06-18T16:38:12.195Z",
+            "device_serial": "TESTSERIAL0001",
+            "enrolled_at": "2026-06-18T16:37:49.943Z",
+            "hardware_uuid": "00000000-0000-0000-0000-000000000001",
+            "host_identifier": "00000000-0000-0000-0000-000000000001",
+            "request_id": "01KVE1Q4W257B537D5PJD6DN7F",
+            "severity": 0
+        }
+    },
+    "log": {
+        "level": "info",
+        "origin": {
+            "file": {
+                "line": 318,
+                "name": "preferences.cpp"
+            }
+        }
+    },
+    "message": "Cannot find/read defaults plist from path: /Library/Preferences/com.apple.TimeMachine.plist",
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-osquery-status-gcs"
+    ],
+    "user": {
+        "email": "test.user@example.com",
+        "full_name": "Test User",
+        "id": "9100000"
+    }
 }
 ```
 

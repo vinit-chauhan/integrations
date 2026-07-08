@@ -1,0 +1,55 @@
+---
+description: >-
+  Pipeline for categorizing ECS event fields for Kolide osquery Result Logs.
+  Maps the resolved event.action to event.kind/category/type using an exact
+  lookup table. Real Kolide Log Pipeline objects only ever set two values:
+  "snapshot" (derived from osquery's own `action` field, present only on
+  snapshot-type objects) and "differential" (derived from the presence of
+  `diffResults`, which has no `action` field of its own and batches
+  added/removed rows together in one object, so add vs remove cannot be
+  distinguished at the object level). A snapshot row is a point-in-time state
+  read (event.kind: state); a differential object is a discrete change event
+  (event.kind: event) since it represents state appearing or disappearing
+  between two scheduled runs of the same query. event.type is "change" (ECS's
+  allowed event.type values for category "host" are access/change/end/info/
+  start - there is no dedicated creation/deletion value for this category).
+  There is no native success/failure concept for result rows, so
+  event.outcome is left unset.
+processors:
+  - script:
+      lang: painless
+      tag: set_ecs_categorization
+      description: Map osquery result action to ECS categorization fields using exact lookups.
+      if: ctx.event?.action != null
+      params:
+        exact:
+          snapshot: { kind: state, category: ['host'], type: ['info'] }
+          differential: { kind: event, category: ['host'], type: ['change'] }
+      source: |-
+        def action = ctx.event.action;
+        def m = params.exact.get(action);
+        if (m != null) {
+          ctx.event.kind = m.kind;
+          ctx.event.category = new ArrayList(m.category);
+          ctx.event.type = new ArrayList(m.type);
+        } else {
+          ctx.event.kind = 'state';
+          ctx.event.category = ['host'];
+          ctx.event.type = ['info'];
+        }
+
+on_failure:
+  - append:
+      field: error.message
+      value: >-
+        Processor '{{{ _ingest.on_failure_processor_type }}}'
+        {{{#_ingest.on_failure_processor_tag}}}with tag '{{{ _ingest.on_failure_processor_tag }}}'
+        {{{/_ingest.on_failure_processor_tag}}}failed with message '{{{ _ingest.on_failure_message }}}'
+  - set:
+      field: event.kind
+      tag: set_pipeline_error_to_event_kind
+      value: pipeline_error
+  - append:
+      field: tags
+      value: preserve_original_event
+      allow_duplicates: false
