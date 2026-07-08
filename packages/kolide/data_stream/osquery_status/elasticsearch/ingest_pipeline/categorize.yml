@@ -15,14 +15,16 @@ processors:
       field: event.kind
       tag: set_event_kind
       value: event
-  - set:
+  - append:
       field: event.category
-      tag: set_event_category
+      tag: append_event_category
       value: ['process']
-  - set:
+      allow_duplicates: false
+  - append:
       field: event.type
-      tag: set_event_type
+      tag: append_event_type
       value: ['info']
+      allow_duplicates: false
   - script:
       lang: painless
       tag: set_log_level
@@ -37,6 +39,7 @@ processors:
       source: |-
         def severity = String.valueOf(ctx.kolide.osquery_status.severity);
         def level = params.exact.get(severity);
+        if (ctx.log == null) { ctx.log = new HashMap(); }
         ctx.log.level = level != null ? level : 'info';
 
 on_failure:

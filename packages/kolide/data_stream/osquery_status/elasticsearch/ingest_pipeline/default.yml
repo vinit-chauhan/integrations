@@ -58,11 +58,18 @@ processors:
             value: 'failed to parse json.u: {{{ _ingest.on_failure_message }}}'
 
   # GLOG severity (key "s"; 0=INFO, 1=WARNING, 2=ERROR, 3=FATAL) -> log.level
-  # is derived in categorize.yml; keep the raw value too.
+  # is derived in categorize.yml; keep the raw value too. Stored as keyword
+  # since it is a bounded status code used only for exact-match lookups, not
+  # arithmetic/range queries.
   - rename:
       field: json.s
       tag: rename_severity
       target_field: kolide.osquery_status.severity
+      ignore_missing: true
+  - convert:
+      field: kolide.osquery_status.severity
+      tag: convert_severity_to_string
+      type: string
       ignore_missing: true
 
   - rename:
@@ -154,6 +161,20 @@ processors:
       source: |-
         if (ctx.host == null) { ctx.host = new HashMap(); }
         ctx.host.ip = [ ctx.json.kolide_decorations.remote_ip ];
+
+  # related.* enrichment.
+  - append:
+      field: related.ip
+      tag: append_host_ip_to_related
+      value: '{{{host.ip.0}}}'
+      allow_duplicates: false
+      if: ctx.host?.ip != null && ctx.host.ip.size() > 0
+  - append:
+      field: related.hosts
+      tag: append_host_name_to_related_hosts
+      value: '{{{host.name}}}'
+      allow_duplicates: false
+      if: ctx.host?.name != null
 
   # ECS categorization (kind/category/type/log.level) from the resolved severity.
   - pipeline:

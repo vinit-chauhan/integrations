@@ -60,6 +60,10 @@ processors:
       field: event.kind
       tag: set_event_kind
       value: state
+  - set:
+      field: event.action
+      tag: set_event_action
+      value: person
   - append:
       field: event.category
       tag: append_event_category_iam

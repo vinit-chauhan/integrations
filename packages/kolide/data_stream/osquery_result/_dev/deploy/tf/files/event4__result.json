@@ -1,12 +1,12 @@
 {
     "snapshot": [
         {
-            "amperage": "-665",
+            "amperage": "-500",
             "charged": "0",
             "charging": "0",
             "condition": "",
             "current_capacity": "5292",
-            "cycle_count": "162",
+            "cycle_count": "100",
             "designed_capacity": "6249",
             "health": "Check Battery",
             "manufacture_date": "",
@@ -16,9 +16,9 @@
             "minutes_until_empty": "440",
             "model": "bq40z651",
             "percent_remaining": "95",
-            "serial_number": "F5DHFC003430000FWH",
+            "serial_number": "TESTBATTERY0001",
             "state": "Battery Power",
-            "voltage": "12711"
+            "voltage": "12000"
         }
     ],
     "action": "snapshot",

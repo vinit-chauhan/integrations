@@ -33,7 +33,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01KWE5MJK0MYXQMW1XAB6QG6AP",
-                    "severity": 0
+                    "severity": "0"
                 }
             },
             "log": {
@@ -46,6 +46,14 @@
                 }
             },
             "message": "Refreshing configuration state",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],
@@ -88,7 +96,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01KVE1Q4W257B537D5PJD6DN7F",
-                    "severity": 0
+                    "severity": "0"
                 }
             },
             "log": {
@@ -101,6 +109,14 @@
                 }
             },
             "message": "Cannot find/read defaults plist from path: /Library/Preferences/com.apple.TimeMachine.plist",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],
@@ -143,7 +159,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01KVE9V58DSQZMGMHE6NREGB5Z",
-                    "severity": 0
+                    "severity": "0"
                 }
             },
             "log": {
@@ -156,6 +172,14 @@
                 }
             },
             "message": "Cannot find/read defaults plist from path: /Library/Preferences/com.apple.TimeMachine.plist",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],
@@ -198,7 +222,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01SYNTHETIC00000000000000",
-                    "severity": 1
+                    "severity": "1"
                 }
             },
             "log": {
@@ -211,6 +235,14 @@
                 }
             },
             "message": "Publisher not restarted: file_events",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],
@@ -253,7 +285,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01SYNTHETIC00000000000001",
-                    "severity": 2
+                    "severity": "2"
                 }
             },
             "log": {
@@ -266,6 +298,14 @@
                 }
             },
             "message": "Error executing scheduled query pack/fim/etc_passwd: table etc_passwd_events not registered",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],
@@ -308,7 +348,7 @@
                     "hardware_uuid": "00000000-0000-0000-0000-000000000001",
                     "host_identifier": "00000000-0000-0000-0000-000000000001",
                     "request_id": "01SYNTHETIC00000000000002",
-                    "severity": 3
+                    "severity": "3"
                 }
             },
             "log": {
@@ -321,6 +361,14 @@
                 }
             },
             "message": "Could not create pidfile for osqueryd process",
+            "related": {
+                "hosts": [
+                    "test-macbook-pro"
+                ],
+                "ip": [
+                    "203.0.113.5"
+                ]
+            },
             "tags": [
                 "preserve_original_event"
             ],

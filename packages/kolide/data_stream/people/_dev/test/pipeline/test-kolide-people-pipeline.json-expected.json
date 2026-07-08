@@ -1,11 +1,12 @@
 {
     "expected": [
         {
-            "@timestamp": "2026-07-02T21:35:53.381101257Z",
+            "@timestamp": "2026-07-08T19:15:47.090898175Z",
             "ecs": {
                 "version": "9.4.0"
             },
             "event": {
+                "action": "person",
                 "category": [
                     "iam"
                 ],
@@ -44,11 +45,12 @@
             }
         },
         {
-            "@timestamp": "2026-07-02T21:35:53.381109299Z",
+            "@timestamp": "2026-07-08T19:15:47.090903508Z",
             "ecs": {
                 "version": "9.4.0"
             },
             "event": {
+                "action": "person",
                 "category": [
                     "iam"
                 ],

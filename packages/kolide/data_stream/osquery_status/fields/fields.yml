@@ -16,7 +16,7 @@
       type: keyword
       description: Kolide Log Pipeline request ID (a ULID) for this delivery. Unique per object, used as the deduplication key for `event.id`.
     - name: severity
-      type: long
+      type: keyword
       description: Raw GLOG severity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL), alongside the derived `log.level`.
     - name: enrolled_at
       type: date

@@ -55,19 +55,21 @@ program: |-
         ).do_request().as(resp,
           (resp.StatusCode == 200) ?
             resp.Body.decode_json().as(body,
-              body.?pagination.next_cursor.orValue("").as(next_cursor,
-                body.?data.orValue([]).map(e, {"message": e.with({"_kolide_request_type": kind}).encode_json()}).as(events,
-                  (next_cursor != "" || kind == "exemption").as(want_more,
-                    {
-                      "events": (want_more && size(events) == 0) ? [{"message": "{}", "retry": "true"}] : events,
-                      "cursor": {
-                        "kind": (next_cursor != "") ? kind : ((kind == "exemption") ? "registration" : "exemption"),
-                        "next": next_cursor,
-                      },
-                      "want_more": want_more,
-                    }
-                  )
-                )
+              {
+                "next_cursor": body.?pagination.next_cursor.orValue(""),
+                "raw_events": body.?data.orValue([]).map(e, {"message": e.with({"_kolide_request_type": kind}).encode_json()}),
+              }.as(page,
+                {
+                  "events": ((page.next_cursor != "" || kind == "exemption") && size(page.raw_events) == 0) ?
+                    [{"message": "{}", "retry": "true"}]
+                  :
+                    page.raw_events,
+                  "cursor": {
+                    "kind": (page.next_cursor != "") ? kind : ((kind == "exemption") ? "registration" : "exemption"),
+                    "next": page.next_cursor,
+                  },
+                  "want_more": page.next_cursor != "" || kind == "exemption",
+                }
               )
             )
           :

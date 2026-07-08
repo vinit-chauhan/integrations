@@ -11,7 +11,7 @@ data_stream:
     poll: true
     poll_interval: 15s
     buckets: |
-      - name: kolide-check
+      - name: kolide-device-check
     # The mock preloads objects under flat names, so the default
     # `^kolide/check_runs/` prefix selector is overridden here.
     file_selectors: |

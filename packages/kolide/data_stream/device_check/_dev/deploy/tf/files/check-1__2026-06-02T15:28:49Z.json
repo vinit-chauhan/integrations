@@ -20,8 +20,8 @@
                 "user_bluetooth_sharing_enabled": ""
             },
             {
-                "path": "/Users/marlowe/Library/Preferences/ByHost/com.apple.Bluetooth.4F0676FA-08DB-45D0-9832-CFD76C323FAD.plist",
-                "username": "marlowe",
+                "path": "/Users/example-user2/Library/Preferences/ByHost/com.apple.Bluetooth.00000000-0000-0000-0000-000000000000.plist",
+                "username": "example-user2",
                 "logged_in": "1",
                 "desktop_session": "1",
                 "current_os_version": "26.4.1",

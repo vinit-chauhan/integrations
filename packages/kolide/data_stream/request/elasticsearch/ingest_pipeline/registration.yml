@@ -26,7 +26,7 @@ processors:
   # Request state. Real property is `status` (pending | approved | denied);
   # `state` is kept as a defensive fallback in case a future API revision
   # renames it. Normalization to lowercase and event.outcome derivation happen
-  # centrally in extended-mappings.yml.
+  # centrally in default.yml's "Extended field extraction" section.
   - set:
       field: kolide.request.state
       tag: set_state_from_status

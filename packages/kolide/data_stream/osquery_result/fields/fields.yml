@@ -45,7 +45,7 @@
     - name: added
       type: flattened
       description: >-
-        Rows added since the last differential run (`diffResults.added`). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key. See research_results/kolide/reporting-tables-ecs-field-mapping.md for known-table column-name references if per-column mapping is added in a future version.
+        Rows added since the last differential run (`diffResults.added`). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key.
     - name: removed
       type: flattened
       description: >-

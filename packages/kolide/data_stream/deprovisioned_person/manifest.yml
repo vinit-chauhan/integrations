@@ -8,8 +8,14 @@ streams:
       API (GET /deprovisioned_people) on every poll. This is a separate resource
       from GET /people: it lists identities that have been offboarded/deprovisioned,
       not the active people roster. The endpoint exposes no modified-since cursor,
-      so each interval re-collects the complete collection; the ingest pipeline
-      assigns a person-id-based document `_id` so unchanged records are overwritten.
+      so each interval re-collects the complete collection; this full re-ingestion
+      is intentional (not an interim limitation) since a delta/incremental approach
+      cannot detect records that disappear from the list (e.g. re-provisioning or a
+      Kolide-side correction) or records missed due to pagination drift. The
+      ingest pipeline derives a content-fingerprint document `_id` (excluding
+      `last_authenticated_at`) so byte-identical records are deduplicated across
+      polls; records whose tracked fields change between polls are indexed as new
+      documents rather than overwriting the prior one.
     template_path: cel.yml.hbs
     vars:
       - name: interval

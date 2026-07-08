@@ -1,5 +1,5 @@
 buckets:
-  kolide-check:
+  kolide-device-check:
     files:
-      - path: /data/kolide-check.log
+      - path: /data/kolide-device-check.log
         content-type: application/x-ndjson

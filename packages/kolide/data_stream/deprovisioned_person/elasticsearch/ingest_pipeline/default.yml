@@ -173,11 +173,11 @@ processors:
   # Deduplication: /deprovisioned_people is a full-table snapshot with no
   # modified-since filter, so the CEL program re-walks every record on every
   # poll. Fingerprint the full raw record (event.original) minus
-  # last_authenticated_at, which changes on every login prior to deprovisioning
-  # and would otherwise defeat dedup — see the equivalent note in the `people`
-  # pipeline. Re-parse event.original into a temp object so every other field is
-  # included automatically (new API fields too); only last_authenticated_at is
-  # dropped.
+  # last_authenticated_at — expected to be static once a person is
+  # deprovisioned, but excluded defensively for consistency with the `people`
+  # pipeline's fingerprint scheme. Re-parse event.original into a temp object
+  # so every other field is included automatically (new API fields too); only
+  # last_authenticated_at is dropped.
   - json:
       field: event.original
       target_field: _tmp.fingerprint_source
@@ -200,7 +200,6 @@ processors:
   - remove:
       field:
         - json
-        - data
         - _tmp
       tag: remove_temp_fields
       ignore_missing: true

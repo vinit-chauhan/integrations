@@ -19,7 +19,7 @@
                 "cpu_set": "1",
                 "cpu_shares": "1",
                 "cpus": "12",
-                "docker_system_id": "3e4104df-35d3-4bb3-b373-215de4cdb12b",
+                "docker_system_id": "00000000-0000-0000-0000-000000000002",
                 "git_commit": "568f755",
                 "go_version": "go1.26.3",
                 "http_proxy": "http.docker.internal:3128",

@@ -675,7 +675,6 @@ The `request` data stream provides Kolide approval-workflow records for issue ex
 | kolide.request.requester.url | API URL of the referenced requester. From API `requester_information.link` or webhook `data.requester.url`. | keyword |
 | kolide.request.state | Normalized request state, for example `pending`, `approved`, or `denied`. | keyword |
 | kolide.request.type | Type of request, either `exemption` or `registration`. | keyword |
-| log.offset | Log offset. | long |
 | message | For log events the message field contains the log message, optimized for viewing in a log viewer. For structured logs without an original message field, other fields can be concatenated to form a human-readable summary of the event. If multiple messages exist, they can be combined into one message. | match_only_text |
 | related.hosts | All hostnames or other host identifiers seen on your event. Example identifiers include FQDNs, domain names, workstation names, or aliases. | keyword |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
@@ -1062,7 +1061,6 @@ The `deprovisioned_person` data stream provides Kolide identity records for peop
 | kolide.deprovisioned_person.has_registered_device | Whether the person had at least one registered device at the time of deprovisioning. | boolean |
 | kolide.deprovisioned_person.id | Kolide person identifier. | keyword |
 | kolide.deprovisioned_person.last_authenticated_at | When the person last authenticated with Kolide, prior to deprovisioning. | date |
-| log.offset | Log offset. | long |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
 | tags | List of keywords used to tag each event. | keyword |
 | user.email | User email address. | keyword |
@@ -1465,7 +1463,7 @@ The `osquery_result` data stream provides raw osquery Result Logs delivered thro
 | host.ip | Host ip addresses. | ip |
 | host.name | Name of the host. It can contain what hostname returns on Unix systems, the fully qualified domain name (FQDN), or a name specified by the user. The recommended value is the lowercase FQDN of the host. | keyword |
 | input.type | Type of filebeat input. | keyword |
-| kolide.osquery_result.added | Rows added since the last differential run (`diffResults.added`). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key. See research_results/kolide/reporting-tables-ecs-field-mapping.md for known-table column-name references if per-column mapping is added in a future version. | flattened |
+| kolide.osquery_result.added | Rows added since the last differential run (`diffResults.added`). The shape is arbitrary and depends on which osquery table or custom SQL the query targets, so it is stored as a flattened field rather than mapping each key. | flattened |
 | kolide.osquery_result.calendar_time | Osquery's human-readable, locale-dependent timestamp string. `@timestamp` (derived from `unixTime`) is authoritative; this is kept only for reference. | keyword |
 | kolide.osquery_result.counter | Osquery's per-epoch row counter, also copied to `event.sequence`. | long |
 | kolide.osquery_result.device_registered_at | When the reporting device was registered to its owner in Kolide (`kolide_decorations.device_registered_at`). | date |
@@ -1652,7 +1650,7 @@ The `osquery_status` data stream provides raw osquery Status Logs (GLOG-style te
 | kolide.osquery_status.hardware_uuid | Hardware UUID of the reporting device, from Kolide's device decoration (`kolide_decorations.hardware_uuid`). | keyword |
 | kolide.osquery_status.host_identifier | Osquery's own host identifier string (typically a UUID or hostname, depending on the host's `--host_identifier` configuration). Kept for correlation/debugging alongside the more reliable `host.id`/`host.name` sourced from Kolide's device decoration. | keyword |
 | kolide.osquery_status.request_id | Kolide Log Pipeline request ID (a ULID) for this delivery. Unique per object, used as the deduplication key for `event.id`. | keyword |
-| kolide.osquery_status.severity | Raw GLOG severity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL), alongside the derived `log.level`. | long |
+| kolide.osquery_status.severity | Raw GLOG severity level (0=INFO, 1=WARNING, 2=ERROR, 3=FATAL), alongside the derived `log.level`. | keyword |
 | log.level | Original log level of the log event. If the source of the event provides a log level or textual severity, this is the one that goes in `log.level`. If your source doesn't specify one, you may put your event transport's severity here (e.g. Syslog severity). Some examples are `warn`, `err`, `i`, `informational`. | keyword |
 | log.offset | Log offset. | long |
 | log.origin.file.line | The line number of the file containing the source code which originated the log event. | long |

@@ -537,6 +537,57 @@
             "tags": [
                 "preserve_original_event"
             ]
+        },
+        {
+            "@timestamp": "2026-06-15T00:00:00.000Z",
+            "ecs": {
+                "version": "9.4.0"
+            },
+            "event": {
+                "action": "blocked",
+                "category": [
+                    "configuration"
+                ],
+                "id": "500000099",
+                "kind": "event",
+                "original": "{\"id\":\"500000099\",\"title\":\"Device Blocked - Firewall Disabled\",\"value\":{\"KOLIDE_CHECK_STATUS\":\"FAIL\"},\"exempted\":false,\"resolved_at\":null,\"detected_at\":\"2026-06-15T00:00:00Z\",\"blocks_device_at\":\"2026-06-16T00:00:00Z\",\"device_information\":{\"identifier\":\"device-blocked-01\",\"link\":\"https://api.example.com/devices/99\"},\"check_information\":{\"identifier\":\"32\",\"link\":\"https://api.example.com/checks/32\"},\"last_rechecked_at\":\"2026-06-16T00:00:00Z\"}",
+                "outcome": "failure",
+                "start": "2026-06-15T00:00:00.000Z",
+                "type": [
+                    "change"
+                ]
+            },
+            "host": {
+                "id": "device-blocked-01"
+            },
+            "kolide": {
+                "issues": {
+                    "blocks_device_at": "2026-06-16T00:00:00.000Z",
+                    "check_information": {
+                        "link": "https://api.example.com/checks/32"
+                    },
+                    "detected_at": "2026-06-15T00:00:00.000Z",
+                    "device_information": {
+                        "link": "https://api.example.com/devices/99"
+                    },
+                    "exempted": false,
+                    "id": "500000099",
+                    "last_rechecked_at": "2026-06-16T00:00:00.000Z",
+                    "title": "Device Blocked - Firewall Disabled",
+                    "value": {
+                        "KOLIDE_CHECK_STATUS": "FAIL"
+                    }
+                }
+            },
+            "message": "Device Blocked - Firewall Disabled",
+            "rule": {
+                "id": "32",
+                "name": "Device Blocked - Firewall Disabled",
+                "reference": "https://api.example.com/checks/32"
+            },
+            "tags": [
+                "preserve_original_event"
+            ]
         }
     ]
 }
