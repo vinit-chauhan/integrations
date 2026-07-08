@@ -1061,6 +1061,7 @@ The `deprovisioned_person` data stream provides Kolide identity records for peop
 | kolide.deprovisioned_person.has_registered_device | Whether the person had at least one registered device at the time of deprovisioning. | boolean |
 | kolide.deprovisioned_person.id | Kolide person identifier. | keyword |
 | kolide.deprovisioned_person.last_authenticated_at | When the person last authenticated with Kolide, prior to deprovisioning. | date |
+| log.offset | Log offset. | long |
 | related.user | All the user names or other user identifiers seen on the event. | keyword |
 | tags | List of keywords used to tag each event. | keyword |
 | user.email | User email address. | keyword |

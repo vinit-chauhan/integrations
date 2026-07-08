@@ -59,9 +59,15 @@ program: |-
                 {
                   "events": records.map(e, {"message": e.encode_json()}),
                   "cursor": {
+                    // resolved_at/blocks_device_at are frequently present with an
+                    // explicit JSON null (not absent), and .orValue() only
+                    // substitutes for an absent key, not a present null value, so
+                    // each field is explicitly null-checked before timestamp().
                     "last_timestamp": (size(records) > 0) ?
                       string(
                         (records.map(e, timestamp(e.?detected_at.orValue(since)))
+                          + records.map(e, timestamp((e.?resolved_at.orValue(since) == null) ? since : e.?resolved_at.orValue(since)))
+                          + records.map(e, timestamp((e.?blocks_device_at.orValue(since) == null) ? since : e.?blocks_device_at.orValue(since)))
                           + [timestamp(since)]).max()
                       )
                     :
