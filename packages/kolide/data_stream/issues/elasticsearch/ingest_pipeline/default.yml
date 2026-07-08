@@ -74,6 +74,9 @@ processors:
   # alone made a freshly-blocked or freshly-resolved issue's document appear
   # to have an old @timestamp from whenever it was originally detected, even
   # though the fetch was triggered by a state change that just happened.
+  # blocks_device_at is a *future* enforcement deadline (see fields.yml), not a
+  # past event, so it is capped at the current time -- otherwise a document
+  # could be indexed with a future @timestamp.
   - date:
       field: json.timestamp
       target_field: '@timestamp'
@@ -81,15 +84,21 @@ processors:
         - ISO8601
       tag: date_timestamp_webhook
       if: ctx.json?.timestamp != null
+  - set:
+      field: _tmp.ingest_timestamp
+      copy_from: _ingest.timestamp
+      tag: set_tmp_ingest_timestamp
+      if: ctx.json?.timestamp == null && ctx.json?.detected_at != null
   - script:
       lang: painless
       tag: set_timestamp_api_max_lifecycle
       description: >-
         Sets @timestamp to the most recent of detected_at/resolved_at/blocks_device_at
-        so the document reflects the state change that triggered this fetch, not
-        always the issue's original detection time.
+        (capped at now) so the document reflects the state change that triggered
+        this fetch, not always the issue's original detection time.
       if: ctx.json?.timestamp == null && ctx.json?.detected_at != null
       source: |-
+        ZonedDateTime now = (ZonedDateTime) ctx._tmp.ingest_timestamp;
         ZonedDateTime max = ZonedDateTime.parse(ctx.json.detected_at);
         if (ctx.json.resolved_at != null) {
           ZonedDateTime resolved = ZonedDateTime.parse(ctx.json.resolved_at);
@@ -99,6 +108,7 @@ processors:
           ZonedDateTime blocked = ZonedDateTime.parse(ctx.json.blocks_device_at);
           if (blocked.isAfter(max)) { max = blocked; }
         }
+        if (max.isAfter(now)) { max = now; }
         ctx['@timestamp'] = max.format(DateTimeFormatter.ISO_INSTANT);
 
   # event.id: webhook delivery ULID (`json.id`) or API issue id (`json.id`).
