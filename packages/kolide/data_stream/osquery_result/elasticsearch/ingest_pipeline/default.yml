@@ -2,9 +2,7 @@
 description: >-
   Parse raw osquery Result Logs (snapshot and batched differential add/remove
   rows) collected from the Kolide Log Pipeline via the aws-s3/gcs inputs.
-  Schema confirmed against 184 real objects pulled from a live Log Pipeline S3
-  bucket (one sample per distinct pack/query, spanning 107 distinct queries):
-  envelope is {action?, name, hostIdentifier, calendarTime, unixTime, epoch,
+  Envelope is {action?, name, hostIdentifier, calendarTime, unixTime, epoch,
   counter, numerics, decorations, kolide_decorations, request_id,
   type: "results_log", snapshot: [...] | diffResults: {added:[...],
   removed:[...]}}. `action` is only present ("snapshot") on snapshot-type

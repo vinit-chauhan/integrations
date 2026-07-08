@@ -3,9 +3,8 @@ description: >-
   Parse raw osquery Status Logs (GLOG-style daemon/agent telemetry)
   collected from the Kolide Log Pipeline via the aws-s3/gcs inputs. Unlike
   osquery_result, these are logs about the osquery daemon itself, not host
-  inventory state. Schema confirmed against 40 real objects pulled from a
-  live Log Pipeline S3 bucket, spanning 6+ weeks: Kolide encodes status logs
-  with SINGLE-LETTER abbreviated keys - {s: severity, f: filename, i: line,
+  inventory state. Kolide encodes status logs with SINGLE-LETTER abbreviated
+  keys - {s: severity, f: filename, i: line,
   m: message, h: hostIdentifier, c: calendarTime, u: unixTime,
   kolide_decorations: {...}, request_id, type: "status_log"}. There is no
   osquery version field in status logs (unlike what generic osquery

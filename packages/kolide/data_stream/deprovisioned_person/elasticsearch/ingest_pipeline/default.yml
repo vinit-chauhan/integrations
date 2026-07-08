@@ -1,10 +1,13 @@
 ---
 description: >-
-  Parse Kolide people records from GET /people (CEL). See
-  https://kolideapi.readme.io/reference/get_people. The person schema is minimal
-  (id, name, email, created_at, last_authenticated_at, has_registered_device,
-  usernames) — there is no status, role, group, IdP, SCIM, or MDM linkage on this
-  resource; those are separate API resources the CEL program does not call.
+  Parse Kolide deprovisioned-person records from GET /deprovisioned_people (CEL). See
+  https://kolideapi.readme.io/reference/get_deprovisioned-people. This is a separate
+  resource from GET /people (the `people` data stream), not a field on the person
+  object. Schema: id, name, email, created_at, last_authenticated_at (nullable),
+  has_registered_device, and api_url (a link back to the corresponding
+  `GET /people/{id}` resource — note it still points at `/people`, not
+  `/deprovisioned_people`). Unlike `people`, this resource does not return
+  `usernames`.
 processors:
   - set:
       field: ecs.version
@@ -29,7 +32,7 @@ processors:
       description: error message set and no data to process.
   # --- end CEL-only ---
 
-  # CEL / JSE00001: `message` is a JSON string of one GET /people record.
+  # CEL / JSE00001: `message` is a JSON string of one GET /deprovisioned_people record.
   - rename:
       field: message
       tag: rename_message_to_event_original
@@ -48,9 +51,9 @@ processors:
       target_field: json
       tag: parse_json_cel
       if: ctx.json == null && ctx.event?.original != null
-      description: Decode the CEL message (a JSON string of one person object) into the working json object.
+      description: Decode the CEL message (a JSON string of one deprovisioned-person object) into the working json object.
 
-  # The /people API is a state snapshot with no record timestamp; use ingest time.
+  # The /deprovisioned_people API is a state snapshot with no record timestamp; use ingest time.
   - set:
       field: '@timestamp'
       copy_from: _ingest.timestamp
@@ -60,6 +63,10 @@ processors:
       field: event.kind
       tag: set_event_kind
       value: state
+  - set:
+      field: event.action
+      tag: set_event_action
+      value: person_deprovisioned
   - append:
       field: event.category
       tag: append_event_category_iam
@@ -93,74 +100,55 @@ processors:
       tag: set_user_full_name
       copy_from: json.name
       if: ctx.json?.name instanceof String
-
-  # usernames is an array of the SCIM-provided usernames for this person (the
-  # OpenAPI schema mis-documents the item type as integer; it is actually a
-  # string). Preserve the full list as a vendor field, and use the first entry as
-  # the ECS user.name, falling back to the email if no username is present.
-  - script:
-      lang: painless
-      tag: normalize_usernames_and_set_user_name
-      description: >-
-        Coerce json.usernames entries to strings (so a mis-typed API response can't
-        break downstream processors) and use the first one as the ECS user.name.
-      if: ctx.json?.usernames instanceof List
-      source: |-
-        def usernames = new ArrayList();
-        for (def u : ctx.json.usernames) {
-          if (u != null) { usernames.add(u.toString()); }
-        }
-        ctx.json.usernames = usernames;
-        if (!usernames.isEmpty()) {
-          ctx.user = ctx.user ?: [:];
-          ctx.user.name = usernames[0];
-        }
-  - rename:
-      field: json.usernames
-      target_field: kolide.people.usernames
-      tag: rename_usernames
-      ignore_missing: true
   - set:
       field: user.name
       tag: set_user_name_from_email
       copy_from: user.email
       if: ctx.user?.name == null && ctx.user?.email instanceof String
 
-  # Kolide custom people fields.
+  # Kolide custom deprovisioned-person fields.
   - set:
-      field: kolide.people.id
-      tag: set_kolide_people_id
+      field: kolide.deprovisioned_person.id
+      tag: set_kolide_deprovisioned_person_id
       copy_from: user.id
       if: ctx.user?.id != null
   - rename:
       field: json.created_at
-      target_field: kolide.people.created_at
+      target_field: kolide.deprovisioned_person.created_at
       tag: rename_created_at
       ignore_missing: true
   - date:
-      field: kolide.people.created_at
-      target_field: kolide.people.created_at
+      field: kolide.deprovisioned_person.created_at
+      target_field: kolide.deprovisioned_person.created_at
       formats:
         - ISO8601
       tag: date_created_at
-      if: ctx.kolide?.people?.created_at != null
+      if: ctx.kolide?.deprovisioned_person?.created_at != null
   - rename:
       field: json.last_authenticated_at
-      target_field: kolide.people.last_authenticated_at
+      target_field: kolide.deprovisioned_person.last_authenticated_at
       tag: rename_last_authenticated_at
       ignore_missing: true
   - date:
-      field: kolide.people.last_authenticated_at
-      target_field: kolide.people.last_authenticated_at
+      field: kolide.deprovisioned_person.last_authenticated_at
+      target_field: kolide.deprovisioned_person.last_authenticated_at
       formats:
         - ISO8601
       tag: date_last_authenticated_at
-      if: ctx.kolide?.people?.last_authenticated_at != null
+      if: ctx.kolide?.deprovisioned_person?.last_authenticated_at != null
   - rename:
       field: json.has_registered_device
-      target_field: kolide.people.has_registered_device
+      target_field: kolide.deprovisioned_person.has_registered_device
       tag: rename_has_registered_device
       ignore_missing: true
+  - rename:
+      field: json.api_url
+      target_field: kolide.deprovisioned_person.api_url
+      tag: rename_api_url
+      ignore_missing: true
+      description: >-
+        Points at the corresponding GET /people/{id} resource, not a
+        /deprovisioned_people path.
 
   # related.* enrichment.
   - append:
@@ -182,14 +170,14 @@ processors:
       allow_duplicates: false
       if: ctx.user?.id != null
 
-  # Deduplication: /people is a full-table snapshot with no modified-since filter,
-  # so the CEL program re-walks every person on every poll. Fingerprint the full raw
-  # record (event.original) minus last_authenticated_at, which changes on every
-  # login and would otherwise defeat dedup (this data stream is a logs data stream,
-  # so a write with a colliding _id is dropped, not merged — see the equivalent note
-  # in the `device` and `request` pipelines). Re-parse event.original into a temp
-  # object so every other field is included automatically (new API fields too); only
-  # last_authenticated_at is dropped.
+  # Deduplication: /deprovisioned_people is a full-table snapshot with no
+  # modified-since filter, so the CEL program re-walks every record on every
+  # poll. Fingerprint the full raw record (event.original) minus
+  # last_authenticated_at, which changes on every login prior to deprovisioning
+  # and would otherwise defeat dedup — see the equivalent note in the `people`
+  # pipeline. Re-parse event.original into a temp object so every other field is
+  # included automatically (new API fields too); only last_authenticated_at is
+  # dropped.
   - json:
       field: event.original
       target_field: _tmp.fingerprint_source

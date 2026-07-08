@@ -28,6 +28,7 @@ The Kolide integration collects the following data streams:
 * `request`: approval-workflow requests (`requests.issue_exemption`, `requests.registration`; API `GET /exemption_requests` and `GET /registration_requests`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
 * `people`: identity records for people known to Kolide (API `GET /people`).
+* `deprovisioned_person`: identity records for people who have been offboarded/deprovisioned in Kolide (API `GET /deprovisioned_people`), a separate resource from `people`.
 * `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3/GCS `kolide/audit_logs/`).
 * `device_check`: device check-run results from the Log Pipeline (S3/GCS `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
 * `osquery_result`: raw osquery Result Logs from the Log Pipeline (S3/GCS `kolide/results/`), covering both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data is stored as a flattened field rather than mapped per column, since it is arbitrary and depends on the target osquery table or custom SQL.
@@ -99,7 +100,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 1. In Kibana, go to Management → Integrations and search for Kolide.
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
-4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, deprovisioned_person, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
 5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
 6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); adjust the regex if your Kolide destination uses a custom key template.
 
@@ -145,6 +146,7 @@ These Kolide REST API endpoints are used by this integration:
 * `GET /registration_requests`
 * `GET /devices`
 * `GET /people`
+* `GET /deprovisioned_people`
 * `GET /audit_logs`
 
 ### Vendor documentation links
@@ -222,6 +224,18 @@ The `people` data stream provides Kolide identity records for people (`GET /peop
 ##### people sample event
 
 {{ event "people" }}
+
+#### deprovisioned_person
+
+The `deprovisioned_person` data stream provides Kolide identity records for people who have been offboarded/deprovisioned (`GET /deprovisioned_people`). This is a separate API resource from `people`, not a field on the person object — use it to detect lingering access or devices owned by departed identities. Unlike `people`, this resource does not return SCIM usernames; it does include an `api_url` field that links back to the corresponding `GET /people/{id}` resource.
+
+##### deprovisioned_person fields
+
+{{ fields "deprovisioned_person" }}
+
+##### deprovisioned_person sample event
+
+{{ event "deprovisioned_person" }}
 
 #### audit
 

@@ -29,6 +29,7 @@ The Kolide integration collects the following data streams:
 * `request`: approval-workflow requests (`requests.issue_exemption`, `requests.registration`; API `GET /exemption_requests` and `GET /registration_requests`).
 * `device`: device inventory and trust-status changes (`devices.created`, `devices.registered`, `devices.destroyed`, `device_trust.status_changed`; API `GET /devices`).
 * `people`: identity records for people known to Kolide (API `GET /people`).
+* `deprovisioned_person`: identity records for people who have been offboarded/deprovisioned in Kolide (API `GET /deprovisioned_people`), a separate resource from `people`.
 * `audit`: administrative audit log of console actions (`audit_log.recorded`; API `GET /audit_logs`; Log Pipeline S3/GCS `kolide/audit_logs/`).
 * `device_check`: device check-run results from the Log Pipeline (S3/GCS `kolide/check_runs/`), covering every run — `passing`, `failing`, `inapplicable`, and `unknown`. This complements the failure-focused `issues` data stream.
 * `osquery_result`: raw osquery Result Logs from the Log Pipeline (S3/GCS `kolide/results/`), covering both snapshot-query rows and differential (`added`/`removed`) rows. Per-query column data is stored as a flattened field rather than mapped per column, since it is arbitrary and depends on the target osquery table or custom SQL.
@@ -100,7 +101,7 @@ Note: Kolide sends webhooks from dynamic AWS us-east-1 IP addresses, so IP allow
 1. In Kibana, go to Management → Integrations and search for Kolide.
 2. Add the integration.
 3. For webhooks: enable the `webhook` data stream (HTTP endpoint input). Set the listen address, port, and URL path, and provide the HMAC signing secret (and optionally the `X-Kolide-Webhook-Identifier` value). All Kolide event types are received on this single endpoint and routed automatically.
-4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
+4. For the REST API: enable whichever data streams you want to poll (auth, issues, request, device, people, deprovisioned_person, audit), select the CEL input, provide the API URL (`https://api.kolide.com`), the API key, and adjust the polling interval and initial lookback as needed.
 5. For AWS S3 (Log Pipeline): provide your AWS credentials once on the integration, then enable the `aws-s3` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Each defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`). For each, set either an SQS queue URL (SQS mode) or a bucket ARN (polling mode). In SQS mode, use a separate queue per prefix (filter S3 notifications by prefix); in polling mode each stream lists only its own prefix. Adjust the bucket list prefix if your Kolide destination uses a custom key template.
 6. For Google Cloud Storage (Log Pipeline): provide the GCP project ID and the reader service account JSON key once on the integration, then enable the `gcs` input on the data streams you want — `auth`, `audit`, `device_check`, `osquery_result`, or `osquery_status`. Set the bucket name in each stream's Buckets setting. Each stream's file selector defaults to its Kolide prefix (`kolide/auth_logs/`, `kolide/audit_logs/`, `kolide/check_runs/`, `kolide/results/`, `kolide/status/`); adjust the regex if your Kolide destination uses a custom key template.
 
@@ -235,6 +236,7 @@ These Kolide REST API endpoints are used by this integration:
 * `GET /registration_requests`
 * `GET /devices`
 * `GET /people`
+* `GET /deprovisioned_people`
 * `GET /audit_logs`
 
 ### Vendor documentation links
@@ -1021,6 +1023,106 @@ An example event for `people` looks as following:
         "preserve_original_event",
         "forwarded",
         "kolide-people"
+    ],
+    "user": {
+        "email": "alice.johnson@example.com",
+        "full_name": "Alice Johnson",
+        "id": "861637",
+        "name": "alice.johnson@example.com"
+    }
+}
+```
+
+#### deprovisioned_person
+
+The `deprovisioned_person` data stream provides Kolide identity records for people who have been offboarded/deprovisioned (`GET /deprovisioned_people`). This is a separate API resource from `people`, not a field on the person object — use it to detect lingering access or devices owned by departed identities. Unlike `people`, this resource does not return SCIM usernames; it does include an `api_url` field that links back to the corresponding `GET /people/{id}` resource.
+
+##### deprovisioned_person fields
+
+**Exported fields**
+
+| Field | Description | Type |
+|---|---|---|
+| @timestamp | Event timestamp. | date |
+| data_stream.dataset | Data stream dataset. | constant_keyword |
+| data_stream.namespace | Data stream namespace. | constant_keyword |
+| data_stream.type | Data stream type. | constant_keyword |
+| ecs.version | ECS version this event conforms to. `ecs.version` is a required field and must exist in all events. When querying across multiple indices -- which may conform to slightly different ECS versions -- this field lets integrations adjust to the schema version of the events. | keyword |
+| error.message | Error message. | match_only_text |
+| event.action | The action captured by the event. This describes the information in the event. It is more specific than `event.category`. Examples are `group-add`, `process-started`, `file-created`. The value is normally defined by the implementer. | keyword |
+| event.category | This is one of four ECS Categorization Fields, and indicates the second level in the ECS category hierarchy. `event.category` represents the "big buckets" of ECS categories. For example, filtering on `event.category:process` yields all events relating to process activity. This field is closely related to `event.type`, which is used as a subcategory. This field is an array. This will allow proper categorization of some events that fall in multiple categories. | keyword |
+| event.dataset | Event dataset. | constant_keyword |
+| event.kind | This is one of four ECS Categorization Fields, and indicates the highest level in the ECS category hierarchy. `event.kind` gives high-level information about what type of information the event contains, without being specific to the contents of the event. For example, values of this field distinguish alert events from metric events. The value of this field can be used to inform how these kinds of events should be handled. They may warrant different retention, different access control, it may also help understand whether the data is coming in at a regular interval or not. | keyword |
+| event.module | Event module. | constant_keyword |
+| event.original | Raw text message of entire event. Used to demonstrate log integrity or where the full log message (before splitting it up in multiple parts) may be required, e.g. for reindex. This field is not indexed and doc_values are disabled. It cannot be searched, but it can be retrieved from `_source`. If users wish to override this and index this field, please see `Field data types` in the `Elasticsearch Reference`. | keyword |
+| event.type | This is one of four ECS Categorization Fields, and indicates the third level in the ECS category hierarchy. `event.type` represents a categorization "sub-bucket" that, when used along with the `event.category` field values, enables filtering events down to a level appropriate for single visualization. This field is an array. This will allow proper categorization of some events that fall in multiple event types. | keyword |
+| input.type | Type of filebeat input. | keyword |
+| kolide.deprovisioned_person.api_url | Kolide REST API URL for the corresponding person resource. Points at GET /people/\{id\}, not a /deprovisioned_people path. | keyword |
+| kolide.deprovisioned_person.created_at | Timestamp at which the person record was originally created. | date |
+| kolide.deprovisioned_person.has_registered_device | Whether the person had at least one registered device at the time of deprovisioning. | boolean |
+| kolide.deprovisioned_person.id | Kolide person identifier. | keyword |
+| kolide.deprovisioned_person.last_authenticated_at | When the person last authenticated with Kolide, prior to deprovisioning. | date |
+| log.offset | Log offset. | long |
+| related.user | All the user names or other user identifiers seen on the event. | keyword |
+| tags | List of keywords used to tag each event. | keyword |
+| user.email | User email address. | keyword |
+| user.full_name | User's full name, if available. | keyword |
+| user.full_name.text | Multi-field of `user.full_name`. | match_only_text |
+| user.id | Unique identifier of the user. | keyword |
+| user.name | Short name or login of the user. | keyword |
+| user.name.text | Multi-field of `user.name`. | match_only_text |
+
+
+##### deprovisioned_person sample event
+
+An example event for `deprovisioned_person` looks as following:
+
+```json
+{
+    "@timestamp": "2026-06-26T19:45:06.028069753Z",
+    "data_stream": {
+        "dataset": "kolide.deprovisioned_person",
+        "namespace": "default",
+        "type": "logs"
+    },
+    "ecs": {
+        "version": "9.4.0"
+    },
+    "event": {
+        "action": "person_deprovisioned",
+        "category": [
+            "iam"
+        ],
+        "dataset": "kolide.deprovisioned_person",
+        "kind": "state",
+        "original": "{\"id\":\"861637\",\"name\":\"Alice Johnson\",\"email\":\"alice.johnson@example.com\",\"created_at\":\"2026-06-04T18:29:22.129Z\",\"last_authenticated_at\":\"2024-06-15T12:00:00Z\",\"has_registered_device\":false,\"api_url\":\"https://api.kolide.com/people/861637\"}",
+        "type": [
+            "user",
+            "info"
+        ]
+    },
+    "input": {
+        "type": "cel"
+    },
+    "kolide": {
+        "deprovisioned_person": {
+            "api_url": "https://api.kolide.com/people/861637",
+            "created_at": "2026-06-04T18:29:22.129Z",
+            "has_registered_device": false,
+            "id": "861637",
+            "last_authenticated_at": "2024-06-15T12:00:00.000Z"
+        }
+    },
+    "related": {
+        "user": [
+            "alice.johnson@example.com",
+            "861637"
+        ]
+    },
+    "tags": [
+        "preserve_original_event",
+        "forwarded",
+        "kolide-deprovisioned-person"
     ],
     "user": {
         "email": "alice.johnson@example.com",

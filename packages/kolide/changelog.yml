@@ -1,6 +1,9 @@
 # later versions go on top
 - version: "0.2.0"
   changes:
+    - description: Add deprovisioned_person data stream for Kolide REST API offboarded/deprovisioned identity records (GET /deprovisioned_people), complementing the people data stream which only covers active identities.
+      type: enhancement
+      link: https://github.com/elastic/integrations/pull/99999
     - description: Add osquery_result data stream for raw osquery Result Logs (snapshot and differential add/remove rows) collected from the Kolide Log Pipeline (S3/GCS).
       type: enhancement
       link: https://github.com/elastic/integrations/pull/99999

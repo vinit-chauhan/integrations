@@ -5,9 +5,8 @@ description: >-
   default.yml when json._kolide_request_type == 'exemption'. See
   https://kolideapi.readme.io/reference/get_exemption-requests for the
   documented response schema; field names below (in particular the
-  device_information/requester_information link-object's `link` property) are
-  confirmed against a live API response, which differs from the vendor's
-  published OpenAPI schema in a couple of spots.
+  device_information/requester_information link-object's `link` property)
+  differ from the vendor's published OpenAPI schema in a couple of spots.
 processors:
   # Human message. Real property is `requester_message`; `message` is kept as a
   # defensive fallback in case a future API revision renames it.
